@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#484f58"/>
+    </marker>
+    <marker id="ar-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#388bfd"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="900" fill="#0d1117"/>
+
+  <!-- ═══ 标题 ═══ -->
+  <text x="600" y="46" font-family="PingFang SC,Helvetica Neue,sans-serif" font-size="24"
+        font-weight="600" fill="#e6edf3" text-anchor="middle">mobileAutoAPM · 整体架构</text>
+  <text x="600" y="72" font-family="PingFang SC,Helvetica Neue,sans-serif" font-size="13"
+        fill="#8b949e" text-anchor="middle">用户说一句话 → Agent 自主完成闭环；平台只提供「判断力」与「确定性工具」</text>
+
+  <!-- ═══ 1. 用户 ═══ -->
+  <rect x="380" y="100" width="440" height="58" rx="10" fill="#1c2128" stroke="#30363d"/>
+  <text x="600" y="126" font-family="PingFang SC,sans-serif" font-size="15" fill="#e6edf3"
+        text-anchor="middle" font-weight="600">移动开发者</text>
+  <text x="600" y="146" font-family="PingFang SC,sans-serif" font-size="12" fill="#8b949e"
+        text-anchor="middle">「冷启动太慢了」「这个崩溃帮我看看」</text>
+
+  <line x1="600" y1="158" x2="600" y2="186" stroke="#484f58" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- ═══ 2. Agent ═══ -->
+  <rect x="290" y="188" width="620" height="62" rx="10" fill="#12233c" stroke="#388bfd"/>
+  <text x="600" y="213" font-family="PingFang SC,sans-serif" font-size="15" fill="#79c0ff"
+        text-anchor="middle" font-weight="600">AI Coding Agent</text>
+  <text x="600" y="234" font-family="PingFang SC,sans-serif" font-size="12" fill="#8b949e"
+        text-anchor="middle">Claude Code · opencode · Codex · Cursor · …（换 Agent 不用改能力定义）</text>
+
+  <line x1="600" y1="250" x2="600" y2="278" stroke="#484f58" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- ═══ 3. 唯一真源 ═══ -->
+  <rect x="290" y="280" width="620" height="52" rx="10" fill="#1f2d1f" stroke="#3fb950"/>
+  <text x="600" y="303" font-family="PingFang SC,sans-serif" font-size="14" fill="#7ee787"
+        text-anchor="middle" font-weight="600">AGENTS.md —— 跨 Agent 唯一真源</text>
+  <text x="600" y="321" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#8b949e"
+        text-anchor="middle">构建/测试命令 · 项目约定 · 坑与禁区 　（CLAUDE.md 只有一行 @AGENTS.md）</text>
+
+  <line x1="600" y1="332" x2="600" y2="362" stroke="#484f58" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- ═══ 4. 能力层 ═══ -->
+  <rect x="60" y="364" width="1080" height="196" rx="12" fill="#0f1620" stroke="#30363d"/>
+  <text x="84" y="390" font-family="PingFang SC,sans-serif" font-size="13" fill="#d29922"
+        font-weight="600">能力层 · 判断力</text>
+  <text x="1116" y="390" font-family="PingFang SC,sans-serif" font-size="11" fill="#6e7681"
+        text-anchor="end">什么时候该做什么 —— 这部分是模型自己不具备的领域知识</text>
+
+  <!-- 五个子模块 -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="84" y="406" width="192" height="132" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="180" y="430" font-size="13" fill="#e6edf3" text-anchor="middle" font-weight="600">skills/</text>
+    <text x="180" y="452" font-size="11" fill="#8b949e" text-anchor="middle">7 个技能</text>
+    <text x="180" y="472" font-size="10.5" fill="#6e7681" text-anchor="middle">主控编排 · 启动 · 渲染</text>
+    <text x="180" y="489" font-size="10.5" fill="#6e7681" text-anchor="middle">内存 · 崩溃 · 测试</text>
+    <text x="180" y="512" font-size="10.5" fill="#58a6ff" text-anchor="middle">渐进式披露：目录常驻</text>
+    <text x="180" y="528" font-size="10.5" fill="#58a6ff" text-anchor="middle">正文按需加载</text>
+
+    <rect x="292" y="406" width="192" height="132" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="388" y="430" font-size="13" fill="#e6edf3" text-anchor="middle" font-weight="600">agents/</text>
+    <text x="388" y="452" font-size="11" fill="#8b949e" text-anchor="middle">4 个子 Agent</text>
+    <text x="388" y="472" font-size="10.5" fill="#6e7681" text-anchor="middle">采集 · 崩溃分诊</text>
+    <text x="388" y="489" font-size="10.5" fill="#6e7681" text-anchor="middle">回归门禁 · 静态审查</text>
+    <text x="388" y="512" font-size="10.5" fill="#58a6ff" text-anchor="middle">独立 context 窗口</text>
+    <text x="388" y="528" font-size="10.5" fill="#58a6ff" text-anchor="middle">只回摘要，不污染主线</text>
+
+    <rect x="500" y="406" width="192" height="132" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="596" y="430" font-size="13" fill="#e6edf3" text-anchor="middle" font-weight="600">scripts/</text>
+    <text x="596" y="452" font-size="11" fill="#8b949e" text-anchor="middle">6 个数据平面脚本</text>
+    <text x="596" y="472" font-size="10.5" fill="#6e7681" text-anchor="middle">体检 · 基线判定 · 白屏</text>
+    <text x="596" y="489" font-size="10.5" fill="#6e7681" text-anchor="middle">符号化 · 门禁 · 友好度</text>
+    <text x="596" y="512" font-size="10.5" fill="#7ee787" text-anchor="middle">零第三方依赖</text>
+    <text x="596" y="528" font-size="10.5" fill="#7ee787" text-anchor="middle">确定性任务不给模型现写</text>
+
+    <rect x="708" y="406" width="192" height="132" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="804" y="430" font-size="13" fill="#e6edf3" text-anchor="middle" font-weight="600">commands/</text>
+    <text x="804" y="452" font-size="11" fill="#8b949e" text-anchor="middle">4 个斜杠命令</text>
+    <text x="804" y="472" font-size="10.5" fill="#6e7681" text-anchor="middle">/apm-init　/apm-check</text>
+    <text x="804" y="489" font-size="10.5" fill="#6e7681" text-anchor="middle">/apm-crash　/apm-verify</text>
+    <text x="804" y="512" font-size="10.5" fill="#58a6ff" text-anchor="middle">人类可显式调用</text>
+    <text x="804" y="528" font-size="10.5" fill="#58a6ff" text-anchor="middle">也能被 Agent 自动触发</text>
+
+    <rect x="916" y="406" width="200" height="132" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="1016" y="430" font-size="13" fill="#e6edf3" text-anchor="middle" font-weight="600">references/</text>
+    <text x="1016" y="452" font-size="11" fill="#8b949e" text-anchor="middle">知识库</text>
+    <text x="1016" y="472" font-size="10.5" fill="#6e7681" text-anchor="middle">平台硬限制 · 技术选型</text>
+    <text x="1016" y="489" font-size="10.5" fill="#6e7681" text-anchor="middle">指标口径定义</text>
+    <text x="1016" y="512" font-size="10.5" fill="#d29922" text-anchor="middle">内容全是「看起来该这样做</text>
+    <text x="1016" y="528" font-size="10.5" fill="#d29922" text-anchor="middle">但实际是坑」的知识</text>
+  </g>
+
+  <line x1="600" y1="560" x2="600" y2="590" stroke="#484f58" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- ═══ 5. 工具层 ═══ -->
+  <rect x="60" y="592" width="1080" height="150" rx="12" fill="#0f1620" stroke="#30363d"/>
+  <text x="84" y="618" font-family="PingFang SC,sans-serif" font-size="13" fill="#bc8cff"
+        font-weight="600">工具层 · 手</text>
+  <text x="1116" y="618" font-family="PingFang SC,sans-serif" font-size="11" fill="#6e7681"
+        text-anchor="end">不重复造轮子 —— 业界成熟工具接进来，缺失时如实报告而不是假装可用</text>
+
+  <g font-family="PingFang SC,sans-serif" font-size="11.5">
+    <!-- MCP 行 -->
+    <rect x="84" y="634" width="240" height="44" rx="7" fill="#161b22" stroke="#6e40c9"/>
+    <text x="204" y="652" fill="#bc8cff" text-anchor="middle" font-weight="600">mobilebuildmcp</text>
+    <text x="204" y="669" font-size="10" fill="#8b949e" text-anchor="middle">iOS 构建/模拟器/UI 自动化/LLDB</text>
+
+    <rect x="336" y="634" width="240" height="44" rx="7" fill="#161b22" stroke="#6e40c9"/>
+    <text x="456" y="652" fill="#bc8cff" text-anchor="middle" font-weight="600">agent-device</text>
+    <text x="456" y="669" font-size="10" fill="#8b949e" text-anchor="middle">iOS / Android / 鸿蒙 设备驱动</text>
+
+    <rect x="588" y="634" width="240" height="44" rx="7" fill="#161b22" stroke="#6e40c9"/>
+    <text x="708" y="652" fill="#bc8cff" text-anchor="middle" font-weight="600">chrome-devtools</text>
+    <text x="708" y="669" font-size="10" fill="#8b949e" text-anchor="middle">RN Hermes 调试（CDP）</text>
+
+    <rect x="840" y="634" width="276" height="44" rx="7" fill="#161b22" stroke="#30363d"/>
+    <text x="978" y="652" fill="#8b949e" text-anchor="middle" font-weight="600">sentry · firebase · expo</text>
+    <text x="978" y="669" font-size="10" fill="#6e7681" text-anchor="middle">线上数据源（部分需鉴权/网络）</text>
+
+    <!-- CLI 行 -->
+    <rect x="84" y="688" width="1032" height="40" rx="7" fill="#161b22" stroke="#30363d"/>
+    <text x="600" y="713" fill="#8b949e" text-anchor="middle">
+      xcodebuild · xcrun · Instruments　|　adb · Gradle　|　hdc · ohpm · hvigorw　|　maestro · git
+    </text>
+  </g>
+
+  <line x1="600" y1="742" x2="600" y2="772" stroke="#388bfd" stroke-width="1.5" marker-end="url(#ar-blue)"/>
+
+  <!-- ═══ 6. 被观测对象 ═══ -->
+  <rect x="150" y="774" width="900" height="100" rx="12" fill="#1c1a12" stroke="#d29922"/>
+  <text x="600" y="799" font-family="PingFang SC,sans-serif" font-size="13" fill="#e3b341"
+        text-anchor="middle" font-weight="600">被观测对象 · 你已有的 App（不改架构也能接）</text>
+
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="176" y="814" width="200" height="46" rx="7" fill="#161b22" stroke="#30363d"/>
+    <text x="276" y="833" font-size="11.5" fill="#e6edf3" text-anchor="middle">iOS 原生</text>
+    <text x="276" y="850" font-size="10" fill="#8b949e" text-anchor="middle">ios-apm（Swift Package）</text>
+
+    <rect x="392" y="814" width="200" height="46" rx="7" fill="#161b22" stroke="#30363d"/>
+    <text x="492" y="833" font-size="11.5" fill="#e6edf3" text-anchor="middle">React Native</text>
+    <text x="492" y="850" font-size="10" fill="#8b949e" text-anchor="middle">rn-apm（npm）</text>
+
+    <rect x="608" y="814" width="200" height="46" rx="7" fill="#161b22" stroke="#30363d"/>
+    <text x="708" y="833" font-size="11.5" fill="#e6edf3" text-anchor="middle">Android</text>
+    <text x="708" y="850" font-size="10" fill="#8b949e" text-anchor="middle">原生 / RN</text>
+
+    <rect x="824" y="814" width="200" height="46" rx="7" fill="#161b22" stroke="#3fb950"/>
+    <text x="924" y="833" font-size="11.5" fill="#7ee787" text-anchor="middle">HarmonyOS</text>
+    <text x="924" y="850" font-size="10" fill="#8b949e" text-anchor="middle">开源 APM 生态里的无人区</text>
+  </g>
+</svg>

@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820">
+  <rect width="1200" height="820" fill="#0d1117"/>
+
+  <text x="600" y="44" font-family="PingFang SC,sans-serif" font-size="24" font-weight="600"
+        fill="#e6edf3" text-anchor="middle">能力可用性矩阵</text>
+  <text x="600" y="70" font-family="PingFang SC,sans-serif" font-size="13" fill="#8b949e"
+        text-anchor="middle">我们明确说清「什么测不了、该用什么替代」—— 而不是宣称什么都能做</text>
+
+  <!-- ═══ 图例 ═══ -->
+  <g font-family="PingFang SC,sans-serif" font-size="11.5">
+    <rect x="270" y="88" width="16" height="16" rx="3" fill="#0f2417" stroke="#3fb950"/>
+    <text x="294" y="101" fill="#7ee787">可测（原生支持）</text>
+
+    <rect x="450" y="88" width="16" height="16" rx="3" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="474" y="101" fill="#e3b341">有条件（有硬限制，见下）</text>
+
+    <rect x="680" y="88" width="16" height="16" rx="3" fill="#2a1214" stroke="#f85149"/>
+    <text x="704" y="101" fill="#f85149">不可测（平台限制）</text>
+  </g>
+
+  <!-- ═══ 表头 ═══ -->
+  <g font-family="PingFang SC,sans-serif" font-size="12" font-weight="600" fill="#e6edf3">
+    <rect x="60" y="120" width="200" height="50" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="160" y="150" text-anchor="middle">指标 ＼ 平台</text>
+
+    <rect x="270" y="120" width="166" height="50" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="353" y="141" text-anchor="middle">iOS</text>
+    <text x="353" y="159" text-anchor="middle" font-size="10" fill="#8b949e">模拟器</text>
+
+    <rect x="444" y="120" width="166" height="50" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="527" y="141" text-anchor="middle">iOS</text>
+    <text x="527" y="159" text-anchor="middle" font-size="10" fill="#8b949e">真机</text>
+
+    <rect x="618" y="120" width="166" height="50" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="701" y="141" text-anchor="middle">Android</text>
+    <text x="701" y="159" text-anchor="middle" font-size="10" fill="#8b949e">模拟器</text>
+
+    <rect x="792" y="120" width="166" height="50" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="875" y="141" text-anchor="middle">Android</text>
+    <text x="875" y="159" text-anchor="middle" font-size="10" fill="#8b949e">真机</text>
+
+    <rect x="966" y="120" width="166" height="50" rx="6" fill="#161b22" stroke="#3fb950"/>
+    <text x="1049" y="141" text-anchor="middle" fill="#7ee787">HarmonyOS</text>
+    <text x="1049" y="159" text-anchor="middle" font-size="10" fill="#8b949e">测试/真机</text>
+  </g>
+
+  <!-- ═══ 数据行 ═══ -->
+  <g font-family="PingFang SC,sans-serif" font-size="11">
+    <!-- 行 1：启动耗时 -->
+    <rect x="60" y="178" width="200" height="56" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="80" y="202" fill="#e6edf3" font-weight="600">启动耗时</text>
+    <text x="80" y="221" fill="#6e7681" font-size="10">含 pre-main 分段</text>
+
+    <rect x="270" y="178" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="353" y="202" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="353" y="220" fill="#8b949e" font-size="9.5" text-anchor="middle">dyld 无共享缓存，偏高</text>
+
+    <rect x="444" y="178" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="527" y="210" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <rect x="618" y="178" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="701" y="202" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="701" y="220" fill="#8b949e" font-size="9.5" text-anchor="middle">须 release 构建</text>
+
+    <rect x="792" y="178" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="210" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <rect x="966" y="178" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="1049" y="210" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <!-- 行 2：渲染卡顿 -->
+    <rect x="60" y="242" width="200" height="56" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="80" y="266" fill="#e6edf3" font-weight="600">渲染 / 卡顿</text>
+    <text x="80" y="285" fill="#6e7681" font-size="10">hitch · 掉帧</text>
+
+    <rect x="270" y="242" width="166" height="56" rx="6" fill="#2a1214" stroke="#f85149"/>
+    <text x="353" y="266" fill="#f85149" text-anchor="middle">不可测</text>
+    <text x="353" y="284" fill="#8b949e" font-size="9.5" text-anchor="middle">Apple 不暴露帧时序</text>
+
+    <rect x="444" y="242" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="527" y="274" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <rect x="618" y="242" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="701" y="266" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="701" y="284" fill="#8b949e" font-size="9.5" text-anchor="middle">JankStats 需 API 24+</text>
+
+    <rect x="792" y="242" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="274" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <rect x="966" y="242" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="1049" y="266" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="1049" y="284" fill="#8b949e" font-size="9.5" text-anchor="middle">采栈限 ARM64，日限一次</text>
+
+    <!-- 行 3：白屏 -->
+    <rect x="60" y="306" width="200" height="56" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="80" y="330" fill="#e6edf3" font-weight="600">白屏</text>
+    <text x="80" y="349" fill="#6e7681" font-size="10">打点 + 像素 + View 树</text>
+
+    <rect x="270" y="306" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="353" y="338" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="444" y="306" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="527" y="338" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="618" y="306" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="701" y="338" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="792" y="306" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="338" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="966" y="306" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="1049" y="330" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <text x="1049" y="348" fill="#8b949e" font-size="9.5" text-anchor="middle">onRenderExited 可归因</text>
+
+    <!-- 行 4：内存 -->
+    <rect x="60" y="370" width="200" height="56" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="80" y="394" fill="#e6edf3" font-weight="600">内存峰值 / 水位</text>
+    <text x="80" y="413" fill="#6e7681" font-size="10">用 PSS/footprint，非 RSS</text>
+
+    <rect x="270" y="370" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="353" y="394" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="353" y="412" fill="#8b949e" font-size="9.5" text-anchor="middle">与真机特征不同</text>
+
+    <rect x="444" y="370" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="527" y="402" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="618" y="370" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="701" y="402" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="792" y="370" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="402" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="966" y="370" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="1049" y="402" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+
+    <!-- 行 5：FOOM/OOM -->
+    <rect x="60" y="434" width="200" height="56" rx="6" fill="#161b22" stroke="#f85149"/>
+    <text x="80" y="458" fill="#f85149" font-weight="600">FOOM / OOM</text>
+    <text x="80" y="477" fill="#6e7681" font-size="10">最难，需自建</text>
+
+    <rect x="270" y="434" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="353" y="458" fill="#e3b341" text-anchor="middle">需自建</text>
+    <text x="353" y="476" fill="#8b949e" font-size="9.5" text-anchor="middle">内存水位采样</text>
+
+    <rect x="444" y="434" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="527" y="458" fill="#e3b341" text-anchor="middle">需自建</text>
+    <text x="527" y="476" fill="#8b949e" font-size="9.5" text-anchor="middle">MetricKit 不含 jetsam</text>
+
+    <rect x="618" y="434" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="701" y="458" fill="#e3b341" text-anchor="middle">需自建</text>
+    <text x="701" y="476" fill="#8b949e" font-size="9.5" text-anchor="middle">水位采样</text>
+
+    <rect x="792" y="434" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="458" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <text x="875" y="476" fill="#8b949e" font-size="9.5" text-anchor="middle">ApplicationExitInfo</text>
+
+    <rect x="966" y="434" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="1049" y="458" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <text x="1049" y="476" fill="#8b949e" font-size="9.5" text-anchor="middle">hidebug / onRenderExited</text>
+
+    <!-- 行 6：崩溃 -->
+    <rect x="60" y="498" width="200" height="56" rx="6" fill="#161b22" stroke="#30363d"/>
+    <text x="80" y="522" fill="#e6edf3" font-weight="600">崩溃符号化 + 根因</text>
+    <text x="80" y="541" fill="#6e7681" font-size="10">dSYM / mapping / sourcemap</text>
+
+    <rect x="270" y="498" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="353" y="530" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="444" y="498" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="527" y="530" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="618" y="498" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="701" y="530" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="792" y="498" width="166" height="56" rx="6" fill="#0f2417" stroke="#3fb950"/>
+    <text x="875" y="530" fill="#7ee787" text-anchor="middle" font-weight="600">可测</text>
+    <rect x="966" y="498" width="166" height="56" rx="6" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="1049" y="522" fill="#e3b341" text-anchor="middle">有条件</text>
+    <text x="1049" y="540" fill="#8b949e" font-size="9.5" text-anchor="middle">需下次启动时取</text>
+  </g>
+
+  <!-- ═══ 三条必须知道的硬限制 ═══ -->
+  <text x="60" y="592" font-family="PingFang SC,sans-serif" font-size="13" font-weight="600"
+        fill="#e6edf3">三条必须知道的硬限制</text>
+
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="60" y="608" width="352" height="96" rx="8" fill="#2a1214" stroke="#f85149"/>
+    <text x="80" y="632" font-size="12" fill="#f85149" font-weight="600">① iOS 模拟器测不了 hitch / FPS</text>
+    <text x="80" y="654" font-size="10.5" fill="#c9d1d9">Apple 平台不暴露帧时序 —— 这是平台限制，</text>
+    <text x="80" y="671" font-size="10.5" fill="#c9d1d9">不是工具缺陷。</text>
+    <text x="80" y="691" font-size="10.5" fill="#e3b341">替代：Instruments + 真机（iOS）/ Flashlight（Android）</text>
+
+    <rect x="424" y="608" width="352" height="96" rx="8" fill="#2a1214" stroke="#f85149"/>
+    <text x="444" y="632" font-size="12" fill="#f85149" font-weight="600">② 模拟器数据 ≠ 真机数据</text>
+    <text x="444" y="654" font-size="10.5" fill="#c9d1d9">实测：pre-main 模拟器 257ms vs 真机 11ms（差 23 倍）；</text>
+    <text x="444" y="671" font-size="10.5" fill="#c9d1d9">开库模拟器 124ms vs 真机 12ms。</text>
+    <text x="444" y="691" font-size="10.5" fill="#e3b341">失真方向相反 —— 模拟器结论不可外推到真机</text>
+
+    <rect x="788" y="608" width="344" height="96" rx="8" fill="#2d1f0f" stroke="#d29922"/>
+    <text x="808" y="632" font-size="12" fill="#e3b341" font-weight="600">③ MetricKit 有 24 小时延迟</text>
+    <text x="808" y="654" font-size="10.5" fill="#c9d1d9">且需用户开启「与 App 开发者共享」，</text>
+    <text x="808" y="671" font-size="10.5" fill="#c9d1d9">模拟器完全不支持。</text>
+    <text x="808" y="691" font-size="10.5" fill="#e3b341">用途：线上大盘趋势，不是调试工具</text>
+  </g>
+
+  <!-- ═══ 怎么用这张表 ═══ -->
+  <rect x="60" y="722" width="1072" height="70" rx="8" fill="#12233c" stroke="#388bfd"/>
+  <text x="80" y="746" font-family="PingFang SC,sans-serif" font-size="12" fill="#79c0ff" font-weight="600">
+    这张表是给 Agent 用的，不是给人看的
+  </text>
+  <text x="80" y="768" font-family="PingFang SC,sans-serif" font-size="11" fill="#c9d1d9">
+    `apm-doctor` 每次开工前探测本机能力，把「实际可做」与这张表对照 —— 缺工具时如实报告并给安装命令，
+  </text>
+  <text x="80" y="784" font-family="PingFang SC,sans-serif" font-size="11" fill="#8b949e">
+    而不是假设工具存在然后失败。标记为「不可测」的项，Agent 会明说无法完成，不会伪造数据。
+  </text>
+</svg>

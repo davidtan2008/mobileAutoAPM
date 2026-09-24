@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820">
+  <defs>
+    <marker id="g-a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 z" fill="#484f58"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="820" fill="#0d1117"/>
+
+  <text x="600" y="44" font-family="PingFang SC,sans-serif" font-size="24" font-weight="600"
+        fill="#e6edf3" text-anchor="middle">双阈值闸门 · 原理</text>
+  <text x="600" y="70" font-family="PingFang SC,sans-serif" font-size="13" fill="#8b949e"
+        text-anchor="middle">改进必须同时跨过「统计下限」与「实用下限」，才算数</text>
+
+  <!-- ═══ 为什么需要两道 ═══ -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="60" y="96" width="516" height="112" rx="10" fill="#2a1214" stroke="#f85149"/>
+    <text x="318" y="124" font-size="13" font-weight="600" fill="#f85149" text-anchor="middle">只做显著性检验 → 会为无意义的改动改代码</text>
+    <text x="318" y="150" font-size="11" fill="#c9d1d9" text-anchor="middle">样本足够多时，0.3ms 的差异也会「统计显著」</text>
+    <text x="318" y="170" font-size="11" fill="#c9d1d9" text-anchor="middle">于是 Agent 会为一个用户感知不到的变化去重构代码</text>
+    <text x="318" y="192" font-size="11" fill="#8b949e" text-anchor="middle">代价：引入风险，却换不来任何体验提升</text>
+
+    <rect x="624" y="96" width="516" height="112" rx="10" fill="#2a1214" stroke="#f85149"/>
+    <text x="882" y="124" font-size="13" font-weight="600" fill="#f85149" text-anchor="middle">只做实用阈值 → 会被测量噪声骗</text>
+    <text x="882" y="150" font-size="11" fill="#c9d1d9" text-anchor="middle">设备发热、GC、后台任务、JIT/字节码预热、OS 调度</text>
+    <text x="882" y="170" font-size="11" fill="#c9d1d9" text-anchor="middle">会让数字在无代码变更时波动 5–15%</text>
+    <text x="882" y="192" font-size="11" fill="#8b949e" text-anchor="middle">一个固定百分比阈值，挡不住这种抖动</text>
+  </g>
+
+  <!-- ═══ 公式 ═══ -->
+  <rect x="240" y="228" width="720" height="96" rx="10" fill="#12233c" stroke="#388bfd" stroke-width="2"/>
+  <text x="600" y="258" font-family="Menlo,monospace" font-size="14" fill="#79c0ff" text-anchor="middle">
+    noise_band = max( min_effect ,  k × pooled_stdev )
+  </text>
+  <text x="600" y="284" font-family="PingFang SC,sans-serif" font-size="11" fill="#8b949e" text-anchor="middle">
+    └── 实用下限 ──┘   └─── 统计下限 ───┘
+  </text>
+  <text x="600" y="310" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#c9d1d9" text-anchor="middle">
+    k = 2（约 95% 置信）；任一未跨过 → 判定「不具实际意义」
+  </text>
+
+  <!-- ═══ 三个真实场景 ═══ -->
+  <text x="60" y="366" font-family="PingFang SC,sans-serif" font-size="13" font-weight="600"
+        fill="#e6edf3">三个实测场景（数据来自本仓库的真实测量）</text>
+
+  <!-- 场景 1：大幅改善 -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="60" y="384" width="352" height="188" rx="10" fill="#0f2417" stroke="#3fb950"/>
+    <text x="236" y="410" font-size="13" font-weight="600" fill="#7ee787" text-anchor="middle">✓ 大幅改善</text>
+
+    <text x="84" y="438" font-size="11" fill="#8b949e">基线 p50</text>
+    <text x="388" y="438" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1500 ms</text>
+    <text x="84" y="460" font-size="11" fill="#8b949e">本次 p50</text>
+    <text x="388" y="460" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1200 ms</text>
+    <text x="84" y="482" font-size="11" fill="#8b949e">变化</text>
+    <text x="388" y="482" font-size="12" fill="#7ee787" text-anchor="end" font-family="Menlo,monospace">−300 ms (−20%)</text>
+    <text x="84" y="504" font-size="11" fill="#8b949e">p 值</text>
+    <text x="388" y="504" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">0.0088</text>
+    <text x="84" y="526" font-size="11" fill="#8b949e">噪声带</text>
+    <text x="388" y="526" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">75 ms</text>
+    <line x1="84" y1="540" x2="388" y2="540" stroke="#30363d"/>
+    <text x="236" y="562" font-size="11.5" fill="#7ee787" text-anchor="middle">300 &gt; 75 → 跨过噪声带</text>
+  </g>
+
+  <!-- 场景 2：统计显著但无实际意义 ★ -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="424" y="378" width="352" height="200" rx="10" fill="#2d1f0f" stroke="#d29922" stroke-width="2"/>
+    <text x="600" y="406" font-size="13" font-weight="600" fill="#e3b341" text-anchor="middle">! 统计显著，但不具实际意义 ★</text>
+
+    <text x="448" y="436" font-size="11" fill="#8b949e">基线 p50</text>
+    <text x="752" y="436" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1500 ms</text>
+    <text x="448" y="458" font-size="11" fill="#8b949e">本次 p50</text>
+    <text x="752" y="458" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1432 ms</text>
+    <text x="448" y="480" font-size="11" fill="#8b949e">变化</text>
+    <text x="752" y="480" font-size="12" fill="#e3b341" text-anchor="end" font-family="Menlo,monospace">−68 ms (−4.5%)</text>
+    <text x="448" y="502" font-size="11" fill="#8b949e">p 值</text>
+    <text x="752" y="502" font-size="12" fill="#f85149" text-anchor="end" font-family="Menlo,monospace">0.0088　← 显著！</text>
+    <text x="448" y="524" font-size="11" fill="#8b949e">噪声带</text>
+    <text x="752" y="524" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">75 ms</text>
+    <line x1="448" y1="538" x2="752" y2="538" stroke="#30363d"/>
+    <text x="600" y="560" font-size="11.5" fill="#e3b341" text-anchor="middle">68 &lt; 75 → 未跨过噪声带</text>
+    <text x="600" y="576" font-size="10.5" fill="#8b949e" text-anchor="middle">→ 如实说「无实际意义」，不包装成优化成果</text>
+  </g>
+
+  <!-- 场景 3：劣化 -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="788" y="384" width="352" height="188" rx="10" fill="#2a1214" stroke="#f85149"/>
+    <text x="964" y="410" font-size="13" font-weight="600" fill="#f85149" text-anchor="middle">✗ 劣化</text>
+
+    <text x="812" y="438" font-size="11" fill="#8b949e">基线 p50</text>
+    <text x="1116" y="438" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1500 ms</text>
+    <text x="812" y="460" font-size="11" fill="#8b949e">本次 p50</text>
+    <text x="1116" y="460" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">1795 ms</text>
+    <text x="812" y="482" font-size="11" fill="#8b949e">变化</text>
+    <text x="1116" y="482" font-size="12" fill="#f85149" text-anchor="end" font-family="Menlo,monospace">+295 ms (+19.7%)</text>
+    <text x="812" y="504" font-size="11" fill="#8b949e">p 值</text>
+    <text x="1116" y="504" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">0.0088</text>
+    <text x="812" y="526" font-size="11" fill="#8b949e">噪声带</text>
+    <text x="1116" y="526" font-size="12" fill="#c9d1d9" text-anchor="end" font-family="Menlo,monospace">75 ms</text>
+    <line x1="812" y1="540" x2="1116" y2="540" stroke="#30363d"/>
+    <text x="964" y="562" font-size="11.5" fill="#f85149" text-anchor="middle">295 &gt; 75 → 劣化，退出码 2</text>
+  </g>
+
+  <!-- ═══ 每指标可声明绝对阈值 ═══ -->
+  <rect x="60" y="606" width="1080" height="96" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="84" y="632" font-family="PingFang SC,sans-serif" font-size="13" font-weight="600" fill="#e6edf3">
+    为什么「实用下限」可以是绝对值而不是百分比
+  </text>
+  <text x="84" y="656" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#c9d1d9">
+    不同指标的「有意义的最小变化」差一个量级 —— 帧率差 2fps 用户能感知，内存差 2 字节毫无意义。
+  </text>
+  <text x="84" y="678" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#8b949e">
+    因此指标可自行声明 minEffect（单位同该指标）。未声明时退化为「基线的 5%」这一百分比口径。
+  </text>
+  <text x="84" y="694" font-family="Menlo,monospace" font-size="10.5" fill="#58a6ff">
+    {"name": "render.fps", "minEffect": 2, "unit": "fps"}　　{"name": "memory.peak", "minEffect": 2097152, "unit": "bytes"}
+  </text>
+
+  <!-- ═══ 底部：k 的来源 ═══ -->
+  <rect x="60" y="722" width="1080" height="72" rx="10" fill="#0f1620" stroke="#30363d"/>
+  <text x="84" y="748" font-family="PingFang SC,sans-serif" font-size="12" fill="#79c0ff" font-weight="600">
+    为什么用置换检验而不是 t 检验
+  </text>
+  <text x="84" y="770" font-family="PingFang SC,sans-serif" font-size="11" fill="#8b949e">
+    性能数据常有长尾、不服从正态分布。置换检验不依赖分布假设，对 5–10 个样本的小样本场景更稳妥。
+  </text>
+  <text x="84" y="786" font-family="PingFang SC,sans-serif" font-size="11" fill="#6e7681">
+    注意：小样本下检验功效有限，因此 n&lt;5 时会显式提示「不显著可能是样本不够，而非真的没变化」。
+  </text>
+</svg>

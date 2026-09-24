@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="880" viewBox="0 0 1200 880">
+  <defs>
+    <marker id="e-a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 z" fill="#484f58"/>
+    </marker>
+    <marker id="e-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 z" fill="#f85149"/>
+    </marker>
+    <marker id="e-green" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 z" fill="#3fb950"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="880" fill="#0d1117"/>
+
+  <text x="600" y="44" font-family="PingFang SC,sans-serif" font-size="24" font-weight="600"
+        fill="#e6edf3" text-anchor="middle">自我进化 · 准入闸门</text>
+  <text x="600" y="70" font-family="PingFang SC,sans-serif" font-size="13" fill="#8b949e"
+        text-anchor="middle">机制不是难点 —— 缺的是「写入前的验证」。自动积累的第一失效模式不是学不到，而是学到错的</text>
+
+  <!-- ═══ 流水线 ═══ -->
+  <g font-family="PingFang SC,sans-serif">
+    <!-- 1 证据采集 -->
+    <rect x="50" y="106" width="180" height="104" rx="10" fill="#12233c" stroke="#388bfd"/>
+    <text x="140" y="134" font-size="13.5" font-weight="600" fill="#79c0ff" text-anchor="middle">① 证据采集</text>
+    <text x="140" y="158" font-size="10.5" fill="#c9d1d9" text-anchor="middle">会话记录</text>
+    <text x="140" y="175" font-size="10.5" fill="#c9d1d9" text-anchor="middle">失败模式统计</text>
+    <text x="140" y="192" font-size="10.5" fill="#c9d1d9" text-anchor="middle">业界新方案线索</text>
+
+    <!-- 2 提案 -->
+    <rect x="258" y="106" width="180" height="104" rx="10" fill="#12233c" stroke="#388bfd"/>
+    <text x="348" y="134" font-size="13.5" font-weight="600" fill="#79c0ff" text-anchor="middle">② 提案</text>
+    <text x="348" y="158" font-size="10.5" fill="#c9d1d9" text-anchor="middle">提取自真实任务</text>
+    <text x="348" y="175" font-size="10.5" fill="#c9d1d9" text-anchor="middle">而非凭空生成</text>
+    <text x="348" y="192" font-size="10.5" fill="#f85149" text-anchor="middle">提案者不得自行激活</text>
+
+    <!-- 3 三类 critic -->
+    <rect x="466" y="98" width="290" height="120" rx="10" fill="#2d1f0f" stroke="#d29922" stroke-width="2"/>
+    <text x="611" y="124" font-size="13.5" font-weight="600" fill="#e3b341" text-anchor="middle">③ 三类异构 critic（并行）</text>
+    <text x="611" y="148" font-size="10.5" fill="#c9d1d9" text-anchor="middle">结构有效性 · 行为无害性 · 语义一致性</text>
+    <text x="611" y="170" font-size="10.5" fill="#8b949e" text-anchor="middle">三者互补，不可互相替代</text>
+    <text x="611" y="192" font-size="10.5" fill="#e3b341" text-anchor="middle">+ 阈值：≥3 个共享同一失败模式</text>
+    <text x="611" y="208" font-size="10.5" fill="#e3b341" text-anchor="middle">　 才允许诞生一条新 skill</text>
+
+    <!-- 4 准入 -->
+    <rect x="784" y="106" width="170" height="104" rx="10" fill="#0f2417" stroke="#3fb950" stroke-width="2"/>
+    <text x="869" y="134" font-size="13.5" font-weight="600" fill="#7ee787" text-anchor="middle">④ 准入</text>
+    <text x="869" y="158" font-size="10.5" fill="#c9d1d9" text-anchor="middle">写入 plugin</text>
+    <text x="869" y="175" font-size="10.5" fill="#c9d1d9" text-anchor="middle">作用域仅限</text>
+    <text x="869" y="192" font-size="10.5" fill="#c9d1d9" text-anchor="middle">agent 自生的 skill</text>
+
+    <!-- 5 维护 -->
+    <rect x="982" y="106" width="168" height="104" rx="10" fill="#12233c" stroke="#388bfd"/>
+    <text x="1066" y="134" font-size="13.5" font-weight="600" fill="#79c0ff" text-anchor="middle">⑤ 维护</text>
+    <text x="1066" y="158" font-size="10.5" fill="#c9d1d9" text-anchor="middle">active 数量硬上限</text>
+    <text x="1066" y="175" font-size="10.5" fill="#c9d1d9" text-anchor="middle">按结果淘汰</text>
+    <text x="1066" y="192" font-size="10.5" fill="#c9d1d9" text-anchor="middle">（不按新旧）</text>
+  </g>
+
+  <line x1="230" y1="158" x2="256" y2="158" stroke="#484f58" stroke-width="1.5" marker-end="url(#e-a)"/>
+  <line x1="438" y1="158" x2="464" y2="158" stroke="#484f58" stroke-width="1.5" marker-end="url(#e-a)"/>
+  <line x1="756" y1="158" x2="782" y2="158" stroke="#3fb950" stroke-width="1.5" marker-end="url(#e-green)"/>
+  <line x1="954" y1="158" x2="980" y2="158" stroke="#484f58" stroke-width="1.5" marker-end="url(#e-a)"/>
+
+  <!-- 拒绝回路 -->
+  <path d="M 611 218 L 611 250 L 348 250 L 348 214"
+        fill="none" stroke="#f85149" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#e-red)"/>
+  <text x="480" y="268" font-family="PingFang SC,sans-serif" font-size="11" fill="#f85149" text-anchor="middle">
+    未过闸门 → 退回提案，不写入
+  </text>
+
+  <!-- ═══ 为什么准入必须在写入前 ═══ -->
+  <rect x="50" y="292" width="1100" height="140" rx="10" fill="#2a1214" stroke="#f85149" stroke-width="2"/>
+  <text x="600" y="320" font-family="PingFang SC,sans-serif" font-size="14" font-weight="600"
+        fill="#f85149" text-anchor="middle">为什么准入必须在「写入前」—— 污染是不可逆的</text>
+
+  <text x="76" y="348" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#c9d1d9">
+    自演化是非单调的：技能池超过临界规模后，新 skill 反而让表现变差（capability-contamination phase transition）。
+  </text>
+  <text x="76" y="370" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#f85149">
+    而这种污染在结构上不可逆 —— 事后移除来源 skill，无法抹掉它已被继承到后继 skill 里的错误推理，rollback 只能恢复很小一部分。
+  </text>
+  <text x="76" y="392" font-family="PingFang SC,sans-serif" font-size="11.5" fill="#c9d1d9">
+    结论：skill 准入是先决条件，不是事后补救。四类实证各自指向同一件事 ——
+  </text>
+
+  <g font-family="PingFang SC,sans-serif" font-size="11">
+    <text x="76" y="416" fill="#8b949e">· 202 个 skill 的库 → 性能下降最多 <tspan fill="#f85149">21%</tspan>，「选择失败」才是主要瓶颈，不是 context 变大</text>
+    <text x="620" y="416" fill="#8b949e">· 31,132 个 skill 分析：<tspan fill="#f85149">26.1%</tspan> 含至少一个漏洞</text>
+  </g>
+
+  <!-- ═══ 两条容易被忽略的约束 ═══ -->
+  <g font-family="PingFang SC,sans-serif">
+    <rect x="50" y="452" width="540" height="130" rx="10" fill="#161b22" stroke="#d29922"/>
+    <text x="72" y="478" font-size="13" font-weight="600" fill="#e3b341">不要把「LLM 生成」当成能力来源</text>
+    <text x="72" y="504" font-size="11" fill="#c9d1d9">实测对照：LLM 自写 skill <tspan fill="#f85149">+0.0pp</tspan> vs 人工精选 <tspan fill="#7ee787">+16.2pp</tspan>。</text>
+    <text x="72" y="526" font-size="11" fill="#c9d1d9">同理，LLM 生成的 AGENTS.md 让任务成功率 <tspan fill="#f85149">−3%</tspan>、成本 <tspan fill="#f85149">+20%</tspan>。</text>
+    <text x="72" y="548" font-size="11" fill="#e3b341">→ 自动化的价值在「筛选与验证」，不在「生成」。</text>
+    <text x="72" y="570" font-size="10.5" fill="#8b949e">人工手写之所以有效，是因为只写「不可推断的细节」—— 这一点模型目前做不到稳定判断。</text>
+
+    <rect x="610" y="452" width="540" height="130" rx="10" fill="#161b22" stroke="#d29922"/>
+    <text x="632" y="478" font-size="13" font-weight="600" fill="#e3b341">skill 带脚本 = 供应链风险</text>
+    <text x="632" y="504" font-size="11" fill="#c9d1d9">带可执行脚本的 skill，含漏洞的概率是其他 skill 的 <tspan fill="#f85149">2.12 倍</tspan>。</text>
+    <text x="632" y="526" font-size="11" fill="#c9d1d9">且 <tspan fill="#f85149">allowed-tools 不受 workspace trust 约束</tspan> ——</text>
+    <text x="632" y="548" font-size="11" fill="#c9d1d9">官方原文：一个 skill 可以给自己授予宽泛的工具权限。</text>
+    <text x="632" y="570" font-size="10.5" fill="#8b949e">→ CI 里对 allowed-tools 做 diff 审查；脚本能力默认不给。</text>
+  </g>
+
+  <!-- ═══ 落地形态 ═══ -->
+  <text x="50" y="618" font-family="PingFang SC,sans-serif" font-size="13" font-weight="600" fill="#e6edf3">
+    落地形态（对应仓库里的 evolution/ 目录）
+  </text>
+
+  <g font-family="PingFang SC,sans-serif" font-size="11">
+    <rect x="50" y="634" width="264" height="106" rx="8" fill="#0f1620" stroke="#30363d"/>
+    <text x="72" y="658" fill="#79c0ff" font-family="Menlo,monospace" font-size="11">sources.yaml</text>
+    <text x="72" y="680" fill="#8b949e">知识源清单</text>
+    <text x="72" y="698" fill="#6e7681">业界优秀方案 · 大厂实践 ·</text>
+    <text x="72" y="714" fill="#6e7681">MCP / skill 生态更新</text>
+    <text x="72" y="732" fill="#e3b341">定期拉取，但只作为「提案线索」</text>
+
+    <rect x="328" y="634" width="264" height="106" rx="8" fill="#0f1620" stroke="#30368d"/>
+    <text x="350" y="658" fill="#79c0ff" font-family="Menlo,monospace" font-size="11">proposals/</text>
+    <text x="350" y="680" fill="#8b949e">待审提案</text>
+    <text x="350" y="698" fill="#6e7681">Agent 提出的能力更新建议</text>
+    <text x="350" y="714" fill="#6e7681">含证据、受影响面、回滚方案</text>
+    <text x="350" y="732" fill="#f85149">默认不生效 —— 必须过人审</text>
+
+    <rect x="606" y="634" width="264" height="106" rx="8" fill="#0f1620" stroke="#30363d"/>
+    <text x="628" y="658" fill="#79c0ff" font-family="Menlo,monospace" font-size="11">knowledge/</text>
+    <text x="628" y="680" fill="#8b949e">已沉淀方案</text>
+    <text x="628" y="698" fill="#6e7681">每条带 source URL</text>
+    <text x="628" y="714" fill="#6e7681">+ last_verified 时间戳</text>
+    <text x="628" y="732" fill="#e3b341">90 天未复验 → CI 黄旗</text>
+
+    <rect x="884" y="634" width="266" height="106" rx="8" fill="#0f1620" stroke="#30363d"/>
+    <text x="906" y="658" fill="#79c0ff" font-family="Menlo,monospace" font-size="11">evals/</text>
+    <text x="906" y="680" fill="#8b949e">能力回归套件</text>
+    <text x="906" y="698" fill="#6e7681">每条 skill 配 with/without 两臂</text>
+    <text x="906" y="714" fill="#6e7681">比的是 Δ，不是绝对分</text>
+    <text x="906" y="732" fill="#7ee787">Δ 近零 → 该知识已被模型追平</text>
+  </g>
+
+  <!-- ═══ 为什么不用 updated_at ═══ -->
+  <rect x="50" y="760" width="1100" height="96" rx="8" fill="#12233c" stroke="#388bfd"/>
+  <text x="72" y="786" font-family="PingFang SC,sans-serif" font-size="12.5" font-weight="600" fill="#79c0ff">
+    一个细节：用 last_verified，不要用 updated_at
+  </text>
+  <text x="72" y="810" font-family="PingFang SC,sans-serif" font-size="11" fill="#c9d1d9">
+    格式化、bot 同步、改个 metadata 都会刷新 updated_at，但内容并没有被重新核实。用它做过期判断，会得到虚假的新鲜感。
+  </text>
+  <text x="72" y="832" font-family="PingFang SC,sans-serif" font-size="11" fill="#8b949e">
+    正确做法：显式记录「上次核实时间」+ 来源 URL，并配 CI freshness gate（社区常用阈值：&gt;90 天黄旗，&gt;180 天红旗）。
+  </text>
+  <text x="72" y="850" font-family="PingFang SC,sans-serif" font-size="10" fill="#6e7681">
+    注：流传的「文档半衰期 6/12/24 个月」等数字均无同行评审实证，本仓库不引用。
+  </text>
+</svg>

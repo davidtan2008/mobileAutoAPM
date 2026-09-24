@@ -2,6 +2,10 @@
 
 > 面向「要改这个项目的人或 AI agent」。约定与命令见 [`AGENTS.md`](AGENTS.md)。
 
+![整体架构](docs/diagrams/architecture.png)
+
+*（[SVG 版](docs/diagrams/architecture.svg) · 由 `tools/build-diagrams.sh` 从同目录 SVG 生成）*
+
 ---
 
 ## 一、整体形状
@@ -81,6 +85,10 @@
 ---
 
 ## 三、闭环的数据流
+
+![自主闭环数据流](docs/diagrams/loop.png)
+
+*（[SVG 版](docs/diagrams/loop.svg)）*
 
 这是整个平台的核心机制。**每一环都必须可验证，否则闭环断裂。**
 

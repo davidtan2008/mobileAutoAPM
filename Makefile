@@ -55,6 +55,12 @@ verify-portable:  ## 确认 dist/ 与源头一致（CI 门禁用）
 		echo "⛔ dist/ 与源头不一致 —— 请跑 make build-portable 后提交"; \
 		git diff --stat -- dist/; exit 1; }
 
+build-diagrams:  ## 由 SVG 渲染 PNG（双份提交：SVG 供网页，PNG 供 GitHub 兜底）
+	@tools/build-diagrams.sh
+
+verify-diagrams:  ## 确认 PNG 未落后于 SVG（CI 门禁用）
+	@tools/build-diagrams.sh --check
+
 # ── 环境 ────────────────────────────────────────────────
 
 doctor:  ## 体检本机的移动端工具链（APM 任务开始前先跑）

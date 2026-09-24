@@ -18,6 +18,10 @@ claude plugin install mobile-apm@mobile-apm-marketplace
 
 Agent 会自己：测量 → 与基线对比 → 分段定位 → 改代码 → **同口径复测** → 给出显著性结论。
 
+![自主闭环数据流](docs/diagrams/loop.png)
+
+<sub>[SVG 版](docs/diagrams/loop.svg) · [完整架构](docs/diagrams/architecture.png)</sub>
+
 ---
 
 ## 为什么不是又一个 "AI + APM"
@@ -100,6 +104,20 @@ Agent 既无法理解它，也**无法验证自己的任何改动** —— 此�
 
 > **鸿蒙在开源 APM 生态里几乎是无人区** —— Sentry / Firebase Crashlytics /
 > Detox / OpenTelemetry 在鸿蒙上**全部不可用**。我们是少数覆盖它的。
+
+### ⚠️ 但有些事**做不到** —— 这张表说清了哪些
+
+![能力可用性矩阵](docs/diagrams/capability-matrix.png)
+
+我们这个市场充满了「AI 什么都能做」的宣称。所以这里明确说清**什么测不了、该用什么替代**：
+
+| 测不了的 | 原因 | 替代方案 |
+|---|---|---|
+| **iOS 模拟器上的卡顿 / FPS** | Apple 平台不暴露帧时序，不是工具缺陷 | Instruments + **真机** |
+| **模拟器数据代表真机** | 实测 pre-main 模拟器 257ms vs 真机 **11ms**（差 23 倍），失真方向还相反 | 必须真机 |
+| **即时拿到线上启动数据** | MetricKit 有 **24 小时延迟**，模拟器完全不支持 | 线上看趋势，调试用本地 |
+
+Agent 会**如实报告「无法完成」**，而不是伪造一个数字。
 
 ---
 
@@ -184,11 +202,13 @@ cd ios-apm && swift test
 | | |
 |---|---|
 | [架构与数据流](ARCHITECTURE.md) | 整体形状、闭环机制、设计原则 |
+| [**核心功能实现细节**](docs/IMPLEMENTATION.md) | 每个脚本/模块怎么实现的、为什么这样设计 |
 | [项目约定](AGENTS.md) | **给 AI Agent 看的**（构建/测试/约定/禁区） |
 | [落地蓝图](docs/APM-BLUEPRINT.md) | 还缺什么、怎么做 |
 | [进度与完成度](docs/PROGRESS.md) | **含已知限制与未验证项** |
 | [工具链与 MCP](docs/mcp-setup.md) | 环境配置（含本机实测） |
 | [重构方案](docs/RESTRUCTURE-PLAN.md) | 定位与路线图 |
+| [图表源文件](docs/diagrams/) | 架构图 / 闭环图 / 闸门图 / 能力矩阵 / 进化机制 |
 
 > 我们有一份**如实标注未验证项**的进度文档。
 > 在一个充满「AI 什么都能做」宣称的市场里，说清「这个还没做」是刻意的选择。

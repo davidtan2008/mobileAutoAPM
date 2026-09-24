@@ -36,6 +36,13 @@ jobs:
       - name: 跨 agent 产物必须与源头一致
         run: make verify-portable
 
+      # 图表同理：改了 SVG 忘记重生成 PNG，读者看到的会是过期结论 ——
+      # 漂移的图比没有图更糟。
+      - name: 架构图 PNG 必须与 SVG 一致
+        run: |
+          sudo apt-get install -y -qq librsvg2-bin
+          make verify-diagrams
+
   # ── React Native SDK ────────────────────────────────────
   rn-sdk:
     name: rn-apm（React Native SDK）
