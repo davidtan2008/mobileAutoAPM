@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Python 工具（零依赖，最快，先跑） ──────────────────────
+  python:
+    name: Python 工具与测试
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 全部工具只用标准库，无需 pip install
+      - name: 语法检查
+        run: |
+          for f in plugins/mobile-apm/scripts/*.py tools/*.py; do
+            python3 -m py_compile "$f" || exit 1
+          done
+
+      - name: 运行测试
+        run: |
+          python3 -W error::ResourceWarning plugins/mobile-apm/tests/test_ai_readiness.py
+          python3 -W error::ResourceWarning plugins/mobile-apm/tests/test_rn_symbolicate.py
+
+      - name: 自检 —— 本仓库的 AI 友好度不得退化
+        run: |
+          python3 plugins/mobile-apm/scripts/ai_readiness.py --path . --json > /tmp/readiness.json
+          python3 - <<'PY'
+          import json, sys
+          r = json.load(open('/tmp/readiness.json'))
+          score, blockers = r['score'], [f for f in r['findings'] if f['severity'] == 'blocker']
+          print(f"AI 友好度: {score}/100")
+          for f in r['findings'][:5]:
+              print(f"  [{f['severity']}] {f['title']}")
+          # 有 blocker 直接失败 —— 阻断项意味着 agent 无法验证自己的改动
+          if blockers:
+              print(f"⛔ 存在 {len(blockers)} 个阻断项", file=sys.stderr)
+              sys.exit(1)
+          # 分数线设为当前值向下取整，防止劣化
+          if score < 80:
+              print(f"⛔ AI 友好度 {score} 低于阈值 80", file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - name: 跨 agent 产物必须是最新的
+        run: |
+          python3 tools/build-portable.py
+          if ! git diff --quiet -- dist/; then
+            echo "⛔ dist/ 与源头不一致 —— 请本地跑 tools/build-portable.py 后提交" >&2
+            git diff --stat -- dist/
+            exit 1
+          fi
+
+  # ── React Native SDK ────────────────────────────────────
+  rn-sdk:
+    name: rn-apm（React Native SDK）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 安装依赖
+        working-directory: rn-apm
+        run: npm ci --no-audit --no-fund
+      - name: 构建与测试
+        working-directory: rn-apm
+        run: npm test
+
+  # ── iOS SDK ────────────────────────────────────────────
+  ios-sdk:
+    name: ios-apm（iOS 原生 SDK）
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: 构建与测试
+        working-directory: ios-apm
+        run: swift test

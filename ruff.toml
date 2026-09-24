@@ -1,0 +1,28 @@
+# Python lint 配置。
+# 只启用对**正确性**有意义的规则，不追求风格统一 ——
+# 风格问题由 formatter 处理，lint 应该抓真问题。
+
+target-version = "py39"
+line-length = 110
+
+[lint]
+select = [
+    "E",   # pycodestyle errors（真错误，非风格）
+    "F",   # pyflakes：未使用变量、未定义名、重复定义
+    "B",   # flake8-bugbear：常见陷阱
+    "SIM", # flake8-simplify
+    "RUF", # ruff 自有规则
+    "UP",  # pyupgrade
+    "W",   # pycodestyle warnings
+]
+ignore = [
+    "E501",   # 行太长 —— 中文注释按字节算会误报
+    "RUF001", # 全角标点 —— 本项目中文文档大量使用，是刻意的
+    "RUF002",
+    "RUF003",
+    "SIM108", # 三元表达式不是永远更清晰
+]
+
+[lint.per-file-ignores]
+# 测试里允许 assert 与较长的用例名
+"**/tests/**" = ["S101", "E402"]

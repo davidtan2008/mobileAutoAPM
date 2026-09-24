@@ -67,6 +67,35 @@ def cv(xs: list[float]) -> float:
     return statistics.stdev(xs) / abs(m)
 
 
+def pooled_stdev(a: list[float], b: list[float]) -> float:
+    """合并样本标准差（pooled standard deviation）。
+
+    用于估计「两组测量各自的抖动有多大」——
+    改进幅度必须跑赢这个抖动才有意义。
+    """
+    n1, n2 = len(a), len(b)
+    if n1 < 2 or n2 < 2:
+        return 0.0
+    s1, s2 = statistics.stdev(a), statistics.stdev(b)
+    return math.sqrt(((n1 - 1) * s1 * s1 + (n2 - 1) * s2 * s2) / (n1 + n2 - 2))
+
+
+def noise_band(a: list[float], b: list[float], min_effect: float, k: float = 2.0) -> float:
+    """噪声带 —— 改进必须跨过它才算数。
+
+    **两道阈值必须同时满足**：
+
+      · k·pooled_std —— **统计下限**：幅度必须跑赢测量抖动本身
+      · min_effect   —— **实用下限**：不追"真实但无意义"的收益
+
+    只做显著性检验会让 Agent 为 0.3ms 的"显著提升"去改代码；
+    只做实用阈值则会被噪声骗。**两者取较大值**才能同时挡住这两类错误。
+
+    借鉴自 uphold/metrognome 的双阈值闸门设计。
+    """
+    return max(min_effect, k * pooled_stdev(a, b))
+
+
 def perm_test(a: list[float], b: list[float], iters: int = PERM_ITERS) -> float:
     """置换检验：返回"两组无差异"这一原假设的 p 值。
 
@@ -97,6 +126,9 @@ def compare_metric(base: dict, run: dict, min_effect_pct: float) -> dict:
     name = base.get("name") or run.get("name") or "?"
     unit = run.get("unit", base.get("unit", ""))
     direction = run.get("direction", base.get("direction", "lower_is_better"))
+    # 每指标可声明绝对实用阈值（单位同 metric.unit）。
+    # 不同指标的"有意义的最小变化"差一个量级 —— 帧率差 2fps 有意义，内存差 2 字节没有。
+    declared_min_effect = run.get("minEffect", base.get("minEffect"))
 
     a = [float(x) for x in base.get("samples", [])]
     b = [float(x) for x in run.get("samples", [])]
@@ -110,7 +142,7 @@ def compare_metric(base: dict, run: dict, min_effect_pct: float) -> dict:
     if len(a) < 2 or len(b) < 2:
         out["verdict"] = "insufficient-data"
         out["reasons"].append(
-            f"样本不足（基线 {len(a)} 次 / 本次 {len(b)} 次），至少各需 2 次，建议 ≥3 次")
+            f"样本不足（基线 {len(a)} 次 / 本次 {len(b)} 次），至少各需 2 次，建议 ≥5 次")
         return out
 
     med_a, med_b = statistics.median(a), statistics.median(b)
@@ -129,6 +161,15 @@ def compare_metric(base: dict, run: dict, min_effect_pct: float) -> dict:
     pct = (delta / med_a * 100.0) if med_a else float("nan")
     out["delta_p50"] = delta
     out["delta_pct"] = pct
+
+    # ── 噪声带：改进必须跨过它 ──────────────────────────────
+    # 未声明 minEffect 时，退化为「基线的 X%」这一百分比口径
+    practical = declared_min_effect if declared_min_effect is not None \
+        else (abs(med_a) * min_effect_pct / 100.0)
+    band = noise_band(a, b, practical)
+    out["noise_band"] = band
+    out["noise_band_source"] = "declared" if declared_min_effect is not None else "percent"
+    out["pooled_stdev"] = pooled_stdev(a, b)
 
     # 噪声检查：噪声太大时任何结论都不可信
     noisy = cv_a > 0.30 or cv_b > 0.30
@@ -150,20 +191,22 @@ def compare_metric(base: dict, run: dict, min_effect_pct: float) -> dict:
                 "而非真的没变化。要确认小幅改善，需增加测量次数")
         return out
 
-    # 实际显著性（效果量）
-    if abs(pct) < min_effect_pct:
+    # 实用显著性：幅度必须跨过噪声带（= max(实用下限, 2×合并标准差)）
+    if abs(delta) < band:
         out["verdict"] = "no-practical-change"
         out["reasons"].append(
-            f"统计显著但幅度仅 {pct:+.1f}%，小于最小关注幅度 {min_effect_pct}%。"
+            f"统计显著但幅度 {delta:+.2f}{unit}（{pct:+.1f}%）未跨过噪声带 {band:.2f}{unit}"
+            f"（= max(实用下限 {practical:.2f}, 2×合并标准差 {2 * out['pooled_stdev']:.2f})）。"
             "可能是噪声或无关紧要的变化")
         return out
 
     improved = (delta < 0) if direction == "lower_is_better" else (delta > 0)
     out["verdict"] = "improved" if improved else "regressed"
     out["reasons"].append(
-        f"p={p:.4f}，p50 变化 {pct:+.1f}%（{'越低越好' if direction == 'lower_is_better' else '越高越好'}）")
+        f"p={p:.4f}，p50 变化 {pct:+.1f}%，跨过噪声带 {band:.2f}{unit}"
+        f"（{'越低越好' if direction == 'lower_is_better' else '越高越好'}）")
     if noisy:
-        out["reasons"].append("⚠️ 尽管显著，但测量噪声偏大，建议复测确认")
+        out["reasons"].append("⚠️ 尽管跨过噪声带，但测量噪声偏大，建议复测确认")
     return out
 
 
@@ -245,6 +288,9 @@ def cmd_compare(args) -> int:
             print(f"    基线  p50={b['p50']:.2f}  p90={b['p90']:.2f}  n={r['n_baseline']}  CV={b['cv']:.1%}")
             print(f"    本次  p50={n['p50']:.2f}  p90={n['p90']:.2f}  n={r['n_run']}  CV={n['cv']:.1%}")
             print(f"    变化  {r['delta_p50']:+.2f} ({r['delta_pct']:+.1f}%)   p={r['p_value']:.4f}")
+            if "noise_band" in r:
+                src = "指标声明" if r.get("noise_band_source") == "declared" else "百分比口径"
+                print(f"    噪声带 {r['noise_band']:.2f}  ({src}；合并标准差 {r['pooled_stdev']:.2f}×2)")
         for reason in r["reasons"]:
             print(f"    └─ {reason}")
 
