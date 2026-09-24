@@ -1,0 +1,40 @@
+{
+  "name": "rn-apm",
+  "version": "0.1.0",
+  "description": "React Native APM 埋点 SDK —— 启动分段 / 崩溃四层捕获 / 内存水位 / 白屏检测。零原生依赖即可工作，覆盖 iOS / Android / HarmonyOS。",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/tests/*.test.js",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "react-native",
+    "apm",
+    "performance",
+    "crash",
+    "memory",
+    "startup",
+    "harmonyos"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.0.0",
+    "react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

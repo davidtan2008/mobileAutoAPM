@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mobile-apm-marketplace",
+  "description": "移动端 APM 体系（iOS / React Native / Android / HarmonyOS）的 Agent 能力集：性能检测、根因定位、修复验证闭环。",
+  "owner": {
+    "name": "tanwei"
+  },
+  "plugins": [
+    {
+      "name": "mobile-apm",
+      "source": "./plugins/mobile-apm",
+      "description": "移动端 APM 自主闭环：启动耗时 / 页面渲染 / 白屏 / 内存 / 崩溃根因，覆盖 iOS + React Native + Android + 鸿蒙。含 7 个技能、4 个子 Agent、数据平面脚本与防劣化 hooks。",
+      "category": "development"
+    }
+  ]
+}

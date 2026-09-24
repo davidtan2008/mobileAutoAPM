@@ -1,0 +1,62 @@
+# ── 构建产物 ────────────────────────────────────────────
+# Swift / SwiftPM
+.build/
+*.o
+*.dSYM
+*.dSYM.zip
+
+# Xcode
+DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+
+# Node / RN
+node_modules/
+# rn-apm 的 tsc 编译产物（`npm run build` 生成；**根目录的 dist/ 是另一回事，见下**）
+rn-apm/dist/
+npm-debug.log*
+yarn-error.log*
+.metro-health-check*
+ios/Pods/
+android/.gradle/
+android/build/
+android/app/build/
+
+# 鸿蒙
+.hvigor/
+oh_modules/
+build/default/
+local.properties
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ── 运行期数据 ──────────────────────────────────────────
+# APM 工作区：基线应入库，原始测量产物不入库
+.apm/runs/
+*.trace
+*.xcresult
+
+# ── 编辑器 / 系统 ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ── 敏感信息 ────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.p12
+*.mobileprovision
+credentials.json
+service-account*.json

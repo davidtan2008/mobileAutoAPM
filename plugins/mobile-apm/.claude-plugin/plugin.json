@@ -1,0 +1,21 @@
+{
+  "name": "mobile-apm",
+  "version": "0.2.0",
+  "description": "移动端 APM 自主闭环：启动耗时 / 页面渲染 / 白屏 / 内存 / 崩溃根因定位与修复验证，覆盖 iOS + React Native + Android + HarmonyOS。",
+  "author": {
+    "name": "tanwei"
+  },
+  "keywords": [
+    "apm",
+    "performance",
+    "ios",
+    "react-native",
+    "android",
+    "harmonyos",
+    "crash",
+    "startup",
+    "memory",
+    "white-screen"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,16 @@
+{
+  "description": "在已初始化 APM 的工程（存在 .apm/）中注入闭环状态与纪律提醒；其他工程完全静默。",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-start.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

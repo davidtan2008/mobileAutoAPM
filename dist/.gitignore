@@ -1,0 +1,4 @@
+node_modules/
+.apm/runs/
+*.trace
+*.xcresult
