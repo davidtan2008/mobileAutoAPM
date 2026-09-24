@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
-from ai_readiness import scan, detect_kinds  # noqa: E402
+from ai_readiness import scan, detect_kinds
 
 
 def mk(tmp: Path, files: dict[str, str]) -> Path:

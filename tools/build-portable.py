@@ -150,9 +150,7 @@ def emit_shared(target: Path) -> None:
                 dst = target / PORTABLE_SHARED / sub / f.name
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(f, dst)
-                if f.suffix == ".py":
-                    dst.chmod(0o755)
-                elif f.suffix == ".sh":
+                if f.suffix == ".py" or f.suffix == ".sh":
                     dst.chmod(0o755)
     # session-start hook 脚本
     hs = PLUGIN / "hooks" / "scripts" / "session-start.sh"

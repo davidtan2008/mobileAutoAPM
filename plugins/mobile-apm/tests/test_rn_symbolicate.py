@@ -15,8 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
-from rn_symbolicate import (  # noqa: E402
-    Frame,
+from rn_symbolicate import (
     SourceMap,
     SourceMapError,
     Symbolicator,

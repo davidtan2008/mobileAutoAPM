@@ -20,7 +20,7 @@ import platform
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, field
 
 TIMEOUT = 8
 
@@ -137,7 +137,7 @@ CAPABILITIES = {
 
 def detect(tool: Tool) -> dict:
     """检测单个工具是否可用并取版本。"""
-    real = tool.cmd if tool.cmd not in ("xcrun", "hdc") else tool.cmd
+    real = tool.cmd
     path = shutil.which(real)
     # xcrun 包装的工具：用 xcrun 探测
     is_xcrun_wrapper = tool.version_args and tool.version_args[0] == tool.key and tool.cmd == "xcrun"

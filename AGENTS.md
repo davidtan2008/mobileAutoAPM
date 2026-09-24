@@ -37,6 +37,17 @@
 
 ## 怎么跑（每条都已验证）
 
+**最常用的四条**（`make help` 看全部）：
+
+```bash
+make test          # 跑全部测试（提交前必跑）—— 唯一能一次跑全的入口
+make readiness     # 本仓库的 AI 友好度（CI 门禁同款检查）
+make check         # 快速自检（lint + 友好度，跳过耗时测试）
+make doctor        # 体检本机移动端工具链
+```
+
+下面的原始命令供需要精细控制时使用。
+
 ### Python 工具（零第三方依赖，Python 3.9+）
 
 ```bash
@@ -86,18 +97,17 @@ python3 tools/build-portable.py        # → dist/
 
 ---
 
-## 目录约定
+## 两条不看就会犯错的约定
 
-```
-plugins/mobile-apm/     ★ 单一真源：技能 / Agent / 命令 / hook / 脚本 / 知识库
-ios-apm/                iOS 原生埋点 SDK（Swift Package）
-rn-apm/                 React Native 埋点 SDK
-tools/                  构建与生成脚本
-dist/                   生成产物（勿手改，改完源头重新生成）
-docs/                   项目文档
-```
+> 目录结构 `ls` 一下就知道，不在这里重复。
+> 下面两条是**读代码推不出来**的，必须遵守：
 
-**改内容只改源头，然后重新生成 `dist/`。不要把 `dist/` 当源文件改。**
+1. **`plugins/mobile-apm/` 是唯一真源，`dist/` 是生成物。**
+   改内容**只改源头**，然后 `make build-portable` 重新生成。
+   **不要把 `dist/` 当源文件改** —— 下次生成会覆盖掉，而且 CI 会因不一致而失败。
+
+2. **改完必须先 `make test`。** 本仓库有三套测试（Python / rn-apm / ios-apm），
+   `make test` 是唯一能一次跑全的入口。
 
 ---
 

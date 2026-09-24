@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from bisect import bisect_right
 from dataclasses import dataclass, field
@@ -147,7 +148,7 @@ class SourceMap:
         self._parse()
 
     @classmethod
-    def from_file(cls, path: str | Path) -> "SourceMap":
+    def from_file(cls, path: str | Path) -> SourceMap:
         p = Path(path)
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -406,8 +407,6 @@ class StackTrace:
     pending: list[str] = field(default_factory=list)
 
 
-import re
-
 # Hermes 字节码帧：p@1:132161  或  anonymous@1:132161
 _RE_HERMES = re.compile(r"^(?P<fn>[\w$.<>\[\]/-]*?)@(?P<line>\d+):(?P<col>\d+)$")
 
@@ -617,7 +616,7 @@ def cmd_compose(args) -> int:
 def cmd_inspect(args) -> int:
     sm = SourceMap.from_file(args.map)
     print(f"文件:      {args.map}")
-    print(f"version:   3")
+    print("version:   3")
     print(f"file:      {sm.file or '(未指定)'}")
     print(f"映射条数:  {sm.mapping_count}")
     print(f"源文件:    {len(sm.sources)} 个")

@@ -168,10 +168,7 @@ def read_png_pixels(path: Path, sample_step: int = 1) -> tuple[int, int, list[tu
                 if ctype == 3 and palette:
                     v = line[o]
                     pixels.append(palette[v] if v < len(palette) else (0, 0, 0))
-                elif channels == 1:
-                    g = line[o]
-                    pixels.append((g, g, g))
-                elif channels == 2:
+                elif channels == 1 or channels == 2:
                     g = line[o]
                     pixels.append((g, g, g))
                 else:
@@ -247,7 +244,7 @@ def analyze(pixels: list[tuple[int, int, int]], sample_step: int, width: int) ->
     return {
         "verdict": verdict, "label": label,
         "sampled_pixels": n,
-        "modal_color": "#%02x%02x%02x" % modal_color,
+        "modal_color": f"#{modal_color[0]:02x}{modal_color[1]:02x}{modal_color[2]:02x}",
         "modal_ratio": round(modal_ratio, 4),
         "unique_colors": unique_colors,
         "luminance_mean": round(mean_lum, 2),
@@ -282,7 +279,7 @@ def main() -> int:
             if tmp:
                 tmp.unlink(missing_ok=True)
                 tmp.parent.rmdir()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             results.append({"file": img, "error": f"{type(e).__name__}: {e}"})
 
     blanks = [r for r in results if r.get("verdict", "").startswith("blank")]

@@ -323,7 +323,7 @@ def check_structure(root: Path, r: Report) -> None:
     if big:
         r.findings.append(Finding(
             "large-files", f"{len(big)} 个源文件超过 1200 行", "medium", D,
-            "最大的几个：" + ", ".join(f"{n}({l}行)" for n, l in big[:3]),
+            "最大的几个：" + ", ".join(f"{name}({lines}行)" for name, lines in big[:3]),
             "超大文件让 Agent 难以精确定位，改动容易误伤",
             "拆分；通常按职责边界拆而非按行数硬切"))
 
@@ -382,11 +382,20 @@ def check_mobile(root: Path, r: Report, kinds: list[str]) -> None:
                     "加单元测试 target；优先覆盖不依赖设备与 UI 的逻辑"))
 
     if "react-native" in kinds:
-        body = read_text(root / "package.json")
-        if "typescript" not in body:
+        pkg_json = root / "package.json"
+        body = read_text(pkg_json)
+        # ⚠️ 必须同时看 devDependencies —— typescript / jest 这类工具链依赖
+        # 按惯例装在 devDependencies 里，只查 dependencies 会大面积误报。
+        try:
+            pkg = json.loads(body) if body else {}
+        except json.JSONDecodeError:
+            pkg = {}
+        deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+
+        if "typescript" not in deps and "typescript" not in body:
             r.findings.append(Finding(
                 "rn-no-ts", "RN 项目未使用 TypeScript", "medium", D,
-                "package.json 无 typescript 依赖",
+                "package.json 的 dependencies 与 devDependencies 均无 typescript",
                 "缺少类型信息，Agent 改动缺少静态约束，出错率上升",
                 "迁到 TypeScript —— 对 Agent 与人都能显著降低改错概率"))
         else:
@@ -470,11 +479,31 @@ def scan(root: Path) -> Report:
 SEV_LABEL = {"blocker": "🔴 阻断", "high": "🟠 高", "medium": "🟡 中", "low": "🟢 低"}
 
 
+def _gate(r: Report, args) -> int:
+    """门禁判定。退出码 2 表示未通过门禁，可直接用作 CI 条件。
+
+    阻断项始终导致失败 —— 它意味着 **agent 根本无法验证自己的改动**，
+    此时其余优化意义有限（这是 AI 友好度里权重最高的一条）。
+    """
+    blockers = [f for f in r.findings if f.severity == "blocker"]
+    if blockers and not args.no_blocker_fail:
+        print(f"\n⛔ {len(blockers)} 个阻断项：{', '.join(f.title for f in blockers)}", file=sys.stderr)
+        return 2
+    if args.min_score is not None and r.score < args.min_score:
+        print(f"\n⛔ AI 友好度 {r.score} 低于门禁阈值 {args.min_score}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="AI-Readiness 扫描")
     ap.add_argument("--path", default=".")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--top", type=int, default=0, help="只显示前 N 条")
+    ap.add_argument("--min-score", type=int, default=None,
+                    help="门禁：低于该分数则以退出码 2 结束；有阻断项时始终以 2 结束")
+    ap.add_argument("--no-blocker-fail", action="store_true",
+                    help="有阻断项也不失败（默认阻断项即失败）")
     args = ap.parse_args()
 
     root = Path(args.path).resolve()
@@ -493,16 +522,16 @@ def main() -> int:
             "passed": r.passed,
             "findings": [asdict(f) for f in r.findings],
         }, ensure_ascii=False, indent=2))
-        return 0
+        return _gate(r, args)
 
     print("=" * 74)
     print(f"  AI-Readiness 扫描  |  {r.path}")
     print("=" * 74)
     print(f"\n项目类型: {', '.join(r.project_kinds) or '未识别'}")
     print(f"文件数:   {r.stats.get('fileCount', 0)}")
-    print(f"\n  ┌──────────────────────────────────────┐")
+    print("\n  ┌──────────────────────────────────────┐")
     print(f"  │  AI 友好度   {r.score:>3} / 100                  │")
-    print(f"  └──────────────────────────────────────┘")
+    print("  └──────────────────────────────────────┘")
 
     if r.passed:
         print(f"\n✅ 已达标（{len(r.passed)} 项）")
@@ -522,7 +551,7 @@ def main() -> int:
     if args.top and len(r.findings) > args.top:
         print(f"\n   … 还有 {len(r.findings) - args.top} 项，用 --json 取全量")
 
-    return 0
+    return _gate(r, args)
 
 
 if __name__ == "__main__":
