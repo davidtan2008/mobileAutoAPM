@@ -201,14 +201,22 @@ cd ios-apm && swift test
 
 | | |
 |---|---|
+| [**路线图**](ROADMAP.md) | **接手的工程师从这里开始** —— 现状、下一步、不能碰的线 |
 | [架构与数据流](ARCHITECTURE.md) | 整体形状、闭环机制、设计原则 |
 | [**核心功能实现细节**](docs/IMPLEMENTATION.md) | 每个脚本/模块怎么实现的、为什么这样设计 |
 | [项目约定](AGENTS.md) | **给 AI Agent 看的**（构建/测试/约定/禁区） |
-| [落地蓝图](docs/APM-BLUEPRINT.md) | 还缺什么、怎么做 |
 | [进度与完成度](docs/PROGRESS.md) | **含已知限制与未验证项** |
+| [落地蓝图](docs/APM-BLUEPRINT.md) | 还缺什么、怎么做 |
 | [工具链与 MCP](docs/mcp-setup.md) | 环境配置（含本机实测） |
-| [重构方案](docs/RESTRUCTURE-PLAN.md) | 定位与路线图 |
 | [图表源文件](docs/diagrams/) | 架构图 / 闭环图 / 闸门图 / 能力矩阵 / 进化机制 |
+
+### 知识库（Agent 动手前会读）
+
+| | |
+|---|---|
+| [`references/measurement-protocol.md`](plugins/mobile-apm/references/measurement-protocol.md) | **测量协议** —— 方差大于幅度时先修测量；已知方差源与降方差实践 |
+| [`references/stack-selection.md`](plugins/mobile-apm/references/stack-selection.md) | 技术选型与各平台硬限制 |
+| [`references/metrics-definitions.md`](plugins/mobile-apm/references/metrics-definitions.md) | 指标口径定义 |
 
 > 我们有一份**如实标注未验证项**的进度文档。
 > 在一个充满「AI 什么都能做」宣称的市场里，说清「这个还没做」是刻意的选择。
