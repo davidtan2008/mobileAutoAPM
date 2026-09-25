@@ -1,0 +1,16 @@
+{
+  "note": "由 tools/build-diagrams.sh 维护。记录每个 SVG 的内容哈希，用于检测 PNG 是否落后。"
+  "scale": 2,
+  "diagrams": {
+    "architecture": { "svgSha256": "6857eccb3e4dd2d4c5f48eff33c815fe4ae5f3c8bc1a8e8bb1d4e65fc59b66af", "width": 1200 }  ✅ architecture.png  (2400px)
+,
+    "capability-matrix": { "svgSha256": "72d9c99d01dda362b172e80e5fd27da09b790ffe521b402117ddf214baee4fad", "width": 1200 }  ✅ capability-matrix.png  (2400px)
+,
+    "evolution": { "svgSha256": "46f32b9d876c3835b974706e65c226ecebf197c42aaa56ab2d47cb92c2343473", "width": 1200 }  ✅ evolution.png  (2400px)
+,
+    "gate": { "svgSha256": "c1fa497022d0760f23f59171e8b85cf838ffa78df981afa6e6cb6b87a2f08c88", "width": 1200 }  ✅ gate.png  (2400px)
+,
+    "loop": { "svgSha256": "368396413e5c0ceee7e1ae4d7f48e19fab1d538806c7915a9b9f32481c1ed49b", "width": 1200 }  ✅ loop.png  (2400px)
+
+  }
+}
