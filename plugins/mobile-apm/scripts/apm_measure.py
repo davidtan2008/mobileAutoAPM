@@ -979,7 +979,18 @@ def nonnegative_float(value: str) -> float:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="APM 参数化标准测量模板")
     parser.add_argument("--profile", choices=(PROFILE,), default=PROFILE)
-    parser.add_argument("--device", required=True, help="物理设备 UDID、名称或 devicectl identifier")
+    parser.add_argument(
+        "--device",
+        required=True,
+        help=(
+            "物理设备标识。三种写法都接受："
+            "CoreDevice identifier（如 D7F8B1F0-...）、"
+            "UDID（如 00008110-...）、"
+            "或设备名（如 '菀墨'）。"
+            "内部一律解析成 CoreDevice + UDID 后使用；"
+            "模拟器会被硬校验拒绝。"
+        ),
+    )
     parser.add_argument("--package-id", required=True, help="iOS bundle identifier")
     parser.add_argument("--build-type", required=True, help="例如 Release；不可留空")
     parser.add_argument("--build-path", required=True, help="编译出的 .app 路径")

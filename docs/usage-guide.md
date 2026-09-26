@@ -93,7 +93,7 @@ python3 scripts/apm_doctor.py --platform ios --json
 ```bash
 python3 scripts/apm_measure.py \
   --profile ios-native-startup \
-  --device <CORE_DEVICE_ID> \
+  --device <设备标识> \
   --package-id <BUNDLE_ID> \
   --build-type Release \
   --build-path <绝对路径>/App.app \
@@ -102,6 +102,16 @@ python3 scripts/apm_measure.py \
   --samples 10 \
   --output .apm/runs/<本次>-launch
 ```
+
+**`--device` 三种写法都接受**（实测逐一验证）：
+
+| 写法 | 例子 |
+|---|---|
+| CoreDevice identifier | `D7F8B1F0-C655-597B-A1A7-D56ED70F8324` |
+| UDID | `00008110-000805902684801E` |
+| 设备名 | `菀墨` |
+
+内部统一解析成 CoreDevice + UDID；**模拟器会被硬校验拒绝**。
 
 **当前只承诺 `ios-native-startup`**。Android / 鸿蒙 / RN 适配器未落地时**不会**被写成可用。
 

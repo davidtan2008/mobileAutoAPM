@@ -107,6 +107,49 @@ class TestAppValidation(unittest.TestCase):
 
 
 class TestDeviceResolution(unittest.TestCase):
+    # ── --device 的三种写法都必须能解析到同一台物理设备 ──────────
+    # 起因：--help 只写了「UDID、名称或 devicectl identifier」，
+    # 但没人验证过「CoreDevice identifier 到底行不行」。实测三种都接受，
+    # 这里把它固化成契约，避免以后有人只改文案不改实现（或反之）。
+    def _payload(self):
+        return {
+            "result": {
+                "devices": [
+                    {
+                        "identifier": "D7F8B1F0-C655-597B-A1A7-D56ED70F8324",
+                        "hardwareProperties": {
+                            "udid": "00008110-000805902684801E",
+                            "marketingName": "iPhone 13",
+                            "productType": "iPhone14,5",
+                            "platform": "iOS",
+                            "reality": "physical",
+                        },
+                        "deviceProperties": {"name": "菀墨", "osVersionNumber": "26.7"},
+                        "connectionProperties": {"tunnelState": "connected", "pairingState": "paired"},
+                    }
+                ]
+            }
+        }
+
+    def test_三种设备标识写法都能解析(self):
+        payload = self._payload()
+        for ident in ("D7F8B1F0-C655-597B-A1A7-D56ED70F8324", "00008110-000805902684801E", "菀墨"):
+            with self.subTest(identifier=ident):
+                _device, hardware, _conn = measure._match_device(payload, ident)
+                self.assertEqual(hardware["udid"], "00008110-000805902684801E")
+                self.assertEqual(hardware["reality"], "physical")
+
+    def test_不认识的标识给出明确错误(self):
+        with self.assertRaises(measure.MeasurementError) as ctx:
+            measure._match_device(self._payload(), "iPhone 17 Pro")
+        self.assertIn("找不到设备", str(ctx.exception))
+
+    def test_帮助文本说明三种写法(self):
+        # 文档与实现必须一致：--help 里没写的写法，用户就不该指望能用
+        help_text = measure.build_parser().format_help()
+        for keyword in ("CoreDevice identifier", "UDID", "设备名"):
+            self.assertIn(keyword, help_text, f"--help 未提到 {keyword}")
+
     def test物理设备可用时返回UDID(self):
         payload = {
             "result": {

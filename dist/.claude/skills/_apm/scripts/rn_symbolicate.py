@@ -687,7 +687,28 @@ def main() -> int:
     i.set_defaults(func=cmd_inspect)
 
     args = ap.parse_args()
-    return args.func(args)
+
+    # 输入错误要给出**可操作的提示**，不能把 traceback 甩给用户。
+    # 这些是「用户传错了参数」，不是程序内部异常。
+    try:
+        return args.func(args)
+    except SourceMapError as e:
+        print(f"⛔ {e}", file=sys.stderr)
+        print("   sourcemap 必须是 JSON 且 version=3。用 `inspect --map <file>` 可先确认。", file=sys.stderr)
+        return 1
+    except FileNotFoundError as e:
+        print(f"⛔ 找不到文件：{e.filename}", file=sys.stderr)
+        return 1
+    except IsADirectoryError as e:
+        print(f"⛔ 这是一个目录，不是文件：{e.filename}", file=sys.stderr)
+        return 1
+    except UnicodeDecodeError as e:
+        print(f"⛔ 文件不是 UTF-8 文本（若是 Hermes 字节码，请用对应的 .map）：{e}", file=sys.stderr)
+        return 1
+    except ValueError as e:
+        # --probe 的 line:col 解析失败等
+        print(f"⛔ 参数不合法：{e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

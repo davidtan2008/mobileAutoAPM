@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -393,6 +395,47 @@ class TestCLI(unittest.TestCase):
             sys.argv = ["rn_symbolicate.py", "symbolicate", "--map", str(m), "--stack", str(s)]
             from rn_symbolicate import main
             self.assertEqual(main(), 1)
+
+    # ── 输入错误必须是「可操作提示」，不能甩 traceback ──────────
+    # 起因：早先 main() 不接 SourceMapError，虽然消息本身友好，
+    # 但整段被 traceback 埋掉，agent/用户只看到一屏栈。
+    def _run(self, argv):
+        from rn_symbolicate import main
+        sys.argv = ["rn_symbolicate.py", *argv]
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = main()
+        return rc, err.getvalue()
+
+    def test_map不是JSON时给清晰提示而非traceback(self):
+        with tempfile.TemporaryDirectory() as td:
+            bad = Path(td) / "not-a-map.txt"
+            bad.write_text("Uncaught Invariant Violation: xxx\n", encoding="utf-8")
+            rc, err = self._run(["inspect", "--map", str(bad)])
+            self.assertEqual(rc, 1)
+            self.assertIn("不是合法 JSON", err)
+            self.assertNotIn("Traceback", err)
+
+    def test_map文件不存在时给清晰提示(self):
+        rc, err = self._run(["inspect", "--map", "/tmp/definitely-not-here-12345.map"])
+        self.assertEqual(rc, 1)
+        self.assertIn("找不到文件", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_map传目录时给清晰提示(self):
+        with tempfile.TemporaryDirectory() as td:
+            rc, err = self._run(["inspect", "--map", td])
+            self.assertEqual(rc, 1)
+            self.assertNotIn("Traceback", err)
+
+    def test_probe格式错误时给清晰提示(self):
+        with tempfile.TemporaryDirectory() as td:
+            m = Path(td) / "m.map"
+            m.write_text(json.dumps({"version": 3, "sources": ["a.ts"], "names": [], "mappings": ""}),
+                         encoding="utf-8")
+            rc, err = self._run(["inspect", "--map", str(m), "--probe", "not-a-position"])
+            self.assertEqual(rc, 1)
+            self.assertNotIn("Traceback", err)
 
 
 if __name__ == "__main__":
