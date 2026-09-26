@@ -11,7 +11,7 @@
 > **发布会话（HN / Reddit / V2EX）需要一个「目标达成且被验证过」的闭环演示。**
 > 第一个成功案例已具备：结束任务的译文持久化修复（红测失败 → 单变量修复 →
 > 模拟器 120/120 单测 + Release 构建 + **真机 123/123 全量套件**），
-> 见 `docs/case-study-translation-persistence.md`。60–90 秒成片已渲染
+> 见 `docs/case-study-translation-persistence.md`。59.0 秒成片已渲染
 > （`docs/demo/translation-persistence/translation-persistence.mp4`，59.0s / 5 页）。
 >
 > T1 的冷启动 200ms 题目已被最小 control（n=20，p50=210ms）拦截，**不能**用作发布素材。

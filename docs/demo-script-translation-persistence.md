@@ -1,4 +1,4 @@
-# 60–90 秒 Demo 脚本：译文持久化闭环
+# 59 秒 Demo 脚本：译文持久化闭环
 
 > **状态：已渲染为视频，尚未人工审阅。**
 > 成片：`docs/demo/translation-persistence/translation-persistence.mp4`（59.0s / 1920×1080 / 5 页）

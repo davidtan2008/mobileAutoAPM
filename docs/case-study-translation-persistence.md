@@ -80,7 +80,12 @@ Release device build：SUCCEEDED
 
 ## 边界
 
-- 这是模拟器上的确定性功能闭环，不宣称完成真机 UI 自动化；
-- 真机 UI test runner 仍被免费 provisioning App 数量上限阻塞；
+- 修复本身的验证是模拟器上的确定性功能闭环（红/绿测试）；
+  **真机全量套件后来也跑通了**（123 passed / 0 failed / 0 skipped，iPhone 13 / iOS 26.7，
+  见 `docs/demo/translation-persistence/green-device-suite.json`）；
+- 真机 UI 测试有前提：网络配对设备首次跑之前必须先用设备侧单测预热 `testmanagerd`，
+  否则会以 `exit 74` 失败。已固化为 `.apm/tools/device-test.sh`，根因见 `ISSUE-UI-003`；
+- 早先的「免费 provisioning App 数量上限」阻塞**已解除**，不要再作为阻塞项引用；
+- 模拟器 UI 套件另有 open 问题：`home-module-simultaneous` 存在但不可点击（`ISSUE-UI-001`）；
 - `ExportShareButton` 的同页导出刷新是独立后续项，没有混入本次修复；
 - 这次闭环不依赖性能基线，因为目标是数据是否丢失，可用确定性测试直接验证。

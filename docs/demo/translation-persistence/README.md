@@ -1,6 +1,6 @@
 # Demo 证据包：结束任务译文持久化
 
-> 60–90 秒发布候选视频的**全部原料**。这里每个数字都来自一次真实命令输出，
+> 59.0 秒发布候选视频的**全部原料**。这里每个数字都来自一次真实命令输出，
 > 没有手写结论、没有估算值、没有挑样本。
 
 ## 产物
@@ -9,9 +9,12 @@
 |---|---|
 | `translation-persistence.mp4` | 59.0s / 1920×1080 / 5 页（`make demo-video` 生成） |
 | `slides/slide-0*.svg` | 视频源页面（文字与数字来自证据 JSON，非手写） |
+| `../../demo/hero.gif` | README 首屏循环动图，760px / 16.4s（`make demo-hero` 从 `slides/render.json` 生成） |
+| `../../demo/hero-panels.png` | 首屏静态拼图，2880×1080（给只显示 GIF 首帧的环境兜底） |
 | `red-test.json` | 修复前 commit `fb95d1b` 的失败测试原始输出 |
 | `green-focused.json` | 修复后 `TaskStoreTests` 5/5 |
 | `green-full-unit.json` | 修复后全部单元测试 120/120 |
+| `green-device-suite.json` | 修复后**真机**全量套件 123/0/0（iPhone 13 / iOS 26.7 / physical） |
 | `green-release-build.json` | 修复后 Release device build |
 | `commits.txt` | 红测 / 绿测各自所在 commit 的真实 `git show` 输出 |
 | `fix-commit.txt` / `fix-diff.txt` | 目标工程 `43e6576` 的提交与差异（`fix-diff.txt` 仅去掉行尾空白以过 whitespace 门禁） |
@@ -36,9 +39,17 @@ python3 tools/render_demo_slides.py \
 
 # 2. 视频（需要 ffmpeg + rsvg-convert）
 make demo-video
+
+# 3. README 首屏素材（GIF + 拼图，需要 ffmpeg）
+make demo-hero
 ```
 
 `make demo-video` 会重跑第 1、2 步并打印 `ffprobe` 时长/体积，可用于核对成片。
+
+`make demo-hero` 读的是 `slides/render.json`（**不是**从 MP4 抽帧——抽帧要硬编码
+时间戳，某页时长一改，图就会悄悄错位）。它还会**断言 GIF 的帧时间戳**
+与各段时长一致：时序不对就删掉产物并退出非 0，因为一个「能播但节奏是错的」
+GIF 看起来完全正常，最容易被误当成成品提交。
 
 ## 如何重新采集证据（不是重放）
 
@@ -60,7 +71,13 @@ mobilebuildmcp simulator test \
 ## 边界（发布时必须一起说）
 
 - 这是**确定性功能闭环**，用红/绿测试验证；没有用模拟器性能数字冒充真机结论；
-- 真机 UI test runner 仍被免费 provisioning 的 App 数量上限阻塞；
-- 模拟器 UI 套件另有 open 问题：`home-module-simultaneous` 存在但不可点击；
+- 真机全量套件已跑通（123/0/0，见 `green-device-suite.json`），但**有前提**：
+  网络配对设备首次跑 UI 测试前必须先用设备侧单测预热 `testmanagerd`，
+  否则会以 `exit 74` / automation mode 超时失败。已固化为目标工程的
+  `.apm/tools/device-test.sh`，预热失败即中止。根因见 `ISSUE-UI-003`；
+- 早先的「免费 provisioning 最多装 10 个 App」阻塞**已解除**
+  （清理设备后安装数降到 4），不要再作为阻塞项引用；
+- 模拟器 UI 套件另有 open 问题：`home-module-simultaneous` 存在但不可点击
+  （`ISSUE-UI-001`），真机侧不受影响；
 - 导出按钮同页刷新是独立后续项，未混入本次修复；
 - T1 冷启动 200ms 已被最小 control（p50=210ms）拦截，**不得**用作成功素材。

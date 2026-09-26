@@ -10,6 +10,17 @@ claude plugin marketplace add davidtan2008/mobileAutoAPM
 claude plugin install mobile-apm@mobile-apm-marketplace
 ```
 
+<p align="center">
+  <img src="docs/demo/hero.gif" width="760"
+       alt="一个真实闭环：症状 → 红测失败 → 根因定位 → 单变量修复 → 模拟器与真机双验证">
+</p>
+
+<p align="center"><sub>
+真实 iOS 工程的一次完整闭环，非演示数据 ·
+[<b>看案例全过程</b>](docs/case-study-translation-persistence.md) ·
+[<b>证据包</b>](docs/demo/translation-persistence/README.md)
+</sub></p>
+
 然后在你自己的工程里说一句话：
 
 ```
@@ -17,10 +28,6 @@ claude plugin install mobile-apm@mobile-apm-marketplace
 ```
 
 Agent 会自己走完：测量 → 与基线对比 → 分行定位 → 改代码 → **同口径复测** → 给出带显著性的结论。
-
-![自主闭环数据流](docs/diagrams/loop.png)
-
-<sub>[SVG 版](docs/diagrams/loop.svg) · [完整架构](docs/diagrams/architecture.png)</sub>
 
 ---
 
@@ -115,6 +122,10 @@ mobileAutoAPM 的做法是：**先让"有没有效果"变成一个可判定的�
 
 需要"算"的事情（解析 sourcemap、算 CV、跑置换检验）全部是零依赖的确定性脚本；
 需要"判断"的事情（改哪里、要不要问人）才交给模型。这样同样的输入永远得到同样的结论。
+
+![自主闭环数据流](docs/diagrams/loop.png)
+
+<sub>[SVG 版](docs/diagrams/loop.svg) · [完整架构](docs/diagrams/architecture.png) · [能力矩阵](docs/diagrams/capability-matrix.png)</sub>
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
