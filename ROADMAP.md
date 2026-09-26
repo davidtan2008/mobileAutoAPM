@@ -39,7 +39,7 @@
 | Python 工具 | ✅ 112 个测试 | `make test-py` |
 | 指标闭环（SDK → 基线判定） | ✅ 跑通过 | — |
 | 跨 agent 生成器 | ✅ 全新 clone 验证 | `make verify-portable` |
-| **原生 shim** | ⚠️ **未在真机验证** | 参考实现见 `rn-apm/docs/native-shims.md` |
+| **原生 shim** | 🟡 **iOS 侧已在真机验证**；Android / 鸿蒙仍未验证 | iPhone 13 / iOS 26.7 实测通过；发现并修复两个只有真跑才暴露的坑，见 `docs/evidence/native-shim/measured.json` |
 | **符号化工具在真实构建中** | ⚠️ **未验证** | — |
 | **自主闭环（核心承诺）** | ✅ **1 次成功 + 1 次诚实失败** | 译文持久化闭环见 `case-study-translation-persistence.md`（模拟器 120/120 单测 + Release 构建；后又在 iPhone 13 / iOS 26.7 真机跑通 123/123）；T1 启动闭环被 control 闸门拦截 |
 

@@ -36,7 +36,8 @@
 - [ ] 符号化流水线在真实 CI 跑通
 - [ ] 数据后端选型（含鸿蒙）：Sentry self-hosted / 腾讯 Bugly / AGC APMS
 - [ ] Android / 鸿蒙真机验证（`adb devices` / `hdc list targets` 目前均为空）
-- [ ] 原生 shim 真机验证（`rn-apm/docs/native-shims.md`）
+- [x] 原生 shim iOS 侧真机验证（`rn-apm/ios/RnApm.m`，iPhone 13 / iOS 26.7 实测通过）
+- [ ] 原生 shim Android / 鸿蒙侧真机验证（无设备）
 
 ---
 

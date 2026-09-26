@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "what": "rn-apm iOS 原生 shim 真机验证",
+  "device": "iPhone 13 (iPhone14,5) / iOS 26.7 / physical / 00008110-000805902684801E",
+  "hostApp": "HelloRN 0.73.4（临时副本，原工程未改动）",
+  "bundleId": "com.davidtan.rnapmshimverify",
+  "build": "Release（自带 JS bundle，不依赖 Metro）",
+  "readVia": "apm_screenshot.py（pymobiledevice3 DVT 真机截图）",
+  "measured": {
+    "processStartTimeMs": 1790421430853,
+    "nowEpochMs": 1790421431226,
+    "uptimeMs": 373,
+    "memoryUsedBytes": 16630512,
+    "memoryFootprintBytes": 16630512,
+    "memoryResidentBytes": 87998464,
+    "footprintOverResident": 0.189,
+    "osVersion": "26.7",
+    "deviceModel": "iPhone14,5",
+    "platform": "ios"
+  },
+  "conclusions": [
+    "原生模块在真机上注册成功，JS 侧可见",
+    "进程创建时间早于当前时间且差值合理（App 刚启动 373ms），sysctl(KERN_PROC_PID) 口径正确",
+    "内存取 phys_footprint：15.9MB，而 resident 为 83.9MB，前者只有后者的 18.9% —— 实证「用 RSS 会严重高估」",
+    "SDK 的 createBridge 同步路径可用：getProcessStartTime / getMemoryUsage / getDeviceInfo 均取到真值",
+    "describeNativeGaps 剩 1 项（reportJsError），属宿主 App 原生崩溃 SDK 的职责，不是 shim 范围"
+  ],
+  "bugsFoundOnlyOnRealDevice": [
+    {
+      "symptom": "NSInvalidArgumentException: +[NSInvocation _invocationWithMethodSignature:frame:]: method signature argument cannot be nil",
+      "cause": "RCT_EXPORT_METHOD 手写 block 类型而非 RN 的 RCTPromiseResolveBlock/RCTPromiseRejectBlock，RN 拿不到合法 NSMethodSignature",
+      "fix": "改用 RN 标准 typedef",
+      "note": "native-shims.md 的参考实现看不出来，只有真跑才暴露"
+    },
+    {
+      "symptom": "JS 直读原生得到 [object Object] / {\"_h\":0,...}，bridge.getProcessStartTime() 返回 null",
+      "cause": "原生方法返回 Promise，而 createBridge 是同步取值（方法或 constants），类型校验判定失败 → 降级 null",
+      "fix": "按「值会不会变」分流：不变的（进程时间/设备信息）走 constantsToExport；会变的（内存）用 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD",
+      "note": "这是 JS↔原生契约层面的问题，静态阅读发现不了"
+    }
+  ],
+  "notClaimed": [
+    "未验证 Android / 鸿蒙 侧 shim",
+    "未验证新架构（Fabric/TurboModules）下的行为",
+    "reportJsError 未接入真实原生崩溃 SDK（KSCrash/Sentry/Bugly），仅日志转发"
+  ]
+}

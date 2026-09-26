@@ -1,8 +1,12 @@
 # 原生补齐参考实现（iOS / Android / HarmonyOS）
 
-> ⚠️ **本文件中的代码是参考实现，未在本仓库环境验证**（此处没有 RN 工程与真机）。
-> 请在你的工程里实现后，用 `apm.getLayerStatus()` 与 `apm.getNativeGaps()` 确认已生效。
-> API 名称与签名请以你所用 RN / 系统版本为准。
+> **iOS 侧已在真机验证**（iPhone 13 / iOS 26.7 / RN 0.73.4 / Release）。
+> 可用实现见 [`../ios/RnApm.m`](../ios/RnApm.m) + [`../ios/rn-apm-shim.podspec`](../ios/rn-apm-shim.podspec)，
+> 真机实测数据见 [`../../docs/evidence/native-shim/measured.json`](../../docs/evidence/native-shim/measured.json)。
+> **Android / 鸿蒙侧仍未验证**，下方代码仍是参考实现。
+>
+> ⚠️ 下方 iOS 片段是**简化示意**。真机验证时在它之上又踩了两个坑，
+> 完整说明见 `../ios/RnApm.m` 顶部注释 —— 简写版**不能直接用**。
 
 SDK 需要原生提供三样东西。缺任何一样都不会崩（会自动降级），但会损失能力：
 
@@ -14,9 +18,41 @@ SDK 需要原生提供三样东西。缺任何一样都不会崩（会自动降�
 
 ---
 
-## ⚠️ 两个最容易做错的点
+## ⚠️ 三个最容易做错的点
 
-### 1. 内存必须取 PSS / phys_footprint，**不能取 RSS**
+### 0. Promise 方法必须用 RN 的 typedef，否则真机一调就崩
+
+```objc
+// ❌ 手写 block 类型 —— 真机上 App 一调用就崩
+//    NSInvalidArgumentException: +[NSInvocation _invocationWithMethodSignature:frame:]:
+//    method signature argument cannot be nil
+RCT_EXPORT_METHOD(foo:(void (^)(NSNumber *))resolve
+                  rejecter:(void (^)(NSString *, NSString *, NSError *))reject)
+
+// ✅ 用 RN 的标准 typedef
+RCT_EXPORT_METHOD(foo:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+```
+
+`RCTModuleMethod` 靠方法签名的类型编码生成 JS 参数转换，自定义 block 类型会让它拿不到
+合法的 `NSMethodSignature`。**这在代码里看起来完全正常，只有真跑才暴露。**
+
+### 1. JS 侧的 bridge 是**同步**取值 —— 返回 Promise 等于取不到
+
+`createBridge()` 先试方法、再试 `getConstants()`，全程同步、不 await。所以：
+
+| 值的性质 | 正确做法 |
+|---|---|
+| 进程生命周期内**不变**（进程创建时间、设备信息） | 放 `constantsToExport` |
+| **会变**（内存水位） | `RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD` |
+
+实测症状：原生返回 Promise 时，JS 直读拿到 `[object Object]`，而
+`bridge.getMemoryUsage()` 返回 `null` —— SDK 全程不知道原生能力其实已就绪，
+`getNativeGaps()` 会**误报缺口**。
+
+⚠️ 内存**不要**放进 `constantsToExport`：那等于把首帧读数当成全程水位。
+
+### 2. 内存必须取 PSS / phys_footprint，**不能取 RSS**
 
 **系统是按 PSS（比例分摊后的物理内存）判定是否杀进程的。**
 用 RSS 会显著高估（共享库被重复计算），导致内存数据失去指导意义。

@@ -245,7 +245,8 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 | 数据平面脚本 | ✅ **单元/回归测试**（含真实模拟器/真机截图、真实构建产物；iOS 真机测量链路已跑通，clean commit 上的正式 baseline 已记录） |
 | 端到端指标闭环（SDK→基线判定） | ✅ **跑通过** |
 | 跨 harness 生成器 | ✅ 在模拟工程中端到端验证 |
+| **原生 shim（iOS）** | ✅ **真机验证通过**（iPhone 13 / iOS 26.7 / RN 0.73.4 / Release）：模块注册、进程创建时间、phys_footprint 内存、设备信息全部取到真值；`footprint/resident = 18.9%` 实证 RSS 会严重高估 |
+| **原生 shim（Android/鸿蒙）** | ⚠️ **未在真机验证** —— 无设备；参考实现见 `rn-apm/docs/native-shims.md` |
 | **被观测工程的真机 UI 套件** | ✅ **iPhone 13 / iOS 26.7：123 passed, 0 failed, 0 skipped**（含 1分59秒 的真实端侧听写用例）。环境前置与预热顺序见 `references/measurement-protocol.md` §5 |
-| **原生 shim（iOS/Android/鸿蒙）** | ⚠️ **未在真机验证** —— 参考实现见 `rn-apm/docs/native-shims.md`（有可用真机了，待做） |
 | **符号化工具在真实构建中的表现** | ⚠️ **未验证** |
 | **自主闭环（核心承诺）** | ✅ **1 次成功**（译文持久化，模拟器 + 真机双重背书）+ ⚠️ 1 次诚实失败（T1 启动）；尚不能泛化到任意需求 |
