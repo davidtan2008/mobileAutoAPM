@@ -75,8 +75,8 @@ e85bb17  R0 自我达标 + 市场调研落地
 | R0 自我达标（AI 友好度 100/100） | ✅ |
 | R1 定位落地（README / 架构图 / 原理图 / 实现细节） | ✅ |
 | **T1 闭环演练** | ⚠️ **诚实失败**：200ms 目标被 control p50=210ms 拦截（见 §4） |
-| **首个成功闭环** | ✅ 结束任务译文持久化：红测→单变量修复→120/120 单测 + Release 构建 |
-| **P0 补齐测量能力** | 🟡 **iOS profile + 方差诊断已落地；重启后 warmup=3/n=10 两次通过并生成 provisional baseline，仍待干净 commit 基线** |
+| **首个成功闭环** | ✅ 结束任务译文持久化：红测→单变量修复→模拟器 120/120 单测 + Release 构建 + **真机 123/123** |
+| **P0 补齐测量能力** | ✅ iOS profile + 方差诊断 + baseline 闸门；**clean commit `2b3a1ea` 的正式 baseline 已记录**（n=10 跨 run `consistent`） |
 | P1 把 T1 结论做成能力 | ✅ **可行性/对照组闸门已落地并真实验证；200ms 目标被 control 地板拦截** |
 | P2 支柱 A 改造闭环 | ⬜ |
 | P3 自我进化 | ⬜ 设计已有，未实现 |
@@ -145,9 +145,9 @@ T1 是第一次真实的自主闭环演练，题目是「**冷启动压到 200ms
 
 ## 5. 从这里开始
 
-### 第一件该做的事：P0 · 补齐测量能力
+### 第一件该做的事：P0 已完成，接下来是 P2 支柱 A
 
-详见 `ROADMAP.md` §P0。当前第一版已经落地：
+详见 `ROADMAP.md`。P0 三个能力项均已落地：
 
 | # | 能力 | 当前状态 |
 |---|---|---|
@@ -155,15 +155,29 @@ T1 是第一次真实的自主闭环演练，题目是「**冷启动压到 200ms
 | 2 | 方差诊断 | `apm_diagnose.py`；CV、疑似多簇、分段 CV、跨运行相关性与同 commit 跨 run 漂移；已用 T1 与多轮真机 run 回归 |
 | 3 | 判据建议 | 高方差/多簇/跨 run 漂移时建议增加样本、控制变量或改测同次分解指标；baseline 已将质量失败返回 `1` |
 
+**正式 baseline（clean commit `2b3a1ea`，iPhone 13 / iOS 26.7 / Release / warmup=3 / n=10）**：
+
+| run | p50 | CV | 判定 |
+|---|---|---|---|
+| B | 261ms | 21.5% | ❌ 多簇，整轮拒绝并保留 |
+| C | 252ms | 3.5% | ✅ `usable` |
+| D | 257ms | 2.8% | ✅ `usable` |
+
+C/D 跨 run `consistent`（Δp50=5ms），`compare` 退出码 0。
+
 **边界**：当前只承诺 iOS 原生冷启动 profile；Android / 鸿蒙 / RN 标准适配器尚未宣称完成。
-`pre-main` 只记录为可疑变量，不自动分层。重启并解锁后，固定 warmup=3、n=10 的两次
-独立 run（p50=256ms/CV=9.6%、266ms/CV=7.1%）通过，跨 run 诊断为 `consistent`，
-已生成 provisional baseline；历史失败证据见目标工程 `.apm/issues/ISSUE-P0-002-cross-run-shift.json`
-与 `ISSUE-P0-003-warmup-repeatability.json`。
+`pre-main` 只记录为可疑变量，不自动分层。历史失败证据见目标工程
+`.apm/issues/ISSUE-P0-002-cross-run-shift.json` 与 `ISSUE-P0-003-warmup-repeatability.json`。
 
 **背景知识在 `plugins/mobile-apm/references/measurement-protocol.md`** —— 先读它，那里有完整的实测数据与推理过程。
 
-### 然后：按 P1 先做可行性/对照组，再找一个**确实可达成的**需求跑通闭环
+### 真机 UI 测试的环境前置（别跳过预热）
+
+`references/measurement-protocol.md` §5 记了完整诊断。实操入口是被观测工程里的
+`.apm/tools/device-test.sh`，它**强制先预热 testmanagerd 再跑 UI**，跳过就会以
+`exit 74` 或 "Timed out while enabling automation mode" 失败。
+
+### 然后：找一个**确实可达成的**需求跑通闭环
 
 T1 目标「冷启动 ≤200ms」已被真实最小 control（n=20，p50=210ms）拦截；
 这条启动路线不再继续局部优化。绝对目标先运行：

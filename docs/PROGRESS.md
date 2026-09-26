@@ -1,6 +1,6 @@
 # 进度文档
 
-> 更新：2026-09-24
+> 更新：2026-09-26
 > 项目：用 Claude Code + 大模型（DeepSeek 等）搭建**移动端 APM 体系**，
 > 覆盖 iOS / React Native（跨 iOS、Android、鸿蒙），做到「提出需求后自主完成闭环」。
 
@@ -196,15 +196,17 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 - `apm_baseline.py`：高方差/多簇/跨 run 漂移/口径缺失返回数据错误 `1`；JSON 模式保留退出码；
   `record --require-healthy` 可阻止不可信基线写入。
 - Python 测试从 47 增至 **92**；T1 数值作为仓库内 fixture 回归。
-- ✅ 已在 iPhone 13 真机完成多轮 Release 采集；重启并解锁后，固定 `warmup=3、n=10`
-  的两次独立 run 为 p50=256ms/CV=9.6% 与 p50=266ms/CV=7.1%，跨 run 诊断 `consistent`，
-  已生成 provisional baseline；因工作树 dirty，仍不是干净 commit 基线。
+- ✅ **正式 baseline 已记录**（clean commit `2b3a1ea`，iPhone 13 / iOS 26.7 / Release /
+  warmup=3 / n=10）：run C p50=252ms/CV=3.5%、run D p50=257ms/CV=2.8%，跨 run `consistent`
+  （Δp50=5ms），`compare` 退出码 0。前一轮 run B（p50=261ms/CV=21.5%，多簇）被整轮拒绝
+  并保留为筛选依据，未挑选样本。详见被观测工程 `.apm/baseline/README.md`。
 
 ### 待完成
 
 | 优先级 | 项 | 门槛 |
 |---|---|---|
-| **P0** | **补齐测量能力**（模板化测量脚本 / 方差诊断 / 判据建议） | 🟡 iOS profile、诊断器与 baseline 闸门已落地；重启后重复测量通过并生成 provisional baseline，待干净 commit 基线 |
+| **P0** | **补齐测量能力**（模板化测量脚本 / 方差诊断 / 判据建议） | ✅ iOS profile、诊断器、baseline 闸门已落地；clean commit 上的**正式 baseline** 已记录（n=10 跨 run `consistent`） |
+| **P0** | Android / 鸿蒙 / RN 标准测量适配器 | ⬜ 零进度；需先接设备（`adb` / `hdc` 目前为空） |
 | P1 | 把 T1 的结论做成能力（可行性前置判断 / 对照组方法论） | ✅ `apm_feasibility.py`、协议和 skill 闸门已落地并真实验证；200ms 目标被 control p50=210ms 拦截 |
 | P1 | 支柱 A 的改造闭环（现在只有扫描器） | 见 `ROADMAP.md` §P2；**注意：LLM 生成的 context 文件有负收益，必须人审** |
 | P1 | Sentry MCP 鉴权 | 需 Sentry 账号，执行 `/mcp` OAuth |
@@ -221,6 +223,12 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
   截图端到端验证；本次模拟器 6 帧与真机截图均为 `content_present`，未复现白屏。
   旧 `idevicescreenshot` 后端不可用，但可选 `pymobiledevice3` DVT 后端已验证成功。
 - `rn_symbolicate.py` / `rn_build_symbols.py`：31 个测试，含 Hermes 两步合成
+- `apm_feasibility.py`：目标可行性闸门。真实 control 实验（最小 `Text("x")`，
+  iPhone 13 / n=20）得 p50=210ms，正式拦截 200ms 冷启动目标 → `blocked_by_control_floor`
+- `apm_screenshot.py`：iOS 真机截图。可选 `pymobiledevice3` 的 DVT/CoreDevice 通道
+  已在 iPhone 13 / iOS 26.7 验证（1170×2532 PNG，`apm_white_screen.py` 判 `content_present`）
+- `.apm/tools/device-test.sh`（被观测工程）：真机测试统一入口，强制
+  「先预热 testmanagerd，再跑 UI」；脚本自身端到端验证 → 真机 123 passed
 
 ---
 
@@ -231,9 +239,10 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 | 部分 | 验证强度 |
 |---|---|
 | `rn-apm` 逻辑、`ios-apm` 逻辑 | ✅ **真实测试**（74 + 11） |
-| 数据平面脚本 | ✅ **单元/回归测试**（含真实模拟器/真机截图、真实构建产物；iOS 真机测量链路已跑通但重复性仍需干净 commit） |
+| 数据平面脚本 | ✅ **单元/回归测试**（含真实模拟器/真机截图、真实构建产物；iOS 真机测量链路已跑通，clean commit 上的正式 baseline 已记录） |
 | 端到端指标闭环（SDK→基线判定） | ✅ **跑通过** |
 | 跨 harness 生成器 | ✅ 在模拟工程中端到端验证 |
-| **原生 shim（iOS/Android/鸿蒙）** | ⚠️ **未在真机验证** —— 参考实现见 `rn-apm/docs/native-shims.md` |
+| **被观测工程的真机 UI 套件** | ✅ **iPhone 13 / iOS 26.7：123 passed, 0 failed, 0 skipped**（含 1分59秒 的真实端侧听写用例）。环境前置与预热顺序见 `references/measurement-protocol.md` §5 |
+| **原生 shim（iOS/Android/鸿蒙）** | ⚠️ **未在真机验证** —— 参考实现见 `rn-apm/docs/native-shims.md`（有可用真机了，待做） |
 | **符号化工具在真实构建中的表现** | ⚠️ **未验证** |
-| **自主闭环（核心承诺）** | ✅ **1 次成功**（译文持久化）+ ⚠️ 1 次诚实失败（T1 启动）；尚不能泛化到任意需求 |
+| **自主闭环（核心承诺）** | ✅ **1 次成功**（译文持久化，模拟器 + 真机双重背书）+ ⚠️ 1 次诚实失败（T1 启动）；尚不能泛化到任意需求 |

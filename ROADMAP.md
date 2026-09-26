@@ -9,13 +9,15 @@
 ## ⏰ 先看这一条：开源发布前的前置条件
 
 > **发布会话（HN / Reddit / V2EX）需要一个「目标达成且被验证过」的闭环演示。**
-> 当前已有第一个成功案例：结束任务的译文持久化修复（红测失败 → 单变量修复 →
-> 120/120 单元测试 + Release 构建通过），见 `docs/case-study-translation-persistence.md`。
+> 第一个成功案例已具备：结束任务的译文持久化修复（红测失败 → 单变量修复 →
+> 模拟器 120/120 单测 + Release 构建 + **真机 123/123 全量套件**），
+> 见 `docs/case-study-translation-persistence.md`。60–90 秒成片已渲染
+> （`docs/demo/translation-persistence/translation-persistence.mp4`，68.0s）。
 >
-> T1 的冷启动 200ms 题目仍然不可达，**不能**用作发布素材。
+> T1 的冷启动 200ms 题目已被最小 control（n=20，p50=210ms）拦截，**不能**用作发布素材。
 >
-> **当前真实顺序**：P0/P1 已落地 → 已跑通第一个确定性功能闭环 →
-> 修复剩余 UI 候选或继续性能候选 → 录成 60–90 秒视频 → 发布。
+> **当前真实顺序**：P0/P1 已落地 → 第一个确定性功能闭环已跑通 → demo 已渲染 →
+> 人工审阅 → push → 发布。
 
 ---
 
@@ -39,7 +41,7 @@
 | 跨 agent 生成器 | ✅ 全新 clone 验证 | `make verify-portable` |
 | **原生 shim** | ⚠️ **未在真机验证** | 参考实现见 `rn-apm/docs/native-shims.md` |
 | **符号化工具在真实构建中** | ⚠️ **未验证** | — |
-| **自主闭环（核心承诺）** | ✅ **1 次成功 + 1 次诚实失败** | 译文持久化闭环见 `case-study-translation-persistence.md`；T1 启动闭环被 control 闸门拦截 |
+| **自主闭环（核心承诺）** | ✅ **1 次成功 + 1 次诚实失败** | 译文持久化闭环见 `case-study-translation-persistence.md`（模拟器 120/120 单测 + Release 构建；后又在 iPhone 13 / iOS 26.7 真机跑通 123/123）；T1 启动闭环被 control 闸门拦截 |
 
 ---
 
@@ -71,17 +73,26 @@
 
 | # | 能力项 | 出口标准 | 当前 |
 |---|---|---|---|
-| 1 | **把测量脚本做成平台模板** —— 现在它写在被观测工程的 `.apm/` 里，不可复用 | 参数化设备/包名/构建路径，随插件分发；`make` 或 skill 能直接调用 | 🟡 iOS profile、假设备/解析测试与真机 n=10 重复测量已完成；已生成 provisional baseline，待干净 commit 基线 |
+| 1 | **把测量脚本做成平台模板** —— 现在它写在被观测工程的 `.apm/` 里，不可复用 | 参数化设备/包名/构建路径，随插件分发；`make` 或 skill 能直接调用 | ✅ `apm_measure.py` 已随插件分发；clean commit `2b3a1ea` 上的**正式 baseline** 已记录（n=10 连续两 run 跨 run `consistent`） |
 | 2 | **方差诊断** —— 现在只在 CV>30% 时告警，不帮定位成因 | 检测多峰、输出分段 CV 对比、提示可疑变量、检测同 commit 跨 run 漂移；诊断结果可读 | ✅ `apm_diagnose.py`，已用 T1 归档数据与多轮真机 run 回归 |
 | 3 | **判据建议** —— 多峰时不知道该怎么办 | 检测到多峰/高方差时，主动建议「改测分解指标」并给出具体做法 | ✅ 已接入 `metrics.json` / `diagnosis.json` / baseline 闸门 |
 
-参考 `references/measurement-protocol.md` §7。
+参考 `references/measurement-protocol.md` §8。
+
+**正式 baseline 的建立过程（iPhone 13 / iOS 26.7 / Release / warmup=3 / n=10）**：
+
+| run | p50 | CV | 判定 |
+|---|---|---|---|
+| B | 261ms | 21.5% | ❌ `unusable_multimodal`（前 3 次 368–413ms）——**整 run 拒绝** |
+| C | 252ms | 3.5% | ✅ `usable` |
+| D | 257ms | 2.8% | ✅ `usable` |
+
+C/D 跨 run `consistent`（Δp50=5ms，判定门槛约 30ms），
+`apm_baseline compare` 返回 `no-significant-change`（退出码 0）。
+B 的失败被完整保留在 `.apm/runs/`，**没有挑选后续样本**。
 
 **本轮实现边界**：`apm_measure.py` 目前只承诺 `ios-native-startup`，不把尚未验证的
 Android / 鸿蒙 / RN 适配器写成可用；`pre-main` 只作为成对观测与可疑变量，绝不自动分层。
-本机 iPhone 13 在重启并解锁后，以 warmup=3、n=10 连续两次得到 p50=256ms/CV=9.6%
-与 p50=266ms/CV=7.1%，跨 run 诊断 `consistent`，已生成 provisional baseline；
-目标工作树仍 dirty，因此干净 commit 基线与后续优化验证尚未完成。
 
 ### P1 · 把 T1 的结论做成能力
 
@@ -118,10 +129,14 @@ Android / 鸿蒙 / RN 适配器写成可用；`pre-main` 只作为成对观测�
 ### P4 · 开源运营
 
 - ⏰ **V2EX 注册**（发帖要求注册满 30 天，越早越好）
-- **demo 视频已渲染，待人工审阅** —— 成片 `docs/demo/translation-persistence/translation-persistence.mp4`（68.0s），
-  证据包 `docs/demo/translation-persistence/`，重渲染 `make demo-video`；脚本 `docs/demo-script-translation-persistence.md`
-- ⚠️ **发布前仍需**：把 case study 压缩成 60–90 秒视频并人工审阅所有数字/边界；
-  不得使用 T1 的 200ms 不可达结论或未修复的 UI 失败作为成功素材。
+- ✅ **demo 视频已渲染** —— 成片 `docs/demo/translation-persistence/translation-persistence.mp4`
+  （68.0s / 1920×1080 / 6 页，无音轨）；证据包 `docs/demo/translation-persistence/`；
+  视频里每个数字都由 `tools/render_demo_slides.py` 从命令原始输出 JSON 读取，无手写结论；
+  重渲染 `make demo-video`（会打印 `ffprobe` 时长/体积可自检）
+- ⚠️ **发布前仍需**：
+  1. **人工审阅**所有数字与边界表述（本项目不代替人做发布决策）
+  2. **push 两个仓库**（主仓 / 目标工程当前均为本地领先 origin）
+  3. 不得使用 T1 的 200ms 不可达结论、或任何 skip/未验证路径作为成功素材
 
 ---
 

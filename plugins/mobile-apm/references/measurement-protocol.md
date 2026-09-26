@@ -291,6 +291,7 @@ python3 "${S}/apm_baseline.py" record \
 明确为 unavailable，绝不写 0。阶段日志由毫秒整数截断时，闭合校验使用
 `max(5ms, stageCount + 2ms)` 的有界容差，并把实际舍入残差写入 warning；超出该上限仍拒绝样本。
 当前实现已用 T1 归档数值做离线回归，并在 iPhone 13 真机完成多轮 Release 采集；
-设备重启并解锁后，固定 warmup=3、n=10 的两次独立 run 为 p50=256ms/CV=9.6% 与
-266ms/CV=7.1%，跨 run 诊断 `consistent`，已生成 provisional baseline；因工作树 dirty，
-仍不是干净 commit 基线。
+**clean commit `2b3a1ea` 上的正式 baseline 已记录**（warmup=3、n=10）：
+run C p50=252ms/CV=3.5%、run D p50=257ms/CV=2.8%，跨 run 诊断 `consistent`
+（Δp50=5ms），`compare` 退出码 0。同一提交的更早一轮 run B（CV=21.5%、多簇）
+被整轮拒绝并保留为筛选依据 —— **拒绝一整轮，而不是挑掉里面的快样本**。
