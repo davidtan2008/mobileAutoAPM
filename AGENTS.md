@@ -2,6 +2,8 @@
 
 > 这是**唯一真源**。`CLAUDE.md` 只是一行指回这里。
 > 无论你用的是 Claude Code / opencode / Codex / Cursor，都从这份文件开始。
+>
+> 📖 想知道「这套工具能做什么、怎么用」→ 看 [`docs/usage-guide.md`](docs/usage-guide.md)
 
 ---
 
