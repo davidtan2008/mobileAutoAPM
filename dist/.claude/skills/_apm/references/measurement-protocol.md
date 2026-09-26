@@ -113,7 +113,7 @@ CV = 标准差 / 均值
 
 > 从 314ms 优化到 279ms，提升 11%。
 
-（后者是**挑了快模式的样本**得到的 —— 见 §5 反模式）
+（后者是**挑了快模式的样本**得到的 —— 见 §6 反模式）
 
 ---
 
@@ -142,7 +142,76 @@ CV = 标准差 / 均值
 
 ---
 
-## 五、反模式（这些都会让结论失真）
+## 五、真机 UI 自动化：先预热，别把环境问题当代码问题
+
+> 实测于 iPhone 13 / iOS 26.7 / Xcode 26.4.1 / **网络配对无 USB**。
+
+直接跑真机 UI 测试会以两种形态失败，**都不是代码问题**：
+
+```text
+① Early unexpected exit ... exited with code 74
+   [DTXConnection] Connection peer refused channel request for
+     "dtxproxy:XCTestDriverInterface:XCTestManager_IDEInterface"
+   [Default] Exiting due to IDE disconnection.
+
+② The test runner failed to initialize for UI testing.
+   (Underlying Error: Timed out while enabling automation mode.)
+```
+
+### 判别方法：先只跑单元测试
+
+同设备、同会话下跑一次设备侧单元测试：
+
+- **通过** → `testmanagerd` 本身健康，缺的是 UI automation 通道的初始化时机；
+- **也失败** → 才是签名 / 安装 / 连通性问题。
+
+这一步能把「环境故障」和「代码故障」彻底分开，**不要跳过**。
+
+### 修法：先预热，再跑 UI
+
+```bash
+# 1) 预热（故意选一组快而稳的单元测试）
+mobilebuildmcp device test --device-id <DEV> \
+  --json '{"extraArgs":["-only-testing:<UnitTarget>/<SomeTests>"]}'
+
+# 2) 再跑 UI
+mobilebuildmcp device test --device-id <DEV>
+```
+
+预热后 UI 立刻通过（`Setting up automation session` 从超时降到 ~3.7s）。
+
+> **把它固化成脚本，不要靠口头约定。** 顺序一旦只存在于文档里，
+> 迟早有人直接跑 UI 目标而重现 `exit 74`。
+
+### 为什么它无法自愈
+
+```text
+xctrace list devices            → 该机列为 Devices Offline
+~/Library/Developer/Xcode/DeviceSupport → 空（从未为该设备准备）
+设备 iOS 26.7 (23H24)          > Xcode SDK 26.4 (23E252)
+USB                            → 未连接
+```
+
+Xcode 需要**通过 USB 连接**才会为设备准备匹配的 DeviceSupport。
+设备只有网络配对时，这一步做不了，于是 automation 通道起不来。
+设备 OS 比 Xcode SDK 更新时尤其容易卡在这里。
+
+**根治**：用 USB 连接设备并保持解锁，让 Xcode 完成 DeviceSupport 准备。
+
+### 另一类假失败：`async` 用例不在主线程
+
+```text
+-[XCUIApplication _launchUsingXcode:...] must be called on the main thread
+```
+
+`async` 的 XCTest 方法不在主线程执行，而 `XCUIApplication.launch()` 强制要求主线程。
+
+**注意盲区**：如果该用例在模拟器上被 skip（能力不足），skip 发生在 `launch()` **之前**，
+这个缺陷在模拟器上完全不会暴露。**只在能跑通的那条路径上验证是不够的。**
+
+---
+
+## 六、反模式（这些都会让结论失真）
 
 | 反模式 | 为什么错 |
 |---|---|
@@ -155,7 +224,7 @@ CV = 标准差 / 均值
 
 ---
 
-## 六、一次规范的测量应该留下什么
+## 七、一次规范的测量应该留下什么
 
 按 `metrics-definitions.md` §6 的报告模板，**至少包含**：
 
@@ -172,7 +241,7 @@ CV = 标准差 / 均值
 
 ---
 
-## 七、平台已提供的保障（P0 实现与边界）
+## 八、平台已提供的保障（P0 实现与边界）
 
 本次演练暴露的三个缺口已经落成第一版可执行能力。它们是**数据质量闸门**，
 不是新的性能数字来源：
