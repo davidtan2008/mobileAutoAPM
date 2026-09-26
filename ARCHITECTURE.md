@@ -45,8 +45,8 @@
    ┌──────────────────────┴──────────────────────┐
    │           被观测对象（用户的 App）             │
    │                                             │
-   │  runtimes/ios-apm    应用侧埋点（iOS 原生）    │
-   │  runtimes/rn-apm     应用侧埋点（React Native）│
+   │  ios-apm    应用侧埋点（iOS 原生）    │
+   │  rn-apm     应用侧埋点（React Native）│
    └─────────────────────────────────────────────┘
 ```
 
@@ -128,8 +128,12 @@
 | 脚本 | 职责 | 关键设计 |
 |---|---|---|
 | `apm_doctor.py` | 能力体检 | 明确"本机现在真的能做什么"，不假设工具存在 |
-| `apm_baseline.py` | 显著性判定 | **置换检验**；能识别"统计显著但幅度无意义" |
+| `apm_baseline.py` | 显著性判定 + 质量闸门 | **置换检验**；高方差/多模态/口径问题不再包装成改善或劣化 |
+| `apm_measure.py` | 标准测量 profile | iOS 原生真机硬校验；保留逐次 observations、原始日志与 context |
+| `apm_feasibility.py` | 可行性/对照组闸门 | 目标低于 control 地板时停止局部优化，升级架构决策 |
+| `apm_diagnose.py` | 方差诊断与判据建议 | CV、疑似多簇、分段 CV、可疑变量相关性；相关不等于因果 |
 | `apm_white_screen.py` | 白屏检测 | 纯标准库解 PNG；三重证据避免纯色页面误判 |
+| `apm_screenshot.py` | iOS 真机截图 | DVT/pymobiledevice3 优先，idevicescreenshot 回退；物理真机硬校验 |
 | `rn_symbolicate.py` | 堆栈符号化 | 纯标准库实现 VLQ；**Hermes 两步合成** |
 | `rn_build_symbols.py` | 符号门禁 | 退出码 2 可直接作 CI 门禁 |
 | `ai_readiness.py` | AI 友好度扫描 | 5 维度 20+ 检查项，每条给依据/后果/修法 |
@@ -192,7 +196,7 @@
 
 ```
 提交前必须：
-  ① 跑相关测试（46 Python + 74 RN + 11 iOS）
+  ① 跑相关测试（92 Python + 74 RN + 11 iOS）
   ② ai_readiness.py 分数不退化
   ③ plugins/ 有改动 → 重新生成 dist/ 并确认无残留变量
   ④ 性能结论 → 必须附「命令 + 设备 + 样本量 + 显著性」

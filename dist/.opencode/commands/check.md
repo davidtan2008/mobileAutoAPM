@@ -13,14 +13,17 @@ description: 跑一次全维度性能体检与回归对比，发现问题则自�
 1. **读状态**：`.apm/state.json` 与 `.apm/baseline/`，确认哪些维度有基线可比。
 
 2. **并行采集**（多个维度互不依赖时）：
-   调用 `apm-profiler` 子 Agent 采集数据。**每个维度至少 3 次，记录完整上下文。**
+   调用 `apm-profiler` 子 Agent，优先走标准 profile；启动至少 **5 次**，保留逐次数据。
 
-3. **回归对比**：
+3. **先诊断再回归对比**：
    ```bash
-   python3 ".claude/skills/_apm/scripts/apm_baseline.py" compare \
+   S=".claude/skills/_apm/scripts"
+   python3 "${S}/apm_diagnose.py" .apm/runs/<本次> --metric <焦点指标>
+   python3 "${S}/apm_baseline.py" compare \
      --baseline .apm/baseline/<维度>.json --run .apm/runs/<本次>/metrics.json
    ```
-   注意退出码：`0` 无劣化 / `2` **有劣化** / `1` 数据问题。
+   退出码：`0` 可信且无劣化 / `2` 可确认劣化 / `1` 数据、口径或质量问题。
+   诊断退出 `2` 时停止优化流程，先修测量。
 
 4. **功能回归**：调用 `apm-autotest` 的核心流程套件，确认功能未坏。
 
@@ -28,8 +31,8 @@ description: 跑一次全维度性能体检与回归对比，发现问题则自�
    - **有劣化** → 为每项劣化建 `.apm/issues/ISSUE-NNN.json`，
      然后**自动进入 `apm-loop` 的 Phase 3 定位根因**（调用对应专项技能）
    - **无劣化** → 报告结论，更新 `state.json`
-   - **测量不可靠（CV > 30%）** → **停止优化流程**，先解决测量问题
-     （增加样本、控制变量、固定设备、降温）
+   - **测量不可靠（CV > 30% 或疑似多峰）** → **停止优化流程**，先解决测量问题
+     （增加样本、控制变量、固定设备、降温，或改测同次分解指标）
 
 ## 报告要求
 

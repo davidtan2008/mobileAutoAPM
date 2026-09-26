@@ -16,7 +16,7 @@
 | | 做什么 | 现状 |
 |---|---|---|
 | **A · 项目 AI 化改造** | 把人类维护的项目改造成 AI 可读、可改、可验证 | 只有扫描器，**改造闭环没做** |
-| **B · APM 自主闭环** | 发现 → 定位 → 修复 → 验证 → 防劣化 | 能力齐全，**核心承诺只验证过一次且未达成** |
+| **B · APM 自主闭环** | 发现 → 定位 → 修复 → 验证 → 防劣化 | 能力齐全；已有 1 次成功闭环（译文持久化）与 1 次诚实失败（T1 启动） |
 
 **为什么 A 在 B 前面**：一个没有测试、构建命令不明、缺 context 文件的项目，
 AI Agent 既无法理解它，也**无法验证自己的任何改动** —— 此时谈"自主优化"是空话。
@@ -74,9 +74,10 @@ e85bb17  R0 自我达标 + 市场调研落地
 |---|---|
 | R0 自我达标（AI 友好度 100/100） | ✅ |
 | R1 定位落地（README / 架构图 / 原理图 / 实现细节） | ✅ |
-| **T1 闭环演练** | ⚠️ **完成但未达成目标**（见 §4） |
-| **P0 补齐测量能力** | ⬜ **← 从这里开始** |
-| P1 把 T1 结论做成能力 | ⬜ |
+| **T1 闭环演练** | ⚠️ **诚实失败**：200ms 目标被 control p50=210ms 拦截（见 §4） |
+| **首个成功闭环** | ✅ 结束任务译文持久化：红测→单变量修复→120/120 单测 + Release 构建 |
+| **P0 补齐测量能力** | 🟡 **iOS profile + 方差诊断已落地；重启后 warmup=3/n=10 两次通过并生成 provisional baseline，仍待干净 commit 基线** |
+| P1 把 T1 结论做成能力 | ✅ **可行性/对照组闸门已落地并真实验证；200ms 目标被 control 地板拦截** |
 | P2 支柱 A 改造闭环 | ⬜ |
 | P3 自我进化 | ⬜ 设计已有，未实现 |
 | P4 开源运营 | ⬜ |
@@ -84,7 +85,7 @@ e85bb17  R0 自我达标 + 市场调研落地
 ### 仓库结构
 
 ```
-plugins/mobile-apm/   ★ 单一真源：7 技能 / 4 子 Agent / 4 命令 / 1 hook / 6 脚本 / 知识库
+plugins/mobile-apm/   ★ 单一真源：7 技能 / 4 子 Agent / 4 命令 / 1 hook / 10 脚本 / 知识库
 ios-apm/              iOS 原生埋点 SDK（Swift Package，11 测试）
 rn-apm/               React Native 埋点 SDK（npm，74 测试）
 tools/                跨 agent 编译器 + 图表渲染
@@ -146,17 +147,33 @@ T1 是第一次真实的自主闭环演练，题目是「**冷启动压到 200ms
 
 ### 第一件该做的事：P0 · 补齐测量能力
 
-详见 `ROADMAP.md` §P0。三个缺口：
+详见 `ROADMAP.md` §P0。当前第一版已经落地：
 
-| # | 缺口 | 现状 |
+| # | 能力 | 当前状态 |
 |---|---|---|
-| 1 | 测量脚本**不可复用** —— 它写在被观测工程的 `.apm/` 里 | 应做成平台模板，参数化设备/包名，随插件分发 |
-| 2 | **没有方差诊断** —— 只在 CV>30% 时告警，不帮定位成因 | 增加分段 CV 对比、多峰检测、可疑变量相关性 |
-| 3 | **没有判据建议** —— 多峰时不知道该怎么办 | 检测到多峰时主动建议「改测分解指标」 |
+| 1 | iOS 原生参数化测量 profile | `apm_measure.py`；物理设备/bundle/构建产物硬校验，CoreDevice readiness 闸门，逐次 observations + raw 工件；Release 真机链路已跑通 |
+| 2 | 方差诊断 | `apm_diagnose.py`；CV、疑似多簇、分段 CV、跨运行相关性与同 commit 跨 run 漂移；已用 T1 与多轮真机 run 回归 |
+| 3 | 判据建议 | 高方差/多簇/跨 run 漂移时建议增加样本、控制变量或改测同次分解指标；baseline 已将质量失败返回 `1` |
+
+**边界**：当前只承诺 iOS 原生冷启动 profile；Android / 鸿蒙 / RN 标准适配器尚未宣称完成。
+`pre-main` 只记录为可疑变量，不自动分层。重启并解锁后，固定 warmup=3、n=10 的两次
+独立 run（p50=256ms/CV=9.6%、266ms/CV=7.1%）通过，跨 run 诊断为 `consistent`，
+已生成 provisional baseline；历史失败证据见目标工程 `.apm/issues/ISSUE-P0-002-cross-run-shift.json`
+与 `ISSUE-P0-003-warmup-repeatability.json`。
 
 **背景知识在 `plugins/mobile-apm/references/measurement-protocol.md`** —— 先读它，那里有完整的实测数据与推理过程。
 
-### 然后：找一个**确实可达成的**需求跑通闭环
+### 然后：按 P1 先做可行性/对照组，再找一个**确实可达成的**需求跑通闭环
+
+T1 目标「冷启动 ≤200ms」已被真实最小 control（n=20，p50=210ms）拦截；
+这条启动路线不再继续局部优化。绝对目标先运行：
+
+```bash
+python3 plugins/mobile-apm/scripts/apm_feasibility.py plan \
+  --metric <指标> --target <目标>
+```
+
+没有 `potentially_reachable` 结论，不进入局部优化。
 
 发布需要「目标达成且验证过」的演示。候选：
 
@@ -277,7 +294,9 @@ func premainMillis() -> Int   // 取不到返回 -1
 ```bash
 make help              # 全部命令
 make test              # 三套测试（改完必跑）
-make test-py           # 只跑 Python（最快）
+make test-py           # 只跑 Python（最快，92 个测试）
+python3 plugins/mobile-apm/scripts/apm_measure.py --help  # iOS 标准测量 profile
+python3 plugins/mobile-apm/scripts/apm_diagnose.py --help # 方差诊断
 make gate              # AI 友好度门禁（CI 同款）
 make check             # 快速自检
 make doctor            # 工具链体检
@@ -297,7 +316,7 @@ make clean
 | Sentry MCP | 需 Sentry 账号，在 Claude Code 里执行 `/mcp` 完成 OAuth |
 | Android / 鸿蒙真机验证 | 需接设备（`adb devices` / `hdc list targets` 目前为空） |
 | Firebase 相关 | 依赖 Google 基础设施，国内需代理；**Crashlytics 在鸿蒙不可用** |
-| iOS 真机测量 | 需要一台真机 + `idevicesyslog`（`brew install libimobiledevice`） |
+| iOS 真机测量/截图 | 需要一台真机；测量用 `idevicesyslog`，截图推荐可选 `pymobiledevice3`（也可用 `--pymobiledevice3-bin` 指向隔离安装） |
 
 ---
 

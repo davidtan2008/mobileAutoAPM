@@ -9,7 +9,7 @@
 
 **为什么不让模型每次现写。**
 
-数据平面的六个脚本（`plugins/mobile-apm/scripts/`）全部是**零第三方依赖的 Python**，
+数据平面的十个脚本（`plugins/mobile-apm/scripts/`）全部是**零第三方依赖的 Python**，
 每个都能独立运行、有测试、结果可复现。
 
 理由：
@@ -123,6 +123,47 @@ def noise_band(a, b, min_effect, k=2.0):
 
 ---
 
+## 2.5 `apm_measure.py` —— 参数化测量 profile
+
+### 为什么不是把 T1 的 shell 脚本原样复制
+
+T1 的 `measure-launch.sh` 证明了测量缺口，但它把 UDID、包名、构建路径硬编码在
+被观测工程里，并使用 macOS 默认没有的 GNU `timeout`，还会按已被证伪的
+`pre-main` 假设自动分层。平台不能把这些问题复制给下一个用户。
+
+第一版 profile 因此只承诺一个明确边界：`ios-native-startup`。它：
+
+- 通过 `devicectl` 解析并硬校验 physical device、UDID、系统状态；等待 CoreDevice tunnel `connected` 后才开始安装/预热/采样；
+- 校验 `.app/Info.plist` 的 bundle id 与参数一致；
+- 用 Python 自己的进程超时与有界日志读取，不依赖 GNU `timeout`；
+- 保存每次的 total、canonical pre-main、完整 stages、premain candidates 和 raw log；
+- 用 `firstStage.since + 后续 delta` 校验时间闭合，不假设某个 SDK 的第一段 delta
+  一定是 0 或包含 pre-main；
+- 缺 pre-main、缺终点、阶段不闭合时写 invalid，**不写 0**；
+- `--warmup-launches` 明确记录安装后的预热次数；预热不计入样本，改变次数会改变 measurement signature，不能混比；
+- 采集结束强制调用 `apm_diagnose.py`，诊断不可信时退出 2。
+
+Android / 鸿蒙 / RN 的 profile 尚未落地，skill 会明确报告不可用，不用 iOS profile
+冒充跨平台能力。
+
+## 2.6 `apm_diagnose.py` —— 方差诊断
+
+诊断器读取规范化 `metrics.json`，也能读取 T1 风格的 `raw/stages.txt`。它做三件
+确定性的事：
+
+1. 计算每个连续指标的 n、p50、mean、CV；
+2. 用可解释的「排序后大间隙」启发式标记疑似多簇，并递归检查分解段；
+3. 对有逐次配对的数据计算 Pearson/Spearman 相关性，若跨运行方向相反则明确
+   标记为不可自动分层。
+
+多簇检测是**诊断启发式，不是正式模态检验**；工具不会挑选快簇、删除慢簇或做
+post-hoc 校正。诊断还会比较**同一 commit 的独立 run** 的焦点中位数：超过
+`max(minEffect, 2×组内最大标准差)` 就标记 `shift_detected`。不同 commit 的
+baseline A/B 不参与这项重复性判定。`apm_baseline.py` 已把高方差/多簇/跨 run
+漂移/口径错误变成数据错误退出码 1。
+
+---
+
 ## 3. `apm_white_screen.py` —— 白屏检测
 
 ### 3.1 为什么自己写 PNG 解码器
@@ -152,6 +193,58 @@ blank = 边缘密度低  AND  亮度标准差低  AND  主色占比高
 ### 3.3 用真实截图验证过
 
 用模拟器实拍截图（1206×2622，2.9MB，63010 种颜色）端到端跑通 —— 不只是合成图。
+本次 iOS 26.4 模拟器在启动后的 0.1s、0.3s、0.6s、1s、2s、4s 抓取 6 帧，
+`apm_white_screen.py` 全部判定为 `content_present`，没有复现白屏。
+
+### 3.4 旧 screenshotr 后端边界
+
+iPhone 13 真机上 `idevicescreenshot` 返回
+`Could not start screenshotr service: Invalid service`；这条旧后端仍标记为不可用。
+但 `apm_screenshot.py` 已验证可选 `pymobiledevice3` DVT 后端可以在同一台真机上
+生成 1170×2532 PNG，因此真机白屏验证不再依赖旧 screenshotr 服务。
+
+## 3.5 `apm_screenshot.py` —— iOS 真机截图
+
+白屏分析器只接受图片，不负责采集。`apm_screenshot.py` 补上 iOS 真机采集层：
+
+- 先用 `devicectl` 的结构化设备信息硬校验 `physical`，模拟器不能冒充真机；
+- 优先调用可选的 `pymobiledevice3 developer dvt screenshot --native`；
+- DVT 不可用时回退 usbmux 模式和 `idevicescreenshot`；
+- 校验后端确实写出了非空 PNG/JPEG/TIFF，并记录后端、设备、尺寸和失败原因；
+- `pymobiledevice3` 不是运行时依赖，没安装时返回 `unavailable`，不静默降级。
+
+标准用法：
+
+```bash
+python3 scripts/apm_screenshot.py \
+  --device "<真机 UDID>" --output .apm/white-screen/shot.png \
+  --pymobiledevice3-bin /path/to/venv/bin/pymobiledevice3 --json
+```
+
+## 3.6 `apm_feasibility.py` —— 目标可行性与对照组闸门
+
+T1 的 200ms 目标是在做完优化后才发现空壳对照组的地板约 230ms。P1 把这个教训
+前置成确定性判断：
+
+- `plan` 输出最小 control 实验协议（只改变业务内容，保留生命周期与埋点）；
+- `check` 比较 control 与 candidate 的指标分布、方向、context 和 measurement signature；
+- 目标低于 control 中位数地板时返回退出码 `2`，要求停止局部优化并升级架构决策；
+- 目标落在测量余量内时返回不可判定，要求补样本而不是猜；
+- control/candidate 任一质量不可信或口径不同，都拒绝判断。
+
+```bash
+python3 scripts/apm_feasibility.py plan \
+  --metric startup.cold.first_frame --target 200 --json
+
+python3 scripts/apm_feasibility.py check \
+  --control .apm/runs/control/metrics.json \
+  --candidate .apm/runs/candidate/metrics.json \
+  --metric startup.cold.first_frame --target 200 --json
+```
+
+已在 iPhone 13 / iOS 26.7 上真实验证：DVT 后端生成 1170×2532 PNG，随后
+`apm_white_screen.py` 正确判定为 `content_present`；P1 的 control/candidate 判定
+则由离线 fixture 回归覆盖，真实 control run 仍需在目标工程中执行。
 
 ---
 

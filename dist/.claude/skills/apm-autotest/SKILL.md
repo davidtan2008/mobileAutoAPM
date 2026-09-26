@@ -44,7 +44,7 @@ python3 ".claude/skills/_apm/scripts/apm_doctor.py" --json   # 先确认本机�
 | 模糊需求 | 可判定的断言 |
 |---|---|
 | "支持暗黑模式" | 切换到暗黑模式后，首页背景色 = `#000000`，文字色 = `#FFFFFF` |
-| "列表加载快" | 冷启动 → 列表首屏可见耗时 < 800ms（p50，3 次中位数） |
+| "列表加载快" | 冷启动 → 列表首屏可见耗时 < 800ms（p50，至少 5 次并通过方差诊断） |
 | "登录失败有提示" | 输入错误密码 → 出现含"密码"字样的提示文案 |
 
 **拆不出可判定断言时，必须先向用户澄清需求，不要自己假设。**
@@ -86,17 +86,22 @@ maestro test .apm/flows/<需求ID>.yaml
 ### 3.2 性能回归（更有价值，也更容易被忽略）
 
 ```
-1. 用 XCUITest + XCTMetric / Maestro 采集性能指标
-2. 解析结果 → 规范化 JSON
-3. 与基线对比 → apm_baseline.py
-4. 劣化则开 issue，进入 apm-loop 的 Phase 3
+1. 用标准测量 profile 采集（iOS 原生使用 apm_measure.py；其他平台用已验证适配器）
+2. 保留逐次 observations 与原始工件 → 运行 apm_diagnose.py
+3. 诊断通过后与基线对比 → apm_baseline.py
+4. 只有退出码 2 才开「确认劣化」issue，进入 apm-loop 的 Phase 3
 ```
 
 ```bash
-python3 ".claude/skills/_apm/scripts/apm_baseline.py" compare \
+S=".claude/skills/_apm/scripts"
+python3 "${S}/apm_diagnose.py" .apm/runs/<本次> \
+  --metric <焦点指标>
+python3 "${S}/apm_baseline.py" compare \
   --baseline .apm/baseline/startup.json --run .apm/runs/<本次>/metrics.json
-# 退出码：0=无劣化  2=有劣化（可作 CI 门禁）  1=样本/参数问题
+# 退出码：0=可信且无劣化  2=可确认劣化（可作 CI 门禁）  1=数据/口径/质量问题
 ```
+
+诊断退出 `2` 时只能报告「测量不可信」，不能把候选差异写成回归或改善。
 
 **退出码 2 可直接作为 CI 门禁失败条件。**
 

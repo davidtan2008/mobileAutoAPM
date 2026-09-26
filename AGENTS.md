@@ -57,12 +57,33 @@ python3 plugins/mobile-apm/scripts/apm_doctor.py
 # AI 友好度扫描
 python3 plugins/mobile-apm/scripts/ai_readiness.py --path .
 
-# 基线显著性判定（退出码 0=无劣化 2=有劣化）
+# 标准 iOS 原生测量 profile（物理真机；至少 n=5）
+python3 plugins/mobile-apm/scripts/apm_measure.py \
+  --profile ios-native-startup --device <UDID> --package-id <bundle> \
+  --build-type Release --build-path <绝对路径>/App.app \
+  --project-root . --output .apm/runs/<本次>-launch
+
+# 方差诊断（退出码 2 = 测量不可信/样本不完整）
+python3 plugins/mobile-apm/scripts/apm_diagnose.py .apm/runs/<本次> \
+  --metric startup.cold.first_frame
+
+# 基线显著性判定（退出码 0=无劣化 2=可确认劣化 1=数据/口径/质量问题）
 python3 plugins/mobile-apm/scripts/apm_baseline.py compare \
   --baseline .apm/baseline/startup.json --run .apm/runs/<本次>/metrics.json
 
+# 可行性前置判断（绝对目标先测最小对照地板）
+python3 plugins/mobile-apm/scripts/apm_feasibility.py plan \
+  --metric startup.cold.first_frame --target 200
+python3 plugins/mobile-apm/scripts/apm_feasibility.py check \
+  --control <control>/metrics.json --candidate <candidate>/metrics.json \
+  --metric startup.cold.first_frame --target 200
+
 # 白屏检测（纯标准库解 PNG）
 python3 plugins/mobile-apm/scripts/apm_white_screen.py shot.png
+
+# iOS 真机截图（可选 pymobiledevice3；DVT 优先，自动回退 idevicescreenshot）
+python3 plugins/mobile-apm/scripts/apm_screenshot.py \
+  --device <UDID> --output .apm/white-screen/shot.png
 
 # RN 堆栈符号化（Hermes 两步合成）
 python3 plugins/mobile-apm/scripts/rn_symbolicate.py compose \
@@ -78,9 +99,8 @@ python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
 ### 测试
 
 ```bash
-# Python（46 个测试）
-python3 plugins/mobile-apm/tests/test_ai_readiness.py
-python3 plugins/mobile-apm/tests/test_rn_symbolicate.py
+# Python（92 个测试）
+make test-py
 
 # RN SDK（74 个测试）
 cd rn-apm && npm install && npm test
@@ -177,6 +197,7 @@ Python 3.9+ · Node 18+ · Xcode（iOS 任务）
 |---|---|---|
 | `mobilebuildmcp` | iOS 构建/模拟器/UI 自动化 | `npm i -g mobilebuildmcp` |
 | `agent-device` | 跨平台设备驱动（含鸿蒙） | `npm i -g agent-device` |
+| `pymobiledevice3` | iOS 真机截图 DVT 后端（可选） | `python3 -m venv .apm/venv && .apm/venv/bin/pip install pymobiledevice3` |
 | `adb` | Android | Android SDK `platform-tools` |
 | `hdc` / `ohpm` / `hvigorw` | 鸿蒙 | DevEco Studio 内置 SDK |
 

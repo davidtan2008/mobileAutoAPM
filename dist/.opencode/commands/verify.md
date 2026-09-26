@@ -14,24 +14,28 @@ description: 验证一次优化是否真的生效（同口径复测 + 显著性�
 2. **同口径复测**：调用 `apm-profiler`，**必须复用与基线完全相同的**：
    - 设备/模拟器型号
    - 构建类型（release/debug）
-   - 测量命令
-   - 样本量（≥3 次）
+   - 测量命令与 `measurementSignature`
+   - 样本量（启动至少 5 次）
 
    ⚠️ 口径不一致 → **结论无效**，必须重测，不要"将就用"。
 
-3. **显著性检验**：
+3. **先诊断，再做显著性检验**：
    ```bash
-   python3 ".claude/skills/_apm/scripts/apm_baseline.py" compare \
+   S=".claude/skills/_apm/scripts"
+   python3 "${S}/apm_diagnose.py" .apm/runs/<本次> --metric <焦点指标>
+   python3 "${S}/apm_baseline.py" compare \
      --baseline .apm/baseline/<维度>.json --run .apm/runs/<本次>/metrics.json
    ```
-   脚本会做置换检验并给出 p 值，自动识别"统计显著但幅度无意义"的情况。
+   诊断退出 `2` 或 compare 退出 `1` 时，结论是「无法判定/测量不可信」，
+   不是「无显著变化」。compare 退出 `2` 才是可确认劣化。
 
 4. **功能回归**：调用 `apm-autotest` 跑核心流程。**性能没退化 ≠ 功能没坏。**
 
 5. **防劣化**：验证通过后，**询问用户是否更新基线**（不要自动更新）：
    ```bash
    python3 ".claude/skills/_apm/scripts/apm_baseline.py" record \
-     --in .apm/runs/<本次>/metrics.json --out .apm/baseline/<维度>.json
+     --in .apm/runs/<本次>/metrics.json --out .apm/baseline/<维度>.json \
+     --require-healthy
    ```
    脚本会自动备份旧基线。
 

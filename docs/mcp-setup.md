@@ -58,7 +58,8 @@ hvigorw  → DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw         6.26.4
 ```
 
 **能力矩阵变化**：Android 与鸿蒙从「⚠️ 受限」→「✅ 可执行」，
-`apm_doctor.py` 现在报告 **9/9 全部就绪**。
+`apm_doctor.py` 现在报告 **11 项能力**；未配置可选 DVT 截图后端时为 10/11，
+设置 `APM_PYMOBILEDEVICE3_BIN` 后为 11/11。
 
 其他工具位置：Xcode `/Volumes/DevDisk/Applications/Xcode.app`；
 OpenHarmony SDK `/Users/tanwei/Library/OpenHarmony/Sdk`（含 10 / 12 两版）。

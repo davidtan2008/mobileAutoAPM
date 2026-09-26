@@ -30,9 +30,10 @@ Agent 会自己：测量 → 与基线对比 → 分段定位 → 改代码 → 
 
 三句话摘要：
 
-- 能力骨架已建好并有测试（iOS 11 + RN 74 + Python 61），**但核心承诺只验证过一次且未达成**
-- 那次失败的演练暴露的不是 App 的问题，是**平台的测量能力缺口** → 下一步是补它
-- ⚠️ **开源发布需要一个「目标达成且验证过」的演示，现在还没有**（详见 [`ROADMAP.md`](ROADMAP.md) 开头）
+- 能力骨架已建好并有测试（iOS 11 + RN 74 + Python 92），核心承诺已有 1 次成功闭环与 1 次诚实失败
+- P0/P1 已落地：iOS 真机测量、方差诊断、clean baseline、control 可行性闸门
+- 成功案例：结束任务译文持久化（红测→修复→120/120 单测 + Release 构建）
+- ⚠️ 发布仍需把 case study 录成 60–90 秒视频并人工审阅（见 [`ROADMAP.md`](ROADMAP.md) 开头）
 
 ---
 
@@ -140,7 +141,7 @@ Agent 会**如实报告「无法完成」**，而不是伪造一个数字。
 | **7 个技能** | `apm-loop`（主控编排）· `apm-doctor` · `apm-startup` · `apm-render` · `apm-memory` · `apm-crash` · `apm-autotest` |
 | **4 个子 Agent** | 采集 · 崩溃分诊 · 回归门禁 · 静态审查 |
 | **2 个埋点 SDK** | [`ios-apm`](ios-apm/)（Swift Package）· [`rn-apm`](rn-apm/)（npm） |
-| **6 个数据平面脚本** | 零第三方依赖，见下 |
+| **10 个数据平面脚本** | 零第三方依赖，见下 |
 | **跨 Agent 生成器** | `tools/build-portable.py`：一份源 → Claude Code / opencode 双目标 |
 
 ### 数据平面（确定性任务交给脚本，不交给模型每次现写）
@@ -148,15 +149,36 @@ Agent 会**如实报告「无法完成」**，而不是伪造一个数字。
 ```bash
 S=plugins/mobile-apm/scripts
 
-python3 $S/apm_doctor.py                 # 能力体检 —— 本机现在真的能做什么
-python3 $S/apm_baseline.py compare \
+python3 "${S}/apm_doctor.py"                 # 能力体检 —— 本机现在真的能做什么
+python3 "${S}/apm_measure.py" --help         # iOS 原生标准测量 profile
+python3 "${S}/apm_diagnose.py" .apm/runs/<本次> --metric startup.cold.first_frame
+python3 "${S}/apm_baseline.py" compare \
   --baseline .apm/baseline/startup.json --run run.json   # 显著性判定（退出码 2 = 劣化）
-python3 $S/apm_white_screen.py shot.png  # 白屏检测（纯标准库解 PNG）
-python3 $S/rn_symbolicate.py compose \
+python3 "${S}/apm_feasibility.py" plan --metric startup.cold.first_frame --target 200
+python3 "${S}/apm_white_screen.py" shot.png  # 白屏检测（纯标准库解 PNG）
+python3 "${S}/apm_screenshot.py" --device <真机 UDID> --output shot.png  # iOS 真机截图（DVT 优先）
+python3 "${S}/rn_symbolicate.py" compose \
   --outer bundle.hbc.map --inner bundle.map --out composed.map   # Hermes 两步合成
-python3 $S/rn_build_symbols.py verify --platform ios --build-dir ios/build --strict
-python3 $S/ai_readiness.py --path .      # AI 友好度扫描
+python3 "${S}/rn_build_symbols.py" verify --platform ios --build-dir ios/build --strict
+python3 "${S}/ai_readiness.py" --path .      # AI 友好度扫描
 ```
+
+### P0 测量入口（iOS 原生）
+
+```bash
+S=plugins/mobile-apm/scripts
+python3 "${S}/apm_measure.py" \
+  --profile ios-native-startup \
+  --device <真机 UDID> --package-id <bundle id> \
+  --build-type Release --build-path <绝对路径>/App.app \
+  --warmup-launches 1 \
+  --project-root . --output .apm/runs/<本次>-launch
+```
+
+它会等待 CoreDevice tunnel 就绪，保留逐次日志、`pre-main`、完整 stages 和 context，
+并自动生成 `metrics.json` / `diagnosis.json` / `status.json`。诊断发现高方差或多簇时
+退出 `2`，必须先修测量；不会自动按 `pre-main` 分层或挑选快样本。`--warmup-launches`
+是测量口径的一部分，改变次数不能与旧 run 混比。
 
 ---
 
@@ -195,7 +217,7 @@ cp -R dist/. /path/to/your-app/     # ⚠️ 用 dist/. 不能用 dist/*
 ## 质量
 
 ```
-Python 工具    61 个测试
+Python 工具    92 个测试
 rn-apm SDK     74 个测试
 ios-apm SDK    11 个测试
 ```

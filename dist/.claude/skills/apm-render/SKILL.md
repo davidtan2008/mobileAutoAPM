@@ -81,6 +81,24 @@ RN 特别提示：
 
 ## 截图检测（已内置脚本，零依赖）
 
+### iOS 真机截图
+
+真机截图使用 `apm_screenshot.py`：优先走 `pymobiledevice3` 的 DVT/CoreDevice
+通道，失败后回退 `idevicescreenshot`。`pymobiledevice3` 是可选依赖，不安装时
+脚本会明确报告不可用，不会拿模拟器截图冒充真机。
+
+```bash
+# 推荐：隔离安装，不污染项目环境
+python3 -m venv .apm/venv
+.apm/venv/bin/pip install pymobiledevice3
+
+python3 ".claude/skills/_apm/scripts/apm_screenshot.py" \
+  --device "<真机 UDID>" --output .apm/runs/<本次>/screenshots/shot.png \
+  --pymobiledevice3-bin .apm/venv/bin/pymobiledevice3
+```
+
+### 截图分析
+
 ```bash
 python3 ".claude/skills/_apm/scripts/apm_white_screen.py" \
   .apm/runs/<本次>/screenshots/*.png
@@ -90,7 +108,8 @@ python3 ".claude/skills/_apm/scripts/apm_white_screen.py" --json shot.png
 ```
 
 脚本用**三重证据**判定（边缘密度 + 亮度标准差 + 主色占比），
-避免"纯色设计页面"被误判为白屏。已验证可处理真实模拟器截图。
+避免"纯色设计页面"被误判为白屏。已验证可处理真实模拟器截图；iOS 26.4
+模拟器启动早期 6 帧均为 `content_present`。
 
 **用法**：配合 `mobilebuildmcp` 截图能力采集页面加载过程的多帧：
 

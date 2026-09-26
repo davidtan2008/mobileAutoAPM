@@ -34,8 +34,10 @@ description: 在当前工程初始化 APM 体系（建 .apm/ 目录、体检工�
     "updated_at": "<ISO时间>"}
    ```
 
-5. **采集首轮基线**：调用 `apm-profiler` 子 Agent 采集至少 **启动耗时** 的基线
-   （用户指定其他维度则一并采集）。**至少 3 次，记录完整上下文。**
+5. **采集首轮基线**：调用 `apm-profiler` 子 Agent。启动任务优先使用标准
+   `apm_measure.py --profile ios-native-startup`，默认至少 **5 次**；采集完成后
+   必须运行 `apm_diagnose.py`。诊断退出 `2` 时不要写入「可信基线」，先修测量。
+   通过后用 `apm_baseline.py record --require-healthy` 写入基线。
 
 6. **建议 gitignore**：`.apm/runs/`（原始数据体积大），但 `.apm/baseline/` **必须入库**。
 

@@ -39,9 +39,33 @@ Phase 0 体检 → Phase 1 基线 → Phase 2 发现 → Phase 3 定位 → Phas
 在任何优化之前，先测出"现在是多少"。
 
 - 明确本次要观测的指标（见 `references/metrics-definitions.md`）
-- 用与目标指标匹配的工具测量：启动用专项技能 `apm-startup`，渲染用 `apm-render`，内存用 `apm-memory`，崩溃用 `apm-crash`
-- **至少测 3 次取中位数**，并记录方差。方差过大说明测量方法本身不可靠，先修测量再谈优化
-- 基线写入 `.apm/baseline/<维度>.json`，**必须包含**：commit sha、设备/模拟器型号、构建类型(release/debug)、测量命令、原始数据路径
+- 用与目标指标匹配的标准测量 profile：启动优先 `apm_measure.py --profile ios-native-startup`；
+  其他平台只有适配器落地后才可宣称可采集，未落地时如实报告不可用
+- **至少测 5 次**，保留全部样本；采集后立即运行 `apm_diagnose.py`。
+  诊断退出 `2`（高方差/多峰/样本不完整）时先修测量，不得进入优化
+- 基线写入 `.apm/baseline/<维度>.json`，**必须包含**：commit sha、设备/模拟器型号、构建类型(release/debug)、测量命令、原始数据路径。
+  启动基线用 `apm_baseline.py record --require-healthy` 写入
+
+### Phase 1.5 — 可行性前置判断（绝对目标必做）
+
+如果目标是绝对数字（例如“冷启动 ≤200ms”），先建立**最小对照组**，再决定是否值得优化：
+
+```bash
+S=".claude/skills/_apm/scripts"
+python3 "${S}/apm_feasibility.py" plan \
+  --metric startup.cold.first_frame --target 200 --json
+
+python3 "${S}/apm_feasibility.py" check \
+  --control .apm/runs/<control>/metrics.json \
+  --candidate .apm/runs/<candidate>/metrics.json \
+  --metric startup.cold.first_frame --target 200 --json
+```
+
+- 退出 `0`：目标未被 control 地板挡住，可以进入单变量实验；
+- 退出 `1`：证据不足或测量质量有问题，先补 control/修测量；
+- 退出 `2`：目标已被 control 地板挡住，**停止局部优化，升级架构/需求决策**。
+
+详见 `references/feasibility-protocol.md`。
 
 ### Phase 2 — 发现
 
@@ -52,7 +76,8 @@ Phase 0 体检 → Phase 1 基线 → Phase 2 发现 → Phase 3 定位 → Phas
 动态库超过 6 个、`UIImage imageNamed` 触发 dyld 全局锁等待）。
 
 产出：`.apm/issues/ISSUE-NNN.json`，每条包含：现象、证据(数据路径)、影响面(用户量/频率)、
-疑似根因、置信度。**按影响面排序，先修高价值的。**
+疑似根因、置信度。若目标是绝对数字，issue 必须附 `apm_feasibility.py check` 的 control
+结果和目标地板判断。**按影响面排序，先修高价值的。**
 
 ### Phase 3 — 定位根因
 
@@ -73,16 +98,18 @@ Phase 0 体检 → Phase 1 基线 → Phase 2 发现 → Phase 3 定位 → Phas
 
 **这是最容易糊弄的一步，必须严格。**
 
-1. 用**与 Phase 1 完全相同的口径**重跑（同命令、同设备、同构建类型）
-2. 对照基线，给出**提升幅度 + 是否超过测量噪声**
-3. **必须同时验证没有引入回归**：跑 `apm-autotest` 的回归套件，确认功能没坏
-4. 如果提升幅度在噪声范围内 → **如实说"无显著改善"**，不要包装成优化成果
+1. 用**与 Phase 1 完全相同的口径**重跑（同命令、同设备、同构建类型、同 measurement signature）
+2. 先运行 `apm_diagnose.py`；退出 `2` 就停止在「测量不可信」，不生成改善/劣化结论
+3. 对照基线，给出**提升幅度 + 是否超过测量噪声**；`apm_baseline.py` 退出 `1` 是数据问题，退出 `2` 才是可确认劣化
+4. **必须同时验证没有引入回归**：跑 `apm-autotest` 的回归套件，确认功能没坏
+5. 如果提升幅度在噪声范围内 → **如实说"无显著改善"**，不要包装成优化成果
 
 ### Phase 6 — 防劣化
 
 单次优化会随时间被新代码侵蚀。把防线自动化：
 
-- 把验证过的指标写入 `.apm/baseline/`，作为 CI 门禁的阈值
+- 把验证过的指标写入 `.apm/baseline/`，作为 CI 门禁的阈值；
+  启动数据先过 `apm_diagnose.py`，必要时使用 `record --require-healthy`
 - 用 `perf-guard` 子 Agent / hook 在代码变更后自动跑回归
 - 新基线**必须并入版本库**，否则换台机器就失效
 
@@ -100,6 +127,8 @@ Phase 0 体检 → Phase 1 基线 → Phase 2 发现 → Phase 3 定位 → Phas
 │       ├── meta.json     # commit / 设备 / 构建类型 / 命令 / 环境
 │       ├── raw/          # 原始 trace、日志、截图
 │       ├── metrics.json  # 解析后的规范化指标
+│       ├── diagnosis.json # 方差、多簇、相关性与判据建议
+│       ├── status.json   # 完整/不完整/测量不可信状态
 │       └── report.md     # 人类可读结论
 ├── issues/
 │   └── ISSUE-001.json    # 发现的问题及其状态
@@ -132,6 +161,7 @@ Phase 0 体检 → Phase 1 基线 → Phase 2 发现 → Phase 3 定位 → Phas
 | 需要修改业务逻辑（不只是性能相关代码） | 可能改变产品行为 |
 | 需要新增/替换三方 SDK 或后端 | 涉及合规、预算、架构决策 |
 | 根因指向"需要重构架构" | 成本远超一次性能任务 |
+| `apm_feasibility.py check` 返回 `blocked_by_control_*` | 目标已被实测地板挡住，继续局部优化没有意义 |
 | 测量环境不可靠（方差 > 30%） | 此时任何结论都不可信 |
 | 需要真机/特定设备但本机没有 | 无法产出可信数据 |
 | 优化收益与风险不匹配 | 应由人决策 |

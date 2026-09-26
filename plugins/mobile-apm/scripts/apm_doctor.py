@@ -72,6 +72,8 @@ SPEC: list[Tool] = [
     Tool("codesign", "codesign", "签名检查（真机安装失败排查）", ["ios"], False, "随 macOS"),
     Tool("idevicesyslog", "idevicesyslog", "真机 syslog（libimobiledevice）", ["ios"], False,
          "brew install libimobiledevice"),
+    Tool("pymobiledevice3", "pymobiledevice3", "iOS 真机截图 DVT 后端（可选依赖）", ["ios"], False,
+         "python3 -m pip install pymobiledevice3（或设置 APM_PYMOBILEDEVICE3_BIN / 用 --pymobiledevice3-bin 指定隔离安装）", ["version"]),
 
     # ---------- React Native ----------
     Tool("node", "node", "RN / Metro / 各类 JS 工具链运行时", ["rn"], True, "brew install node 或 nvm"),
@@ -126,6 +128,8 @@ CAPABILITIES = {
     "启动耗时检测": ["mobilebuildmcp", "xctrace", "xcresulttool", "python3"],
     "页面渲染/卡顿检测": ["mobilebuildmcp", "xctrace", "python3"],
     "白屏检测": ["mobilebuildmcp", "python3"],
+    "iOS 真机截图": ["pymobiledevice3"],
+    "可行性前置判断": ["python3"],
     "内存检测": ["xctrace", "mobilebuildmcp", "python3"],
     "崩溃符号化与根因": ["atos", "dsymutil", "mobilebuildmcp", "python3"],
     "UI 自动化回归": ["mobilebuildmcp"],
@@ -138,7 +142,10 @@ CAPABILITIES = {
 def detect(tool: Tool) -> dict:
     """检测单个工具是否可用并取版本。"""
     real = tool.cmd
-    path = shutil.which(real)
+    configured = os.environ.get("APM_PYMOBILEDEVICE3_BIN") if tool.key == "pymobiledevice3" else None
+    if configured and not os.path.isfile(configured):
+        configured = None
+    path = configured or shutil.which(real)
     # xcrun 包装的工具：用 xcrun 探测
     is_xcrun_wrapper = tool.version_args and tool.version_args[0] == tool.key and tool.cmd == "xcrun"
 
@@ -152,7 +159,7 @@ def detect(tool: Tool) -> dict:
         if tool.cmd == "xcrun":
             argv = ["xcrun", *tool.version_args]
         else:
-            argv = [tool.cmd, *tool.version_args]
+            argv = [path or tool.cmd, *tool.version_args]
         r = subprocess.run(argv, capture_output=True, text=True, timeout=TIMEOUT)
         out = (r.stdout or r.stderr or "").strip()
         if out:
@@ -211,7 +218,7 @@ def main() -> int:
         ("Agent 宿主", ["claude", "mobilebuildmcp"]),
         ("iOS 工具链", ["xcodebuild", "xcrun", "simctl", "xctrace", "instruments", "dsymutil",
                         "atos", "symbolicatecrash", "xcresulttool", "xccov", "plutil",
-                        "codesign", "idevicesyslog"]),
+                        "codesign", "idevicesyslog", "pymobiledevice3"]),
         ("React Native", ["node", "npm", "watchman", "npx", "source-map", "hermesc", "react-native"]),
         ("Android", ["adb", "java", "gradle", "emulator", "bundletool"]),
         ("HarmonyOS", ["hvigorw", "ohpm", "hdc", "hidumper"]),

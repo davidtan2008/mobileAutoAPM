@@ -17,7 +17,7 @@ version: 0.1.0
 | 必须明确 | 说明 |
 |---|---|
 | 起点 | **统一用「进程创建」**（iOS 用 `sysctl` 取时间戳） |
-| 终点 | **Launch Image 消失第一帧**。iOS 13+ 对齐 `applicationDidBecomeActive` |
+| 终点 | iOS `firstFrame`：在 `onAppear` 后延迟一个 runloop，逼近 `CA::Transaction::commit`；不能用直接 `onAppear` 打点替代 |
 | 启动类型 | 冷启动 / 温启动 / 热启动 —— **三者不可混比** |
 | 构建类型 | release（⚠️ **绝不用 debug 数据代表线上**） |
 | 设备 | 真机型号 + 系统版本（⚠️ 模拟器性能特征完全不同） |
@@ -26,23 +26,50 @@ version: 0.1.0
 
 ## 第二步：测量
 
-### 最小可用（无需改业务代码）
+### 标准入口（iOS 原生 profile，优先使用）
+
+不要把测量命令、UDID 和构建路径临时写进被观测工程。平台脚本会校验物理设备、
+安装同一份 `.app`、保留逐次日志与阶段数据，并在结束时自动做方差诊断：
 
 ```bash
-# iOS：用 mobilebuildmcp 构建并运行，配合 xctrace 录制 App Launch
-mobilebuildmcp simulator build-and-run --help
-xcrun xctrace record --template 'App Launch' --launch <bundleid> \
-  --output .apm/runs/$(date +%s)/launch.trace
+S="${CLAUDE_PLUGIN_ROOT}/scripts"
+python3 "${S}/apm_measure.py" \
+  --profile ios-native-startup \
+  --device "<真机 UDID>" \
+  --package-id "<bundle id>" \
+  --build-type Release \
+  --build-path "<绝对路径>/App.app" \
+  --warmup-launches 1 \
+  --project-root . \
+  --output .apm/runs/<本次>-launch
 ```
 
-### 线上口径（生产数据）
+最低样本量为 **n=5**，默认间隔 5 秒；profile 会等待 CoreDevice tunnel 就绪，拒绝模拟器、
+不可用设备和 bundle id 不匹配的构建产物。`--warmup-launches` 改变时属于新测量口径，
+不能与旧 run 混比。采集完成后会自动运行：
 
-- **iOS**：MetricKit `MXAppLaunchMetric` ⚠️ 有 **24 小时延迟**，且**模拟器不支持**
+```bash
+python3 "${S}/apm_diagnose.py" .apm/runs/<本次>-launch \
+  --metric startup.cold.first_frame
+```
+
+诊断退出 `2` 表示测量不可信或样本不完整，**此时停止优化**。不要手工从
+`raw/` 挑一个快样本，也不要把 `pre-main` 自动当作分层变量。
+
+> 当前标准 profile 已覆盖 iOS 原生冷启动。Android / 鸿蒙 / RN 的平台适配器
+> 尚未宣称完成；在适配器落地前，必须如实报告「该平台标准采集不可用」，
+> 不得用 iOS profile 代替。
+
+### 交叉工具（定位/采样，不是替代标准入口）
+
+- **iOS 交叉剖析**：`xcrun xctrace record --template 'App Launch' --launch <bundleid> --output <trace>`；
+  它用于补充 trace，不替代上面的标准 run 工件
+- **iOS 线上**：MetricKit `MXAppLaunchMetric` ⚠️ 有 **24 小时延迟**，且**模拟器不支持**
 - **RN**：`@sentry/react-native` 的 App Start span（自动区分冷/温/热），但**只有总量，无内部分段**
 - **Android**：Macrobenchmark `StartupTimingMetric`（必须 release 构建）
 - **鸿蒙**：HiAppEvent `APP_LAUNCH`（⚠️ **模拟器不支持订阅**）
 
-**至少测 3 次取中位数**，记录方差。方差 > 30% 先修测量方法，别急着优化。
+**至少测 5 次**，保留全部样本并记录方差。方差 > 30% 或诊断发现多峰时先修测量方法，别急着优化。
 
 ### ⚠️ 动手之前先回答一个问题
 
@@ -133,12 +160,15 @@ iOS 13 以下用 `CFRunLoopPerformBlock` 注入 block 更准。选错会得到�
 ## 第六步：验证（不许偷懒）
 
 ```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/apm_diagnose.py" .apm/runs/<本次> \
+  --metric startup.cold.first_frame
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/apm_baseline.py" compare \
   --baseline .apm/baseline/startup.json --run .apm/runs/<本次>/metrics.json
 ```
 
 **必须确认**：
-- 口径与基线完全一致（同设备、同构建类型、同命令）
+- 诊断退出码不是 `2`；否则先修测量，不进入优化结论
+- 口径与基线完全一致（同设备、同构建类型、同 `measurementSignature`/命令）
 - 提升幅度**超出噪声范围**（脚本会做置换检验并给 p 值）
 - **功能没被改坏** —— 跑 `apm-autotest` 回归
 

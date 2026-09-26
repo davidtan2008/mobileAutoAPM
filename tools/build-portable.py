@@ -149,9 +149,13 @@ def emit_shared(target: Path) -> None:
             if f.is_file():
                 dst = target / PORTABLE_SHARED / sub / f.name
                 dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(f, dst)
-                if f.suffix == ".py" or f.suffix == ".sh":
-                    dst.chmod(0o755)
+                if f.suffix in (".md", ".py", ".sh"):
+                    content = rewrite_paths(f.read_text(encoding="utf-8"))
+                    dst.write_text(content, encoding="utf-8")
+                    if f.suffix in (".py", ".sh"):
+                        dst.chmod(0o755)
+                else:
+                    shutil.copy2(f, dst)
     # session-start hook 脚本
     hs = PLUGIN / "hooks" / "scripts" / "session-start.sh"
     if hs.exists():
@@ -310,17 +314,21 @@ def emit_root_files(target: Path, n_skills: int, n_agents: int, n_cmds: int) -> 
 知识库在 `.claude/skills/_apm/references/`：
 - `stack-selection.md` —— 技术选型与**各平台硬限制**（动手前必读）
 - `metrics-definitions.md` —— 指标口径定义（报告必须遵守）
+- `measurement-protocol.md` —— 方差诊断与「不可信就停」协议
 
 ## 数据平面
 
 ```bash
 S=.claude/skills/_apm/scripts
-python3 $S/apm_doctor.py                # 能力体检
-python3 $S/apm_baseline.py compare --baseline .apm/baseline/X.json --run <run>.json
-python3 $S/apm_white_screen.py shot.png # 白屏检测
+python3 "${{S}}/apm_doctor.py"                # 能力体检
+python3 "${{S}}/apm_measure.py" --help        # iOS 原生标准测量 profile
+python3 "${{S}}/apm_diagnose.py" <run>       # 方差诊断
+python3 "${{S}}/apm_baseline.py" compare --baseline .apm/baseline/X.json --run <run>.json
+python3 "${{S}}/apm_white_screen.py" shot.png # 白屏检测
 ```
-`apm_baseline.py compare` 退出码：`0` 无劣化 / `2` **有劣化** / `1` 数据问题。
-**退出码 2 可直接作为 CI 门禁。**
+`apm_diagnose.py` 退出码：`0` 测量可用 / `2` 测量不可信或样本不完整 / `1` 数据问题。
+`apm_baseline.py compare` 退出码：`0` 无劣化 / `2` **可确认劣化** / `1` 数据或口径问题。
+**退出码 2 可直接作为 CI 门禁；退出码 1 不能被当成「无劣化」。**
 
 ## 工件布局
 

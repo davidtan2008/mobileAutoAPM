@@ -31,7 +31,7 @@
 | **4 个子 Agent** | apm-profiler（采集）、crash-triager（崩溃分诊）、perf-guard（回归门禁）、apm-reviewer（静态审查） | 已装载 |
 | **4 个斜杠命令** | `/apm-init`、`/apm-check`、`/apm-crash`、`/apm-verify` | 已装载 |
 | **SessionStart hook** | 仅在 `.apm/` 存在的工程注入状态，其他工程零输出零成本 | 三条路径实测通过 |
-| **数据平面脚本** | `apm_doctor.py`、`apm_baseline.py`（置换检验）、`apm_white_screen.py`（纯标准库 PNG 解码） | 全部实测通过 |
+| **数据平面脚本** | `apm_doctor.py`、`apm_baseline.py`（置换检验）、`apm_feasibility.py`（control 闸门）、`apm_white_screen.py`（纯标准库 PNG 解码）、`apm_screenshot.py`（iOS 真机 DVT 截图） | 全部实测通过 |
 | **知识库** | `stack-selection.md`（选型+硬限制）、`metrics-definitions.md`（口径） | — |
 | **跨 harness 生成器** | `tools/build-portable.py` → 单一真源编译出 Claude Code / opencode 双目标 | 在模拟工程中端到端跑通 |
 

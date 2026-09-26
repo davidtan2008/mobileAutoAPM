@@ -8,14 +8,16 @@
 
 ### T1 · 跑一次真实的自主闭环演练
 
-**为什么最重要**：项目定位的核心承诺是「用户提出需求后**全都自主完成**」。
-已建成 7 技能 / 4 子 Agent / 双端 SDK / 数据平面，**但从未完整跑过一次无人干预的闭环**。
+**状态：已完成，但目标未达成。** 详见 `ROADMAP.md` 与被观测工程 `.apm/report.md`。
+这次演练验证了平台会诚实报告“不可达 / 无显著改善”，也暴露了测量能力缺口。
 
-**验收标准**：给一个可判定的具体需求（如「冷启动压到 200ms 以内」「某页面白屏」），
-从需求出发跑完 发现 → 定位 → 修复 → 验证，**中途不向用户提问**，最后交报告。
-**没修好也要如实说**，不许包装。
+### P0 · 补齐测量能力（第一版完成，跨平台适配器仍待做）
 
-**前置条件**：已全部满足（9/9 能力就绪、iOS/RN 双端 SDK、真机可连）。
+- [x] iOS 原生参数化测量 profile（`apm_measure.py`）
+- [x] 方差诊断与判据建议（`apm_diagnose.py`）
+- [x] baseline 质量闸门与回归测试
+- [x] 物理 iPhone 端到端复测（clean commit 2b3a1ea，正式 baseline 已记录）
+- [ ] Android / 鸿蒙 / RN 标准测量适配器
 
 ---
 
@@ -43,7 +45,7 @@
 
 ## 已完成
 
-- [x] 工具层：PATH 修复、9/9 能力就绪
+- [x] 工具层：PATH 修复、基础能力 10/11；配置 `APM_PYMOBILEDEVICE3_BIN` 后 11/11
 - [x] 安装 agent-device（含鸿蒙）/ firebase skills / expo / chrome-devtools
 - [x] `rn-apm`：React Native 埋点 SDK（74 测试）
 - [x] `ios-apm`：iOS 原生埋点 SDK（11 测试）
@@ -51,4 +53,7 @@
 - [x] 符号化工具（`rn_symbolicate.py` / `rn_build_symbols.py`，31 测试）
 - [x] 基线显著性判定（`apm_baseline.py`）
 - [x] 白屏检测（`apm_white_screen.py`）
+- [x] iOS 真机截图（`apm_screenshot.py`，pymobiledevice3 DVT 后端已真机验证）
+- [x] 可行性前置判断与最小对照组闸门（`apm_feasibility.py`）
+- [x] 首个成功自主闭环：结束任务译文持久化（红测→修复→120/120 单测 + Release 构建）
 - [x] 仓库开源（github.com/davidtan2008/mobileAutoAPM）

@@ -30,8 +30,8 @@
 
 ### 0.3 测量噪声
 
-**至少测 3 次，取中位数。** 如果同口径多次测量的离散度 > 30%，
-说明**测量方法本身不可靠，必须先稳定测量，再谈优化**。
+**至少测 5 次，保留全部样本。** 先运行 `apm_diagnose.py`；如果 CV > 30%、
+检出疑似多峰或样本不可计算，说明**测量方法本身不可靠，必须先稳定测量，再谈优化**。
 不要在有噪声的数据上做 A/B 判断——你分不清是优化生效了还是噪声。
 
 ### 0.4 控制变量（借自抖音启动优化的实践）
@@ -41,6 +41,19 @@
 - 重启设备后静置一段时间
 - 使用 MFI 认证数据线
 - 稳定性排序（iPhone 8 最好，其次 iPhone X，iPhone 6 很差——老旧设备波动大）
+
+### 0.5 标准工件与诊断
+
+标准测量 profile 生成的 `metrics.json` 除 `context` + `metrics` 外，还应保留
+逐次 `observations`：
+
+- `firstFrameMs`：本次启动终点；
+- `premainMs` 与 `premainSource`：取不到时为 `null`/unavailable，不写 0；
+- `stages[]`：每个阶段的 `sinceMs` 与 `deltaMs`；
+- `rawLog`：对应的原始日志路径。
+
+`apm_diagnose.py` 读取这些数据后输出 CV、疑似多簇、分段 CV、可疑变量相关性
+和判据建议。**相关性只用于提出控制实验假设，不能自动分层或校正。**
 
 ---
 
@@ -61,9 +74,9 @@
 
 **起点**：`进程创建`（用 `sysctl` 系统调用取时间戳，这是最客观的起点）
 
-**终点**：Launch Image 消失的**第一帧**（即用户真正看到内容）
-- iOS 13+ 对齐 `applicationDidBecomeActive`
-- Apple 官方统计方式为第一个 `CA::Transaction::commit`，抖音方案"已经非常接近这个点"
+**终点**：iOS `firstFrame` —— 在 `onAppear` 后延迟一个 runloop，逼近第一个
+`CA::Transaction::commit`。不要用直接 `onAppear` 或 `applicationDidBecomeActive`
+替代；不同终点不可比。
 
 > ⚠️ **口径必须全链路一致**。如果基线用 `viewDidAppear`、验证时用 `applicationDidBecomeActive`，
 > 那测出来的差异里混了口径差异，结论无效。

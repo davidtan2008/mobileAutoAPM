@@ -85,6 +85,7 @@ CV = 标准差 / 均值
 | **设备降温** | 发热会降频，直接污染数据 |
 | **关后台 App / 飞行模式** | 消除无关负载 |
 | **每次测量前重启 App 进程** | `--terminate-existing`，保证是冷启动 |
+| **明确记录并固定 warmup 次数** | 安装后的首次系统/应用状态可能比后续启动慢；warmup 不计入样本，改变次数必须改变测量口径 |
 
 ### 3.2 当方差仍然很大时
 
@@ -171,14 +172,56 @@ CV = 标准差 / 均值
 
 ---
 
-## 七、平台应提供的保障（当前缺口）
+## 七、平台已提供的保障（P0 实现与边界）
 
-本次演练暴露了平台的三个缺口，**属于待实现能力**：
+本次演练暴露的三个缺口已经落成第一版可执行能力。它们是**数据质量闸门**，
+不是新的性能数字来源：
 
-| # | 缺口 | 应该做成什么 |
-|---|---|---|
-| 1 | 测量脚本**不可复用** —— 本次的 `measure-launch.sh` 写在被观测工程的 `.apm/` 里 | 作为平台资产（模板）随插件分发，参数化设备/包名 |
-| 2 | **没有方差诊断** —— 只在结果 CV>30% 时告警，不帮用户定位成因 | 增加方差诊断：分段 CV 对比、多峰检测、可疑变量相关性 |
-| 3 | **没有分峰/分层的处理建议** | 检测到多峰时主动提示，并给出「改测分解指标」的建议 |
+| # | 能力 | 入口 | 边界 |
+|---|---|---|---|
+| 1 | 参数化 iOS 原生冷启动测量 profile | `${CLAUDE_PLUGIN_ROOT}/scripts/apm_measure.py --profile ios-native-startup` | 当前只覆盖 iOS 原生；物理设备、`.app`、bundle id 都会校验；Android/鸿蒙/RN 适配器尚未宣称完成 |
+| 2 | 方差诊断 | `${CLAUDE_PLUGIN_ROOT}/scripts/apm_diagnose.py <run>` | 多峰是启发式「疑似簇」，不是正式模态检验；不自动丢弃样本 |
+| 3 | 判据建议 | 诊断文本 / `diagnosis.json` | 高方差或多峰时建议增加样本、控制变量、改测同次分解指标；建议不是性能结论 |
 
-**这三项已记入路线图。**
+### 标准命令
+
+```bash
+S="${CLAUDE_PLUGIN_ROOT}/scripts"
+
+# 采集（iOS 原生 profile；至少 n=5，间隔默认 5s）
+python3 "${S}/apm_measure.py" \
+  --profile ios-native-startup \
+  --device "<真机 UDID>" --package-id "<bundle id>" \
+  --build-type Release --build-path "<绝对路径>/App.app" \
+  --warmup-launches 1 \
+  --project-root . --output .apm/runs/<本次>-launch
+
+# 单独诊断（也可对 T1 旧 run 目录执行）
+python3 "${S}/apm_diagnose.py" .apm/runs/<本次>-launch \
+  --metric startup.cold.first_frame --effect-ms 50
+
+# 诊断通过后才允许把启动基线写入锚点
+python3 "${S}/apm_baseline.py" record \
+  --in .apm/runs/<本次>-launch --out .apm/baseline/startup.json \
+  --require-healthy
+```
+
+### 诊断输出怎么读
+
+- `CV < 10%` 且没有疑似多簇：才可进入同口径比较；
+- `CV 10–30%`：只能支撑大幅变化；
+- `CV > 30%`、疑似多簇、缺阶段/缺 pre-main：退出码 `2`，停止优化；
+- 同一变量在不同 run 中相关方向相反：只能作为控制实验假设，**禁止自动分层**；
+- 分段指标变好但总指标没变：不能报告总启动改善；
+- **同一 commit 的独立重复测量**还要比较 run 间焦点中位数漂移；超过
+  `max(指标 minEffect, 2×组内最大标准差)` 时标记 `shift_detected`，不能直接记录基线；
+- baseline 与候选 run **不同 commit** 时属于正常 A/B，不把预期代码差异误判为重复性漂移；
+- `--warmup-launches` 是测量口径的一部分；它不计入样本，不能把不同 warmup 次数的 run 混比。
+
+`metrics.json` 中的 `observations[]` 保留逐次配对关系；`premainMs` 取不到时
+明确为 unavailable，绝不写 0。阶段日志由毫秒整数截断时，闭合校验使用
+`max(5ms, stageCount + 2ms)` 的有界容差，并把实际舍入残差写入 warning；超出该上限仍拒绝样本。
+当前实现已用 T1 归档数值做离线回归，并在 iPhone 13 真机完成多轮 Release 采集；
+设备重启并解锁后，固定 warmup=3、n=10 的两次独立 run 为 p50=256ms/CV=9.6% 与
+266ms/CV=7.1%，跨 run 诊断 `consistent`，已生成 provisional baseline；因工作树 dirty，
+仍不是干净 commit 基线。

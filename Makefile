@@ -5,7 +5,7 @@
 #   「Agent 能否一条命令验证自己的改动」是 AI 友好度里权重最高的一条 ——
 #   做不到的话，Agent 只能靠猜。所有命令都必须在**全新 clone** 上可跑。
 
-.PHONY: help test test-py test-rn test-ios lint readiness build-portable check clean
+.PHONY: help test test-py test-rn test-ios lint readiness gate check build-portable verify-portable build-diagrams verify-diagrams doctor clean
 
 PY      := python3
 SCRIPTS := plugins/mobile-apm/scripts
@@ -20,8 +20,10 @@ help:  ## 列出所有可用命令
 test: test-py test-rn test-ios  ## 跑全部测试（提交前必跑）
 
 test-py:  ## Python 工具测试（零依赖，最快）
-	@$(PY) -W error::ResourceWarning $(TESTS)/test_ai_readiness.py
-	@$(PY) -W error::ResourceWarning $(TESTS)/test_rn_symbolicate.py
+	@for f in $(TESTS)/test_*.py; do \
+		echo "── $$f"; \
+		$(PY) -W error::ResourceWarning "$$f" || exit 1; \
+	done
 
 test-rn:  ## React Native SDK 测试
 	@cd rn-apm && npm ci --no-audit --no-fund --silent && npm test
@@ -33,7 +35,11 @@ test-ios:  ## iOS SDK 测试
 
 lint:  ## Python 语法与风格检查
 	@for f in $(SCRIPTS)/*.py tools/*.py; do $(PY) -m py_compile "$$f" || exit 1; done
-	@command -v ruff >/dev/null 2>&1 && ruff check . || echo "  （未装 ruff，跳过风格检查）"
+	@if command -v ruff >/dev/null 2>&1; then \
+		ruff check .; \
+	else \
+		echo "  （未装 ruff，跳过风格检查）"; \
+	fi
 
 readiness:  ## 本仓库的 AI 友好度（CI 门禁同款检查）
 	@$(PY) $(SCRIPTS)/ai_readiness.py --path .
@@ -50,10 +56,13 @@ build-portable:  ## 由单一真源生成跨 Agent 可移植树（dist/）
 	@$(PY) tools/build-portable.py
 
 verify-portable:  ## 确认 dist/ 与源头一致（CI 门禁用）
-	@$(PY) tools/build-portable.py >/dev/null
-	@git diff --quiet -- dist/ || { \
+	@tmp=$$(mktemp -d "$${TMPDIR:-/tmp}/mobileAutoAPM-dist.XXXXXX"); \
+	trap 'rm -rf "$$tmp"' EXIT; \
+	$(PY) tools/build-portable.py --target "$$tmp" >/dev/null; \
+	if ! /usr/bin/diff -r "$$tmp" dist; then \
 		echo "⛔ dist/ 与源头不一致 —— 请跑 make build-portable 后提交"; \
-		git diff --stat -- dist/; exit 1; }
+		exit 1; \
+	fi
 
 build-diagrams:  ## 由 SVG 渲染 PNG（双份提交：SVG 供网页，PNG 供 GitHub 兜底）
 	@tools/build-diagrams.sh

@@ -60,17 +60,24 @@ SDK 用环形缓冲持续采样，崩溃时把水位快照附在崩溃记录里�
 ```js
 import { toMetrics, serializeMetrics } from 'rn-apm';
 fs.writeFileSync('run.json', serializeMetrics(toMetrics(payloads, {
-  context: { commit: GIT_SHA, buildType: 'release' },
+  context: {
+    commit: GIT_SHA,
+    device: DEVICE_LABEL,
+    build: 'release',
+    measurementMethod: 'rn-toMetrics',
+  },
 })));
 ```
 
 然后直接用本插件的工具对比：
 
 ```bash
-python3 scripts/apm_baseline.py compare --baseline .apm/baseline/startup.json --run run.json
+S=".claude/skills/_apm/scripts"
+python3 "${S}/apm_diagnose.py" run.json --metric startup.cold.total
+python3 "${S}/apm_baseline.py" compare --baseline .apm/baseline/startup.json --run run.json
 ```
 
-退出码 `2` = 有劣化，可直接作 CI 门禁。
+退出码 `0` = 可信且无劣化，`2` = 可确认劣化，`1` = 数据/口径/测量质量问题。
 
 ### `toMetrics` 内置的口径纪律（不要绕过它）
 
@@ -78,6 +85,8 @@ python3 scripts/apm_baseline.py compare --baseline .apm/baseline/startup.json --
 - 无进程创建时间的样本**不产生分阶段指标**
 - 慢渲染与白屏**分开计数**
 - 样本混了平台/机型/版本时**输出警告**
+- 当前 `toMetrics()` 输出各指标的独立 samples，**尚未保留逐次 observations**；
+  在 RN 上做跨段相关/多峰诊断前，必须先补齐逐次配对数据，不能从独立聚合值反推
 
 ## 已知限制（必须如实转述，不要夸大）
 

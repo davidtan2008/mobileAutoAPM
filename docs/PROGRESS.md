@@ -10,18 +10,18 @@
 
 | # | 需求 | 状态 | 说明 |
 |---|---|---|---|
-| 1 | 搜索并安装业界成熟 skill 与 MCP | ✅ **完成** | 见 §3。9/9 能力就绪 |
+| 1 | 搜索并安装业界成熟 skill 与 MCP | ✅ **完成** | 见 §3。基础能力 10/11；配置 `APM_PYMOBILEDEVICE3_BIN` 后 11/11 |
 | 2 | 自主学习业界优秀方案并吸收方法论 | ✅ **完成** | 见 §4 |
 | 3 | 按需求定制 skill | ✅ **完成** | `mobile-apm` 插件，见 §2 |
 | 4 | 给出可落地方案，且能用于 opencode 等 | ✅ **完成** | 见 §5 |
 
-**⚠️ 但最核心的一条尚未验证**：
+**✅ 核心承诺已完成一次可验证闭环**：
 
-> 「提出需求后**全都能自主完成**」
+> 已结束会议记录的译文持久化修复：红测失败 → 单变量修复 → 120/120 单元测试
+> + Release 构建通过。详见 `docs/case-study-translation-persistence.md`。
 
-已建成的能力很全（7 技能 / 4 子 Agent / 双端 SDK / 数据平面），
-但**从未跑过一次完整的、无人干预的闭环**（发现 → 定位 → 修复 → 验证）。
-详见 §7「下一步」。
+另有 T1 冷启动诚实失败：200ms 目标被最小 control p50=210ms 拦截。能力覆盖
+7 技能 / 4 子 Agent / 双端 SDK / 数据平面，但“任意需求都能自主完成”仍不能泛化。
 
 ---
 
@@ -34,7 +34,7 @@ mobileAutoAPM/
 │   ├── agents/             4 个子 Agent
 │   ├── commands/           4 个斜杠命令
 │   ├── hooks/              SessionStart（仅在 .apm/ 工程生效）
-│   ├── scripts/            数据平面（5 个零依赖脚本）
+│   ├── scripts/            数据平面（10 个零依赖脚本）
 │   ├── references/         知识库（选型 / 指标口径 / SDK 说明）
 │   └── docs/               符号化流水线接入指南
 ├── rn-apm/                 React Native 埋点 SDK
@@ -80,12 +80,13 @@ mobileAutoAPM/
 `firebase@firebase`（13 个官方 skill，含 `firebase-crashlytics`）· `expo` ·
 `chrome-devtools-mcp` · `swift-lsp` · `clangd-lsp` · `mobile-apm`（本项目的）
 
-### 能力矩阵：9/9 就绪
+### 能力矩阵：11 项（基础 10/11；配置可选 DVT 截图后 11/11）
 
 ```
 ✅ 启动耗时检测   ✅ 页面渲染/卡顿   ✅ 白屏检测
 ✅ 内存检测       ✅ 崩溃符号化根因   ✅ UI 自动化回归
 ✅ RN 专项        ✅ Android 专项     ✅ 鸿蒙专项
+✅ 可行性前置判断  ✅ iOS 真机截图（配置 DVT 后端后）
 ```
 
 ### ⚠️ 一个修好的历史遗留问题
@@ -187,12 +188,24 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 **这次演练的价值**：五条铁律全部被触发过。最危险的时刻是有 fast 模式样本摆在那里，
 挑两个就能报出「优化 11%」的漂亮数字 —— **那是伪造，没有做。**
 
+### P0 第一版已落地（2026-09-25）
+
+- `apm_measure.py --profile ios-native-startup`：参数化物理设备、bundle id、`.app`、
+  样本量与间隔；保留逐次日志、`pre-main` candidates、完整 stages 和 context。
+- `apm_diagnose.py`：CV、疑似多簇、分段 CV、跨运行相关性与同 commit 跨 run 漂移；不自动分层/挑簇。
+- `apm_baseline.py`：高方差/多簇/跨 run 漂移/口径缺失返回数据错误 `1`；JSON 模式保留退出码；
+  `record --require-healthy` 可阻止不可信基线写入。
+- Python 测试从 47 增至 **92**；T1 数值作为仓库内 fixture 回归。
+- ✅ 已在 iPhone 13 真机完成多轮 Release 采集；重启并解锁后，固定 `warmup=3、n=10`
+  的两次独立 run 为 p50=256ms/CV=9.6% 与 p50=266ms/CV=7.1%，跨 run 诊断 `consistent`，
+  已生成 provisional baseline；因工作树 dirty，仍不是干净 commit 基线。
+
 ### 待完成
 
 | 优先级 | 项 | 门槛 |
 |---|---|---|
-| **P0** | **补齐测量能力**（模板化测量脚本 / 方差诊断 / 判据建议） | 见 `ROADMAP.md` §P0 —— **测量是闭环的地基** |
-| P1 | 把 T1 的结论做成能力（可行性前置判断 / 对照组方法论） | 见 `ROADMAP.md` §P1 |
+| **P0** | **补齐测量能力**（模板化测量脚本 / 方差诊断 / 判据建议） | 🟡 iOS profile、诊断器与 baseline 闸门已落地；重启后重复测量通过并生成 provisional baseline，待干净 commit 基线 |
+| P1 | 把 T1 的结论做成能力（可行性前置判断 / 对照组方法论） | ✅ `apm_feasibility.py`、协议和 skill 闸门已落地并真实验证；200ms 目标被 control p50=210ms 拦截 |
 | P1 | 支柱 A 的改造闭环（现在只有扫描器） | 见 `ROADMAP.md` §P2；**注意：LLM 生成的 context 文件有负收益，必须人审** |
 | P1 | Sentry MCP 鉴权 | 需 Sentry 账号，执行 `/mcp` OAuth |
 | P1 | 数据后端选型（含鸿蒙） | 需决策：Sentry self-hosted / 腾讯 Bugly / AGC APMS |
@@ -204,7 +217,9 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 
 - `apm_baseline.py`：置换检验判显著性。实测校准过 —— 清晰改善 p=0.0088，
   而 **-4.5% 的小改善被正确判为「不具实际意义」**，不会被包装成优化成果
-- `apm_white_screen.py`：纯标准库解 PNG，已用**真实模拟器截图**端到端验证
+- `apm_white_screen.py`：纯标准库解 PNG，已用**真实模拟器截图**与 iPhone 13 真机 DVT
+  截图端到端验证；本次模拟器 6 帧与真机截图均为 `content_present`，未复现白屏。
+  旧 `idevicescreenshot` 后端不可用，但可选 `pymobiledevice3` DVT 后端已验证成功。
 - `rn_symbolicate.py` / `rn_build_symbols.py`：31 个测试，含 Hermes 两步合成
 
 ---
@@ -216,9 +231,9 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 | 部分 | 验证强度 |
 |---|---|
 | `rn-apm` 逻辑、`ios-apm` 逻辑 | ✅ **真实测试**（74 + 11） |
-| 数据平面脚本 | ✅ **真实测试**（含真实截图、真实构建产物） |
+| 数据平面脚本 | ✅ **单元/回归测试**（含真实模拟器/真机截图、真实构建产物；iOS 真机测量链路已跑通但重复性仍需干净 commit） |
 | 端到端指标闭环（SDK→基线判定） | ✅ **跑通过** |
 | 跨 harness 生成器 | ✅ 在模拟工程中端到端验证 |
 | **原生 shim（iOS/Android/鸿蒙）** | ⚠️ **未在真机验证** —— 参考实现见 `rn-apm/docs/native-shims.md` |
 | **符号化工具在真实构建中的表现** | ⚠️ **未验证** |
-| **自主闭环（核心承诺）** | ❌ **从未完整跑过** |
+| **自主闭环（核心承诺）** | ✅ **1 次成功**（译文持久化）+ ⚠️ 1 次诚实失败（T1 启动）；尚不能泛化到任意需求 |

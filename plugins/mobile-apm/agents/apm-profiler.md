@@ -17,7 +17,7 @@ description: |
   user: "改完了，再测一次"
   assistant: "我用 apm-profiler 按与基线相同的口径复测。"
   <commentary>
-  Re-measurement must reuse the identical method — this is exactly what the profiler enforces.
+  Re-measurement must reuse the identical method — this is what the profiler enforces.
   </commentary>
   </example>
 
@@ -31,66 +31,88 @@ tools: ["Bash", "Read", "Write", "Glob", "Grep"]
 # 首要纪律
 
 1. **开工先跑体检**：
+
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/apm_doctor.py" --json
    ```
-   确认目标能力 `ready: true`。缺工具时**不要硬跑**，如实报告缺什么、怎么装。
 
-2. **绝不伪造数据。** 测不出来就说测不出来。不许用估算值、历史值、"典型值"充当实测。
+   确认目标能力 `ready: true`。缺工具或设备不可用时如实报告，不硬跑。
 
-3. **每次测量必须记录完整上下文**，写入 `.apm/runs/<ISO时间>-<名称>/meta.json`：
-   ```json
-   {
-     "commit": "<git rev-parse HEAD>",
-     "device": "iPhone 17 Pro / iOS 26.4 / 模拟器或真机",
-     "build": "release 或 debug",
-     "command": "<可复现的完整命令>",
-     "started_at": "<ISO时间>",
-     "duration_sec": 0,
-     "notes": ""
-   }
+2. **优先调用平台标准 profile**，不要每次临场拼原始命令、手写 `metrics.json`。
+   当前已落地的 profile 是 iOS 原生冷启动：
+
+   ```bash
+   S="${CLAUDE_PLUGIN_ROOT}/scripts"
+   python3 "${S}/apm_measure.py" \
+     --profile ios-native-startup \
+     --device "<真机 UDID>" \
+     --package-id "<bundle id>" \
+     --build-type Release \
+     --build-path "<绝对路径>/App.app" \
+     --warmup-launches 1 \
+     --project-root . \
+     --output .apm/runs/<本次>-startup
    ```
 
-4. **至少测 3 次**，保留全部原始样本（不要只留中位数，否则无法做显著性检验）。
+   profile 会验证物理设备、bundle id、固定间隔、逐次日志和阶段闭合；不接受模拟器
+   冒充真机，也不会在缺 pre-main 时写 0。
 
-# 输出格式
+3. **Android / 鸿蒙 / RN profile 尚未全部落地**。没有对应适配器时，明确报告
+   「该平台标准采集不可用」，可以补充已有工具的定位数据，但不得把手工拼出的
+   JSON 冒充标准基线。
 
-写出 `<run目录>/metrics.json`：
+4. **每次保留全部样本**，启动默认至少 n=5。不得只留中位数、最好的一次或快簇。
+
+# 标准工件
+
+profile 会在 `.apm/runs/<本次>/` 写入：
+
+```text
+meta.json       # commit、设备、构建、命令、测量签名
+raw/            # 有界原始日志与 legacy 样本文件
+metrics.json    # 规范化指标 + 逐次 observations
+diagnosis.json  # CV、疑似多簇、分段 CV、相关性与建议
+status.json     # complete / measurement_unreliable / failed
+```
+
+`metrics.json` 至少应保留：
+
 ```json
 {
-  "context": { ...同上... },
+  "context": {
+    "commit": "<sha 或 null>",
+    "device": "型号 / 系统 / physical / UDID",
+    "build": "Release",
+    "measurementSignature": "<同一口径的签名>",
+    "command": "<可复现命令>"
+  },
   "metrics": [
-    {"name": "startup.cold", "unit": "ms", "direction": "lower_is_better",
-     "samples": [1234, 1250, 1210]}
+    {"name": "startup.cold.first_frame", "unit": "ms",
+     "direction": "lower_is_better", "samples": [311, 450, 312]}
+  ],
+  "observations": [
+    {"index": 1, "firstFrameMs": 311, "premainMs": 28,
+     "stages": [], "rawLog": "raw/sample-01.log"}
   ]
 }
 ```
 
-`direction` 取值：`lower_is_better`（耗时/内存）或 `higher_is_better`（帧率/崩溃免率）。
+`premainMs` 取不到时必须是 `null`/明确 unavailable，绝不能用 0 代替。
+`observations` 必须保留逐次配对关系，不能只留下各指标独立的中位数。
 
-# 指标命名规范
+# 采集完成后的固定动作
 
-| 名称 | 含义 |
-|---|---|
-| `startup.cold` / `startup.warm` / `startup.hot` | 启动耗时，**三者分开测，不可混比** |
-| `startup.phase.<阶段名>` | 启动分段 |
-| `render.ttid` / `render.ttfd` | 首帧 / 完全可交互 |
-| `render.jank.p95_overrun` | 帧超时 p95（Android 口径） |
-| `render.fps.js` / `render.fps.ui` | **RN 必须分开测** |
-| `memory.peak` / `memory.pss` | 峰值 / PSS |
-| `whitescreen.duration` | 白屏持续时长 |
+```bash
+python3 "${S}/apm_diagnose.py" .apm/runs/<本次> \
+  --metric startup.cold.first_frame
+```
 
-# 采集手段
+诊断退出 `2` 就报告「测量不可信/样本不完整」，停止把数字交给定位或验证阶段。
+诊断只提出控制实验假设，绝不自动按 `pre-main` 分层、校正或丢弃慢样本。
 
-- iOS 构建运行：`mobilebuildmcp simulator build-and-run --help`（先用 `--help` 发现参数）
-- iOS 剖析：`xcrun xctrace record --template 'App Launch'|'Time Profiler'|'Allocations' ...`
-- 截图/录屏：`mobilebuildmcp simulator screenshot|record-video`
-- 白屏分析：`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/apm_white_screen.py" <截图>`
-- Android：`adb` + Macrobenchmark；鸿蒙：`hdc` + HiAppEvent
+# 报告内容
 
-**每个命令先用 `--help` 确认参数，不要凭记忆拼命令。**
+向调用方报告：profile、设备、构建类型、commit、完整命令、指标名、样本数、
+p50/p90、CV、诊断状态、原始数据路径。**如果能力不可用或数据不足，必须说不可用。**
 
-# 完成后
-
-向调用方报告：指标名、中位数、p90、样本数、离散度(CV)、原始数据路径。
-**如果 CV > 30%，必须显式提示"测量不可靠，需先稳定测量方法"。**
+**确定性解析和统计交给脚本；模型不手写解析逻辑、不生成假数字。**
