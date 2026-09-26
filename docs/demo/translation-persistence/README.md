@@ -7,7 +7,7 @@
 
 | 文件 | 说明 |
 |---|---|
-| `translation-persistence.mp4` | 68.0s / 1920×1080 / 6 页（`make demo-video` 生成） |
+| `translation-persistence.mp4` | 59.0s / 1920×1080 / 5 页（`make demo-video` 生成） |
 | `slides/slide-0*.svg` | 视频源页面（文字与数字来自证据 JSON，非手写） |
 | `red-test.json` | 修复前 commit `fb95d1b` 的失败测试原始输出 |
 | `green-focused.json` | 修复后 `TaskStoreTests` 5/5 |

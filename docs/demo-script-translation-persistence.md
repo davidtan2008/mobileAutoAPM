@@ -1,7 +1,7 @@
 # 60–90 秒 Demo 脚本：译文持久化闭环
 
 > **状态：已渲染为视频，尚未人工审阅。**
-> 成片：`docs/demo/translation-persistence/translation-persistence.mp4`（68.0s / 1920×1080）
+> 成片：`docs/demo/translation-persistence/translation-persistence.mp4`（59.0s / 1920×1080 / 5 页）
 > 证据包与重渲染命令：`docs/demo/translation-persistence/README.md`
 > 重渲染：`make demo-video`
 >
@@ -72,16 +72,25 @@ func updateTranslations(taskID: UUID, entries: [TranscriptEntry]) async
 ## 0:58–1:15 — 验证
 
 ```text
-TaskStoreTests：5 passed, 0 failed
-全部单元测试：120 passed, 0 failed
-Release device build：SUCCEEDED
+模拟器 · 单元测试    120 passed, 0 failed
+模拟器 · 定向测试      5 passed, 0 failed
+真机 iPhone13/iOS26.7 123 passed, 0 failed, 0 skipped
+Release device build SUCCEEDED
 ```
 
-## 1:15–1:25 — 边界
+> 真机套件里含 `testSimultaneousListeningPressure`，跑了 2 分钟，
+> **真实执行端侧听写而不是被 skip** —— 这是"模拟器与物理设备双证据"的意思。
 
-> 这是确定性数据丢失修复，所以用红/绿测试验证，不拿模拟器性能数字冒充真机结论。
-> 真机 UI runner 仍受免费 provisioning 数量上限阻塞；另一个 UI 可点击性问题保持 open，
-> 没有混进本次成功案例。
+## 关于边界
+
+原第 6 页「边界与下一步」按需求移出视频。边界内容**没有丢**，仍在：
+
+- `docs/case-study-translation-persistence.md`
+- 被观测工程 `docs/20-ui-test-hittable-fix.md`
+- 被观测工程 `.apm/issues/ISSUE-FUNC-001` / `ISSUE-UI-001` / `ISSUE-UI-002`
+
+要恢复该页：`tools/render_demo_slides.py` 里 `build()` 末尾有一段被注释的
+`slides.append(...)`，取消注释并重跑 `make demo-video` 即可。
 
 ## 录制检查
 

@@ -298,65 +298,42 @@ def build(evidence: Path, out: Path) -> List[float]:
         )
     )
 
-    # 5 —— 绿测
+    # 5 —— 绿测（模拟器 + 真机双证据）
+    dev = load(evidence, "green-device-suite.json")
     green_block, _ = code_block(
         96,
-        292,
+        276,
         1728,
         [
-            f"TaskStoreTests           {focused_counts.get('passed', 0)} passed, {focused_counts.get('failed', 0)} failed",
-            f"全部单元测试             {full_counts.get('passed', 0)} passed, {full_counts.get('failed', 0)} failed",
+            f"模拟器 · 单元测试        {full_counts.get('passed', 0)} passed, {full_counts.get('failed', 0)} failed",
+            f"模拟器 · 定向测试        {focused_counts.get('passed', 0)} passed, {focused_counts.get('failed', 0)} failed",
+            f"真机 iPhone13/iOS26.7   {dev.get('passed', 0)} passed, {dev.get('failed', 0)} failed, {dev.get('skipped', 0)} skipped",
             f"Release device build     {release_summary.get('status', 'UNKNOWN')}",
             f"目标 commit              {fix_short} fix: persist translations for ended tasks",
         ],
-        size=30,
-        line_height=52,
+        size=29,
+        line_height=50,
         tone=GREEN,
     )
     slides.append(
         (
             "05 · 验证：目标达成",
-            "红测转绿，并且没有破坏任何既有行为",
+            "模拟器与物理设备双证据，没有破坏任何既有行为",
             GREEN,
             [
                 green_block,
-                text(96, 700, "额外断言：普通 append 仍不能修改已结束任务的 transcript（单变量边界被测试锁住）。", size=27, fill=MUTED),
-                text(96, 752, "证据：docs/case-study-translation-persistence.md · 被观测工程 .apm/issues/ISSUE-FUNC-001", size=25, fill=MUTED),
+                text(96, 762, "真机套件含 testSimultaneousListeningPressure（2 分钟），真实执行端侧听写而非跳过。", size=26, fill=MUTED),
+                text(96, 806, "额外断言：普通 append 仍不能修改已结束任务的 transcript（单变量边界被测试锁住）。", size=26, fill=MUTED),
+                text(96, 850, "证据：docs/case-study-translation-persistence.md · 被观测工程 .apm/issues/ISSUE-FUNC-001", size=25, fill=MUTED),
             ],
-            11.0,
+            12.0,
         )
     )
 
-    # 6 —— 边界
-    boundary_block, _ = code_block(
-        96,
-        292,
-        1728,
-        [
-            "这是确定性功能闭环 —— 用红/绿测试验证，不用模拟器性能数字冒充真机结论。",
-            "",
-            "本次没有宣称：",
-            "  · 真机 UI 自动化已跑通（免费 provisioning 达到 App 安装上限）",
-            "  · 全部 UI 测试通过（另有 open：home-module-simultaneous 不可点击）",
-            "  · 导出按钮同页刷新已修复（独立后续项）",
-            "  · T1 冷启动 200ms 可达（已被最小 control 实测地板拦截）",
-        ],
-        size=26,
-        line_height=44,
-        tone=AMBER,
-    )
-    slides.append(
-        (
-            "06 · 边界与下一步",
-            "成功案例必须连同它的边界一起发布",
-            AMBER,
-            [
-                boundary_block,
-                text(96, 880, "下一步：按本脚本人工审阅录制；UI 可点击性问题继续作为独立闭环处理。", size=27, fill=TEXT),
-            ],
-            10.0,
-        )
-    )
+    # 注：原第 6 页「边界与下一步」按需求移除。
+    # 边界内容没有丢 —— 它仍然写在 docs/case-study-translation-persistence.md、
+    # 被观测工程 docs/20-*.md 与 .apm/issues/*.json 里，只是不进视频。
+    # 若之后要恢复，把下面的 slides.append(...) 取消注释即可。
 
     durations: List[float] = []
     out.mkdir(parents=True, exist_ok=True)

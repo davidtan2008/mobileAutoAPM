@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "tool": "xcresulttool",
+  "what": "译文持久化修复所在工程的**真机**全量套件结果（demo 第 5 页的数字来源）",
+  "source": "xcrun xcresulttool get test-results summary --path <xcresult>",
+  "xcresult": "test_device_2026-09-26T06-11-31-202Z_pid64018_9b9cdd0b.xcresult",
+  "device": {
+    "name": "菀墨",
+    "model": "iPhone 13",
+    "osVersion": "26.7",
+    "reality": "physical"
+  },
+  "configuration": "Debug",
+  "passed": 123,
+  "failed": 0,
+  "skipped": 0,
+  "result": "Passed",
+  "durationSec": 164.3,
+  "keyDurations": {
+    "coldLaunch": "25秒",
+    "nav": "11秒",
+    "listening": "2分钟"
+  },
+  "note": "含 testSimultaneousListeningPressure —— 真机上真实执行端侧听写（未被 skip）"
+}
