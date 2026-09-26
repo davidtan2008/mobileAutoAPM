@@ -9,7 +9,7 @@
 
 **为什么不让模型每次现写。**
 
-数据平面的十个脚本（`plugins/mobile-apm/scripts/`）全部是**零第三方依赖的 Python**，
+数据平面的十一个脚本（`plugins/mobile-apm/scripts/`）全部是**零第三方依赖的 Python**，
 每个都能独立运行、有测试、结果可复现。
 
 理由：
@@ -245,6 +245,51 @@ python3 scripts/apm_feasibility.py check \
 已在 iPhone 13 / iOS 26.7 上真实验证：DVT 后端生成 1170×2532 PNG，随后
 `apm_white_screen.py` 正确判定为 `content_present`；P1 的 control/candidate 判定
 则由离线 fixture 回归覆盖，真实 control run 仍需在目标工程中执行。
+
+## 3.7 `ai_remediate.py` —— 支柱 A 的「扫描 → 改造 → 复扫」闭环
+
+`ai_readiness.py` 只回答「哪里不友好」。但本项目的铁律之一是**无基线不优化** ——
+只给建议、不做改造，效果就无法量化、也无法验证。`ai_remediate.py` 补上后半段。
+
+### 三条不可让步的约束
+
+| 约束 | 实现 | 依据 |
+|---|---|---|
+| **绝不编造事实** | 生成物里凡是「只有人知道」的位置一律写 `TODO(需人工填写)` | LLM 生成的 context 文件实测成功率 **−3%**、成本 **+20%**；编造内容比留空更糟 |
+| **默认不落盘** | 生成物只写 staging 目录；`apply` 需显式调用，且**拒绝覆盖已存在文件** | 骨架直接覆盖真实文件会丢内容 |
+| **效果要实测** | `loop` 把工程复制到临时目录 → 应用生成物 → 复扫，给出真实 before/after | 「量化提升」不能是声称 |
+
+### 四段式命令
+
+```bash
+python3 ai_remediate.py plan     --path <项目>   # 只看计划
+python3 ai_remediate.py generate --path <项目> --out .apm/remediation
+python3 ai_remediate.py loop     --path <项目>   # 量化
+python3 ai_remediate.py apply    --path <项目> --staging .apm/remediation
+```
+
+### 真实项目上的量化结果
+
+在 iOS 工程（`realtimeTranslatorOptimize`）上跑 `loop`：
+
+```text
+改造前 68 → 改造后 86（Δ +18）
+消除：no-agents-md / no-ci / no-lint
+仍需人工：no-cmd-in-readme（README 缺可复制命令）
+appliedToRealProject: false
+```
+
+### 明确不自动做的事
+
+`NEEDS_HUMAN` 表把 15 类 finding 钉死为「只能人工处理」，并给出理由。
+其中最关键的两条：
+
+- `no-tests` —— **不能凭空生成测试**，造出来的只会制造虚假安全感；
+- `ios-no-team` —— 签名 Team ID 是账号信息，机器上不可能知道。
+
+写测试时这两条都被做成了回归用例：`test_不能自动改造的项只报给人`、
+`test_生成物里不出现未被检测到的命令`、`test_生成物不含别的项目的目录名`
+（后者防的是「把某个具体项目的目录名硬编码进通用模板」这种真实踩过的坑）。
 
 ---
 

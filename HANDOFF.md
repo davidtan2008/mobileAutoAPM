@@ -78,7 +78,7 @@ e85bb17  R0 自我达标 + 市场调研落地
 | **首个成功闭环** | ✅ 结束任务译文持久化：红测→单变量修复→模拟器 120/120 单测 + Release 构建 + **真机 123/123** |
 | **P0 补齐测量能力** | ✅ iOS profile + 方差诊断 + baseline 闸门；**clean commit `2b3a1ea` 的正式 baseline 已记录**（n=10 跨 run `consistent`） |
 | P1 把 T1 结论做成能力 | ✅ **可行性/对照组闸门已落地并真实验证；200ms 目标被 control 地板拦截** |
-| P2 支柱 A 改造闭环 | ⬜ |
+| P2 支柱 A 改造闭环 | ✅ `ai_remediate.py` 已落地并量化（iOS 工程 68 → 86）；生成物需人审 |
 | P3 自我进化 | ⬜ 设计已有，未实现 |
 | P4 开源运营 | ⬜ |
 
@@ -308,7 +308,7 @@ func premainMillis() -> Int   // 取不到返回 -1
 ```bash
 make help              # 全部命令
 make test              # 三套测试（改完必跑）
-make test-py           # 只跑 Python（最快，92 个测试）
+make test-py           # 只跑 Python（最快，112 个测试）
 python3 plugins/mobile-apm/scripts/apm_measure.py --help  # iOS 标准测量 profile
 python3 plugins/mobile-apm/scripts/apm_diagnose.py --help # 方差诊断
 make gate              # AI 友好度门禁（CI 同款）

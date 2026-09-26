@@ -5,7 +5,7 @@
 #   「Agent 能否一条命令验证自己的改动」是 AI 友好度里权重最高的一条 ——
 #   做不到的话，Agent 只能靠猜。所有命令都必须在**全新 clone** 上可跑。
 
-.PHONY: help test test-py test-rn test-ios lint readiness gate check build-portable verify-portable build-diagrams verify-diagrams demo-video doctor clean
+.PHONY: help test test-py test-rn test-ios lint readiness gate check remediate build-portable verify-portable build-diagrams verify-diagrams demo-video doctor clean
 
 PY      := python3
 SCRIPTS := plugins/mobile-apm/scripts
@@ -47,6 +47,9 @@ readiness:  ## 本仓库的 AI 友好度（CI 门禁同款检查）
 MIN_SCORE ?= 80
 gate:  ## 门禁：友好度低于 $(MIN_SCORE) 或有阻断项则非零退出（CI 与本地同款）
 	@$(PY) $(SCRIPTS)/ai_readiness.py --path . --min-score $(MIN_SCORE)
+
+remediate:  ## 支柱 A：扫描 → 改造 → 复扫（只生成计划，不写目标工程）
+	@$(PY) $(SCRIPTS)/ai_remediate.py plan --path .
 
 check: lint gate  ## 快速自检（跳过耗时测试）
 

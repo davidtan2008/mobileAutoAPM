@@ -137,6 +137,7 @@
 | `rn_symbolicate.py` | 堆栈符号化 | 纯标准库实现 VLQ；**Hermes 两步合成** |
 | `rn_build_symbols.py` | 符号门禁 | 退出码 2 可直接作 CI 门禁 |
 | `ai_readiness.py` | AI 友好度扫描 | 5 维度 20+ 检查项，每条给依据/后果/修法 |
+| `ai_remediate.py` | 支柱 A 改造闭环 | `plan`/`generate`/`loop`/`apply`；生成物一律留 TODO 占位，`loop` 在临时副本上实测 before/after |
 
 ---
 
@@ -196,7 +197,7 @@
 
 ```
 提交前必须：
-  ① 跑相关测试（92 Python + 74 RN + 11 iOS）
+  ① 跑相关测试（112 Python + 74 RN + 11 iOS）
   ② ai_readiness.py 分数不退化
   ③ plugins/ 有改动 → 重新生成 dist/ 并确认无残留变量
   ④ 性能结论 → 必须附「命令 + 设备 + 样本量 + 显著性」

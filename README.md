@@ -141,7 +141,7 @@ Agent 会**如实报告「无法完成」**，而不是伪造一个数字。
 | **7 个技能** | `apm-loop`（主控编排）· `apm-doctor` · `apm-startup` · `apm-render` · `apm-memory` · `apm-crash` · `apm-autotest` |
 | **4 个子 Agent** | 采集 · 崩溃分诊 · 回归门禁 · 静态审查 |
 | **2 个埋点 SDK** | [`ios-apm`](ios-apm/)（Swift Package）· [`rn-apm`](rn-apm/)（npm） |
-| **10 个数据平面脚本** | 零第三方依赖，见下 |
+| **11 个数据平面脚本** | 零第三方依赖，见下 |
 | **跨 Agent 生成器** | `tools/build-portable.py`：一份源 → Claude Code / opencode 双目标 |
 
 ### 数据平面（确定性任务交给脚本，不交给模型每次现写）
@@ -161,6 +161,8 @@ python3 "${S}/rn_symbolicate.py" compose \
   --outer bundle.hbc.map --inner bundle.map --out composed.map   # Hermes 两步合成
 python3 "${S}/rn_build_symbols.py" verify --platform ios --build-dir ios/build --strict
 python3 "${S}/ai_readiness.py" --path .      # AI 友好度扫描
+python3 "${S}/ai_remediate.py" plan --path .  # 支柱 A 改造计划（不写任何文件）
+python3 "${S}/ai_remediate.py" loop --path .  # 扫描→改造→复扫，量化 before/after
 ```
 
 ### P0 测量入口（iOS 原生）
@@ -217,7 +219,7 @@ cp -R dist/. /path/to/your-app/     # ⚠️ 用 dist/. 不能用 dist/*
 ## 质量
 
 ```
-Python 工具    92 个测试
+Python 工具    112 个测试
 rn-apm SDK     74 个测试
 ios-apm SDK    11 个测试
 ```

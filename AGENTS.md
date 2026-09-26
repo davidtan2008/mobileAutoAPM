@@ -57,6 +57,10 @@ python3 plugins/mobile-apm/scripts/apm_doctor.py
 # AI 友好度扫描
 python3 plugins/mobile-apm/scripts/ai_readiness.py --path .
 
+# 支柱 A 闭环：扫描 → 改造 → 复扫（只出计划，不写目标工程）
+python3 plugins/mobile-apm/scripts/ai_remediate.py plan --path <项目>
+python3 plugins/mobile-apm/scripts/ai_remediate.py loop --path <项目>   # 量化 before/after
+
 # 标准 iOS 原生测量 profile（物理真机；至少 n=5）
 python3 plugins/mobile-apm/scripts/apm_measure.py \
   --profile ios-native-startup --device <UDID> --package-id <bundle> \
@@ -99,7 +103,7 @@ python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
 ### 测试
 
 ```bash
-# Python（92 个测试）
+# Python（112 个测试）
 make test-py
 
 # RN SDK（74 个测试）

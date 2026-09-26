@@ -34,7 +34,7 @@ mobileAutoAPM/
 │   ├── agents/             4 个子 Agent
 │   ├── commands/           4 个斜杠命令
 │   ├── hooks/              SessionStart（仅在 .apm/ 工程生效）
-│   ├── scripts/            数据平面（10 个零依赖脚本）
+│   ├── scripts/            数据平面（11 个零依赖脚本）
 │   ├── references/         知识库（选型 / 指标口径 / SDK 说明）
 │   └── docs/               符号化流水线接入指南
 ├── rn-apm/                 React Native 埋点 SDK
@@ -208,7 +208,7 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 | **P0** | **补齐测量能力**（模板化测量脚本 / 方差诊断 / 判据建议） | ✅ iOS profile、诊断器、baseline 闸门已落地；clean commit 上的**正式 baseline** 已记录（n=10 跨 run `consistent`） |
 | **P0** | Android / 鸿蒙 / RN 标准测量适配器 | ⬜ 零进度；需先接设备（`adb` / `hdc` 目前为空） |
 | P1 | 把 T1 的结论做成能力（可行性前置判断 / 对照组方法论） | ✅ `apm_feasibility.py`、协议和 skill 闸门已落地并真实验证；200ms 目标被 control p50=210ms 拦截 |
-| P1 | 支柱 A 的改造闭环（现在只有扫描器） | 见 `ROADMAP.md` §P2；**注意：LLM 生成的 context 文件有负收益，必须人审** |
+| P1 | 支柱 A 的改造闭环 | ✅ `ai_remediate.py` 已落地：模板化生成 + 人审闸门 + 实测量化（iOS 工程 68 → 86） |
 | P1 | Sentry MCP 鉴权 | 需 Sentry 账号，执行 `/mcp` OAuth |
 | P1 | 数据后端选型（含鸿蒙） | 需决策：Sentry self-hosted / 腾讯 Bugly / AGC APMS |
 | P2 | 符号化流水线接入真实构建 | 工具已有，未在真实 CI 跑通 |
@@ -229,6 +229,9 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
   已在 iPhone 13 / iOS 26.7 验证（1170×2532 PNG，`apm_white_screen.py` 判 `content_present`）
 - `.apm/tools/device-test.sh`（被观测工程）：真机测试统一入口，强制
   「先预热 testmanagerd，再跑 UI」；脚本自身端到端验证 → 真机 123 passed
+- `ai_remediate.py`：支柱 A 闭环。`plan` / `generate` / `loop` / `apply` 四段；
+  生成物里的事实位置一律 `TODO(需人工填写)`，`apply` 拒绝覆盖已存在文件；
+  `loop` 在**临时副本**上应用并复扫，给出实测 before/after（不碰目标工程）
 
 ---
 

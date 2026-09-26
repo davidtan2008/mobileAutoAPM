@@ -36,7 +36,7 @@
 |---|---|---|
 | `rn-apm` 逻辑 | ✅ 74 个测试 | `cd rn-apm && npm test` |
 | `ios-apm` 逻辑 | ✅ 11 个测试 | `cd ios-apm && swift test` |
-| Python 工具 | ✅ 92 个测试 | `make test-py` |
+| Python 工具 | ✅ 112 个测试 | `make test-py` |
 | 指标闭环（SDK → 基线判定） | ✅ 跑通过 | — |
 | 跨 agent 生成器 | ✅ 全新 clone 验证 | `make verify-portable` |
 | **原生 shim** | ⚠️ **未在真机验证** | 参考实现见 `rn-apm/docs/native-shims.md` |
@@ -108,13 +108,22 @@ Android / 鸿蒙 / RN 适配器写成可用；`pre-main` 只作为成对观测�
 
 ### P2 · 支柱 A（项目 AI 化改造）
 
-现在只有扫描器（`ai_readiness.py`），**扫描 → 改造 → 复扫 的闭环没做**。
+扫描器早已有（`ai_readiness.py`），**扫描 → 改造 → 复扫 的闭环已落地**（`ai_remediate.py`）。
 
-| # | 待实现 |
-|---|---|
-| 7 | 改造项生成（`AGENTS.md` / CI / lint 的最小可用版本） |
-| 8 | **人审环节** —— 调研证据：LLM 生成的 context 文件 **−3% 成功率 / +20% 成本**，不能生成后直接提交 |
-| 9 | 在一个真实遗留项目上跑通并量化提升 |
+| # | 项 | 状态 |
+|---|---|---|
+| 7 | 改造项生成（`AGENTS.md` / CI / lint 的最小可用版本） | ✅ 模板化生成，**事实位置一律留 `TODO(需人工填写)`**，不编造 |
+| 8 | **人审环节** | ✅ 生成物只进 staging 目录；`apply` 需显式调用且**拒绝覆盖已存在文件** |
+| 9 | 在一个真实遗留项目上跑通并量化提升 | ✅ iOS 工程实测 **68 → 86（+18）**，消除 `no-agents-md` / `no-ci` / `no-lint` |
+
+```bash
+make remediate                                              # 本仓的改造计划
+python3 plugins/mobile-apm/scripts/ai_remediate.py loop --path <项目>   # 量化
+```
+
+**为什么坚持人审**：调研证据显示 LLM 生成的 context 文件 **成功率 −3% / 成本 +20%**。
+所以本脚本只做「模板 + 事实抽取」的确定性改造，凡是超出这个范围的
+（如「凭空生成测试」「填签名 Team ID」）一律标为 `needs_human`，**不假装能自动解决**。
 
 ### P3 · 自我进化
 
