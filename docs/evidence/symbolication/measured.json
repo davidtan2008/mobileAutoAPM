@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "what": "RN 符号化流水线端到端验证（真实工具链）",
+  "rnApp": "HelloRN 0.73.4（临时副本，原工程未改动）+ 官方 RN 模板 0.73.4",
+  "toolchain": [
+    "react-native bundle --dev false（显式 --sourcemap-output）",
+    "hermesc -emit-binary -O -output-source-map（严格照 react-native-xcode.sh）",
+    "rn_symbolicate.py compose（hbc.map + metro map 两步合成）",
+    "hermes CLI 执行 HBC，取得真实抛出的堆栈",
+    "rn_symbolicate.py symbolicate"
+  ],
+  "measured": {
+    "bundleBytes": 1472009,
+    "metroMapBytes": 5726058,
+    "hbcBytes": 1317696,
+    "hbcMapBytes": 1152001,
+    "composedMappings": 186386,
+    "composedSources": 891,
+    "composedFunctionNames": 6433,
+    "stackFrames": 20,
+    "framesWithByteOffset": 20,
+    "resolvedFrames": 20,
+    "resolveRate": 1.0,
+    "wallClockSec": 4.6
+  },
+  "officialTemplateRun": {
+    "composedMappings": 106074,
+    "stackFrames": 20,
+    "resolvedFrames": 20,
+    "resolveRate": 1.0
+  },
+  "bugFoundOnlyWithRealToolchain": {
+    "symptom": "20/20 帧全部未能还原，但 31 个单元测试全绿",
+    "rootCause": "堆栈解析只认简写形式 anonymous@1:999；真实 Hermes 输出是 at fn (address at /abs/path/app.hbc:1:49386)，路径中的空格/冒号让 _RE_HERMES 匹配失败，帧被误判成普通 file:line:column，file 变成 'address at /path' 这种假路径",
+    "fix": "新增 _RE_ADDRESS_AT，且必须**先于** _RE_LOC 判断（否则路径里的冒号会抢先匹配）",
+    "regressionTest": "tests/test_rn_symbolicate.py 里 4 条用例使用**逐字拷贝**的真实堆栈行"
+  },
+  "verifiedGate": {
+    "command": "rn_build_symbols.py verify --platform ios --build-dir <dir> --strict",
+    "missingDsymExitCode": 2,
+    "withDsymExitCode": 0
+  },
+  "notClaimed": [
+    "未验证新架构（Fabric/TurboModules）下的符号化",
+    "未验证 Android 侧（.bundle + mapping.txt）",
+    "未接入生产崩溃上报后端，只验证了从字节码到源码这一段"
+  ]
+}

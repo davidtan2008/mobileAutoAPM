@@ -410,6 +410,17 @@ class StackTrace:
 # Hermes 字节码帧：p@1:132161  或  anonymous@1:132161
 _RE_HERMES = re.compile(r"^(?P<fn>[\w$.<>\[\]/-]*?)@(?P<line>\d+):(?P<col>\d+)$")
 
+# Hermes 运行时真实输出（真机/Hermes CLI 抓下来的就是这种）：
+#   at anonymous (address at /abs/path/app.hbc:1:49386)
+#   at global (address at /abs/path/app.hbc:1:27660)
+# 关键点：路径里**可能有空格**，且整段夹在括号里。
+# 早先只认 "address at 1:132161"（无路径）这种简写形式，
+# 真实输出走不到那条分支 → 帧被误当成普通 file:line:column，
+# 于是 20/20 帧全部还原失败。**这是只有真跑 Hermes 才暴露的缺陷。**
+_RE_ADDRESS_AT = re.compile(
+    r"^address at (?P<path>.*):(?P<line>\d+):(?P<col>\d+)$"
+)
+
 # 标准 JS 帧：at foo (file.js:10:5) / at file.js:10:5 / at foo (native)
 _RE_JS_AT = re.compile(
     r"^\s*at\s+(?:(?P<fn>[^\s(]+)\s+)?\(?(?P<loc>[^()]*?)\)?\s*$"
@@ -444,6 +455,24 @@ def parse_frame(line: str) -> Frame | None:
         if m2:
             fn = (m2.group("fn") or "").strip() or None
             loc = (m2.group("loc") or "").strip()
+
+            # 真实 Hermes 输出：address at <path>:<line>:<col>
+            # 必须**先于** _RE_LOC 判断 —— 路径里可能有空格/冒号，
+            # 否则会被误当成普通 file:line:column 而丢掉字节码偏移。
+            m_addr = _RE_ADDRESS_AT.match(loc)
+            if m_addr:
+                return Frame(
+                    raw=raw, function=fn,
+                    hermes_offset=(int(m_addr.group("line")), int(m_addr.group("col"))),
+                )
+            # 简写形式：address at 1:132161（无路径）
+            m_shorthand = re.match(r"^address at (?P<line>\d+):(?P<col>\d+)$", loc)
+            if m_shorthand:
+                return Frame(
+                    raw=raw, function=fn,
+                    hermes_offset=(int(m_shorthand.group("line")), int(m_shorthand.group("col"))),
+                )
+
             m3 = _RE_LOC.match(loc)
             if m3:
                 file = m3.group("file")

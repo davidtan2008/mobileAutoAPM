@@ -1,0 +1,26 @@
+========================================================================
+  符号化结果  (map: /private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rn-symbols/composed.map, 186386 条映射)
+========================================================================
+Uncaught Invariant Violation: __fbBatchedBridgeConfig is not set, cannot invoke native modules
+  Error (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/invariant/browser.js:38:18)
+  r (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/BatchedBridge/NativeModules.js:182:2)
+  factory (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:273:4)
+  loadModuleImplementation (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:180:11)
+  guardedLoadModule (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:89:6)
+  r (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/TurboModule/TurboModuleRegistry.js:43:25)
+  requireModule (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/TurboModule/TurboModuleRegistry.js:69:9)
+  get (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/WebPerformance/NativePerformance.js:33:36)
+  factory (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:273:4)
+  loadModuleImplementation (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:180:11)
+  guardedLoadModule (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:89:6)
+  r (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/Core/setUpPerformance.js:11:0)
+  factory (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:273:4)
+  loadModuleImplementation (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:180:11)
+  guardedLoadModule (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:89:6)
+  require (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/react-native/Libraries/Core/InitializeCore.js:31:0)
+  factory (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:273:4)
+  loadModuleImplementation (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:173:20)
+  guardedLoadModule (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/metro-runtime/src/polyfills/require.js:89:6)
+  global (/private/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/rnreal/node_modules/@react-navigation/stack/src/utils/useGestureHandlerRef.tsx:15:1)
+
+✅ 20 个 JS 帧全部还原。

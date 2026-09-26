@@ -95,6 +95,9 @@ python3 plugins/mobile-apm/scripts/rn_symbolicate.py compose \
 python3 plugins/mobile-apm/scripts/rn_symbolicate.py symbolicate \
   --map composed.map --stack crash.txt
 
+# 符号化流水线端到端自检（真实 RN 工具链 + 真实 Hermes 堆栈）
+make verify-symbols RN_APP=/path/to/rn-app
+
 # 符号文件门禁（可直接作发版门禁）
 python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
   --platform ios --build-dir ios/build --strict
@@ -103,7 +106,7 @@ python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
 ### 测试
 
 ```bash
-# Python（112 个测试）
+# Python（116 个测试）
 make test-py
 
 # RN SDK（74 个测试）

@@ -293,6 +293,69 @@ appliedToRealProject: false
 
 ---
 
+## 3.8 `verify_symbol_pipeline.py` —— 符号化流水线的端到端自检
+
+### 为什么单元测试不够
+
+`rn_symbolicate.py` 的测试用的是**简写**堆栈：
+
+```text
+anonymous@1:999
+```
+
+而真实 Hermes 运行时输出是：
+
+```text
+at anonymous (address at /abs/path/app.hbc:1:49386)
+```
+
+路径里有空格与冒号，`_RE_HERMES` 匹配失败 → 帧被误判成普通
+`file:line:column`，`file` 变成 `"address at /path"` 这种假路径 →
+**20/20 帧全部还原失败，而所有测试依然全绿**。
+
+这就是「无基线不优化」在工具上的同款问题：**没有真实输入，就没有真实结论。**
+
+### 端到端链路
+
+```bash
+make verify-symbols RN_APP=/path/to/rn-app
+```
+
+依次执行（全部用真实工具链，零合成 fixture）：
+
+| 步 | 命令 | 实测产出 |
+|---|---|---|
+| 1 | `react-native bundle --dev false` | bundle 1.47 MB / metro map 5.73 MB |
+| 2 | `hermesc -emit-binary -O -output-source-map` | HBC 1.32 MB / hbc.map 1.15 MB |
+| 3 | `rn_symbolicate.py compose` | 186,386 条映射 / 891 源文件 / 6,433 函数名 |
+| 4 | `hermes` CLI 执行 HBC | 真实堆栈 20 帧，20 帧带字节码偏移 |
+| 5 | `rn_symbolicate.py symbolicate` | **20/20 帧 100% 还原** |
+
+整条链路本地 **4.6 秒**，因此可以放进 CI 每次跑。
+
+### 两个必须照抄 RN 的细节
+
+```bash
+# ❌ 错误：给 -output-source-map 传值
+#    → Multiple files must use CommonJS modules.
+# ✅ 与 react-native-xcode.sh 完全一致：flag 不带值，Hermes 按 -out 推导 map 名
+hermesc -emit-binary -max-diagnostic-width=80 -O -output-source-map \
+        -out app.hbc app.js     # 产出 app.hbc.map
+```
+
+另外：喂给 `hermes` CLI 执行的文件**必须是 `.hbc` 后缀**，
+否则 Hermes 会把字节码当 UTF-8 源码解析，报一堆 `Invalid UTF-8 continuation byte`。
+
+### CI 接入
+
+`.github/workflows/ci.yml` 增加独立 job `symbol-pipeline`：
+用 `@react-native-community/cli init` 生成真实 RN 0.73.4 工程 →
+`npm install` → 写一个必然抛错的入口 → 跑端到端自检。
+
+**不用自己造 fixture**：造出来的输入验证不了真实格式，这正是本节要修的缺陷。
+
+---
+
 ## 4. `rn_symbolicate.py` —— React Native 堆栈符号化
 
 ### 4.1 纯标准库实现 Base64 VLQ

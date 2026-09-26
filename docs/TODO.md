@@ -33,7 +33,7 @@
 ## P2 · 待外部条件
 
 - [ ] Sentry MCP 鉴权（执行 `/mcp` 完成 OAuth）
-- [ ] 符号化流水线在真实 CI 跑通
+- [x] 符号化流水线端到端验证并接入 CI（`tools/verify_symbol_pipeline.py`，真实工具链 20/20 帧还原）
 - [ ] 数据后端选型（含鸿蒙）：Sentry self-hosted / 腾讯 Bugly / AGC APMS
 - [ ] Android / 鸿蒙真机验证（`adb devices` / `hdc list targets` 目前均为空）
 - [x] 原生 shim iOS 侧真机验证（`rn-apm/ios/RnApm.m`，iPhone 13 / iOS 26.7 实测通过）
@@ -48,7 +48,7 @@
 - [x] `rn-apm`：React Native 埋点 SDK（74 测试）
 - [x] `ios-apm`：iOS 原生埋点 SDK（11 测试）
 - [x] 跨 harness 编译器（`tools/build-portable.py`）
-- [x] 符号化工具（`rn_symbolicate.py` / `rn_build_symbols.py`，31 测试）
+- [x] 符号化工具（`rn_symbolicate.py` / `rn_build_symbols.py`，35 测试；已端到端验证）
 - [x] 基线显著性判定（`apm_baseline.py`）
 - [x] 白屏检测（`apm_white_screen.py`）
 - [x] iOS 真机截图（`apm_screenshot.py`，pymobiledevice3 DVT 后端已真机验证）

@@ -223,6 +223,41 @@ class TestFrameParsing(unittest.TestCase):
         self.assertIsNotNone(f)
         self.assertEqual(f.hermes_offset, (1, 999))
 
+    # ── 以下三行是**真实 Hermes 运行时输出**逐字拷贝 ──────────────
+    # 来源：RN 0.73.4 Release bundle 经 hermesc 编译后，用 hermes CLI 执行
+    # 真实抛出的堆栈。修复前这三种形式全部解析失败（20/20 帧未还原），
+    # 因为路径里有空格/冒号，被误当成普通 file:line:column。
+    def test_真实Hermes输出_带路径的_address_at(self):
+        f = parse_frame(
+            "    at anonymous (address at /tmp/build/hbc/app.hbc:1:49386)"
+        )
+        self.assertIsNotNone(f)
+        self.assertEqual(f.function, "anonymous")
+        self.assertEqual(
+            f.hermes_offset, (1, 49386), "col 是字节码偏移，必须保留"
+        )
+
+    def test_真实Hermes输出_路径含空格(self):
+        f = parse_frame(
+            "    at global (address at /Users/me/My App/main.jsbundle:1:27660)"
+        )
+        self.assertIsNotNone(f)
+        self.assertEqual(f.hermes_offset, (1, 27660))
+
+    def test_真实Hermes输出_带路径简写(self):
+        # 无扩展名也要认
+        f = parse_frame("    at h (address at /tmp/out/bundle:1:28729)")
+        self.assertIsNotNone(f)
+        self.assertEqual(f.hermes_offset, (1, 28729))
+
+    def test_真实Hermes输出_不得被误判为普通文件行(self):
+        """曾经的缺陷：hermes_offset 为空，file 变成 'address at /path' 这种假路径。"""
+        f = parse_frame(
+            "    at anonymous (address at /tmp/build/hbc/app.hbc:1:49386)"
+        )
+        self.assertIsNone(f.file, "不应把 'address at <path>' 当成文件名")
+        self.assertIsNotNone(f.hermes_offset)
+
     def test_标准_js_帧(self):
         f = parse_frame("    at renderHome (/app/src/App.tsx:10:4)")
         self.assertIsNotNone(f)

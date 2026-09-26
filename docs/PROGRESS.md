@@ -248,5 +248,5 @@ cp -R dist/. /path/to/your-app/          # ⚠️ 用 dist/. 不能用 dist/*
 | **原生 shim（iOS）** | ✅ **真机验证通过**（iPhone 13 / iOS 26.7 / RN 0.73.4 / Release）：模块注册、进程创建时间、phys_footprint 内存、设备信息全部取到真值；`footprint/resident = 18.9%` 实证 RSS 会严重高估 |
 | **原生 shim（Android/鸿蒙）** | ⚠️ **未在真机验证** —— 无设备；参考实现见 `rn-apm/docs/native-shims.md` |
 | **被观测工程的真机 UI 套件** | ✅ **iPhone 13 / iOS 26.7：123 passed, 0 failed, 0 skipped**（含 1分59秒 的真实端侧听写用例）。环境前置与预热顺序见 `references/measurement-protocol.md` §5 |
-| **符号化工具在真实构建中的表现** | ⚠️ **未验证** |
+| **符号化工具在真实构建中的表现** | ✅ **端到端验证通过**（真实 RN 0.73.4 工具链 + 真实 Hermes 堆栈）：bundle → hermesc → compose → 符号化，20/20 帧 100% 还原，耗时 4.6s；已接入 CI 独立 job。修复了解析器不认真实 `address at <path>:<line>:<col>` 格式的缺陷 |
 | **自主闭环（核心承诺）** | ✅ **1 次成功**（译文持久化，模拟器 + 真机双重背书）+ ⚠️ 1 次诚实失败（T1 启动）；尚不能泛化到任意需求 |

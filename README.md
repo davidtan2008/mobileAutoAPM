@@ -219,7 +219,7 @@ cp -R dist/. /path/to/your-app/     # ⚠️ 用 dist/. 不能用 dist/*
 ## 质量
 
 ```
-Python 工具    112 个测试
+Python 工具    116 个测试
 rn-apm SDK     74 个测试
 ios-apm SDK    11 个测试
 ```

@@ -308,7 +308,7 @@ func premainMillis() -> Int   // 取不到返回 -1
 ```bash
 make help              # 全部命令
 make test              # 三套测试（改完必跑）
-make test-py           # 只跑 Python（最快，112 个测试）
+make test-py           # 只跑 Python（最快，116 个测试）
 python3 plugins/mobile-apm/scripts/apm_measure.py --help  # iOS 标准测量 profile
 python3 plugins/mobile-apm/scripts/apm_diagnose.py --help # 方差诊断
 make gate              # AI 友好度门禁（CI 同款）
