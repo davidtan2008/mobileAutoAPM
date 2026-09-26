@@ -1,0 +1,63 @@
+# 说明：以下是 `git show 43e6576`（限定 3 个源文件）的逐字输出，
+# 仅去掉了行尾空白以通过仓库的 whitespace 门禁；未增删任何内容行。
+
+commit 43e657654ecc79f9c86db41387d02516666db3c2
+Author: david <dengju.tan@163.com>
+Date:   Sat Sep 26 10:59:29 2026 +0800
+
+    fix: persist translations for ended tasks
+
+diff --git a/Duiyi/Domain/TaskSession.swift b/Duiyi/Domain/TaskSession.swift
+index 6b37326..71faa57 100644
+--- a/Duiyi/Domain/TaskSession.swift
++++ b/Duiyi/Domain/TaskSession.swift
+@@ -111,6 +111,8 @@ protocol TaskStore: AnyObject {
+         multilingual: Bool
+     ) async throws -> TaskSession
+     func append(taskID: UUID, entries: [TranscriptEntry]) async
++    /// 只回填已有条目的译文；允许用于已结束任务，避免放宽 transcript 写入规则。
++    func updateTranslations(taskID: UUID, entries: [TranscriptEntry]) async
+     func setStatus(taskID: UUID, status: TaskStatus) async
+     func saveSummary(taskID: UUID, summary: ConversationSummary) async
+     func end(taskID: UUID, summary: ConversationSummary?) async throws -> TaskSession
+diff --git a/Duiyi/Features/History/TaskDetailView.swift b/Duiyi/Features/History/TaskDetailView.swift
+index 5ec6bbd..0706e01 100644
+--- a/Duiyi/Features/History/TaskDetailView.swift
++++ b/Duiyi/Features/History/TaskDetailView.swift
+@@ -229,7 +229,10 @@ struct TaskDetailView: View {
+         current.entries[index].translatedText = text
+         task = current
+         Task {
+-            await environment.taskStore.append(taskID: current.id, entries: [current.entries[index]])
++            await environment.taskStore.updateTranslations(
++                taskID: current.id,
++                entries: [current.entries[index]]
++            )
+         }
+         advanceTranslation()
+     }
+diff --git a/Duiyi/Services/Persistence/SwiftDataTaskStore.swift b/Duiyi/Services/Persistence/SwiftDataTaskStore.swift
+index ec29a5d..7605283 100644
+--- a/Duiyi/Services/Persistence/SwiftDataTaskStore.swift
++++ b/Duiyi/Services/Persistence/SwiftDataTaskStore.swift
+@@ -98,6 +98,20 @@ final class SwiftDataTaskStore: TaskStore {
+         try? context.save()
+     }
+
++    func updateTranslations(taskID: UUID, entries: [TranscriptEntry]) async {
++        guard let entity = entity(id: taskID) else { return }
++        var translations: [UUID: String] = [:]
++        for entry in entries {
++            translations[entry.id] = entry.translatedText
++        }
++        for stored in entity.entries {
++            if let translatedText = translations[stored.id] {
++                stored.translatedText = translatedText
++            }
++        }
++        try? context.save()
++    }
++
+     func setStatus(taskID: UUID, status: TaskStatus) async {
+         guard let entity = entity(id: taskID), entity.statusRaw != TaskStatus.ended.rawValue else { return }
+         entity.statusRaw = status.rawValue

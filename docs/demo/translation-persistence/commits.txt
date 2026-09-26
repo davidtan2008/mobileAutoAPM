@@ -1,0 +1,9 @@
+# 红测与绿测各自所在的 commit（真实 git 输出）
+
+## red-test.json 采集时的 HEAD（修复前）
+commit fb95d1bd03c83b2244ea10e9091e1d69eeb7ccf2
+subject chore: record startup feasibility control experiment
+
+## green-*.json 采集时的 HEAD（修复后）
+commit 43e657654ecc79f9c86db41387d02516666db3c2
+subject fix: persist translations for ended tasks

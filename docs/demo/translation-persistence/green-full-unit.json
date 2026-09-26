@@ -1,0 +1,897 @@
+{
+  "schema": "mobilebuildmcp.output.test-result",
+  "schemaVersion": "3",
+  "didError": false,
+  "error": null,
+  "data": {
+    "request": {
+      "scheme": "Duiyi",
+      "projectPath": "Duiyi.xcodeproj",
+      "derivedDataPath": "/Users/tanwei/Library/Developer/MobileBuildMCP/workspaces/realtimeTranslatorOptimize-8df963897d87/DerivedData/Duiyi-cd48ab98e467",
+      "configuration": "Debug",
+      "platform": "iOS Simulator",
+      "simulatorId": "9FF1773D-E9DF-45FC-9732-875718B48935",
+      "onlyTesting": [
+        "DuiyiTests"
+      ],
+      "skipTesting": []
+    },
+    "summary": {
+      "status": "SUCCEEDED",
+      "durationMs": 102963,
+      "counts": {
+        "passed": 120,
+        "failed": 0,
+        "skipped": 0
+      },
+      "target": "simulator"
+    },
+    "artifacts": {
+      "buildLogPath": "~/Library/Developer/MobileBuildMCP/workspaces/realtimeTranslatorOptimize-8df963897d87/logs/test_sim_2026-09-26T03-34-03-226Z_pid47281_bd044776.log",
+      "xcresultPath": "~/Library/Developer/MobileBuildMCP/workspaces/realtimeTranslatorOptimize-8df963897d87/result-bundles/test_sim_2026-09-26T03-34-03-226Z_pid47281_2b042c09.xcresult",
+      "testProductsPath": "~/Library/Developer/MobileBuildMCP/workspaces/realtimeTranslatorOptimize-8df963897d87/test-products/test_sim_2026-09-26T03-34-03-226Z_pid47281_e92fe09f.xctestproducts"
+    },
+    "tests": {
+      "selected": [
+        "DuiyiTests/AudioSessionPolicyTests/bluetoothInputIsSafe",
+        "DuiyiTests/AudioSessionPolicyTests/externalPortIsSafe",
+        "DuiyiTests/AudioSessionPolicyTests/headsetRoutesAreSafe",
+        "DuiyiTests/AudioSessionPolicyTests/mixedRouteIsSafe",
+        "DuiyiTests/AudioSessionPolicyTests/speakerOnlyIsUnsafe",
+        "DuiyiTests/ClauseSplitterTests/carriedPrefixAcrossUtteranceIDs",
+        "DuiyiTests/ClauseSplitterTests/emptyText",
+        "DuiyiTests/ClauseSplitterTests/fullwidthColonReleasesClause",
+        "DuiyiTests/ClauseSplitterTests/growingSentenceDoesNotRepeatTheHead",
+        "DuiyiTests/ClauseSplitterTests/insertedMovieTitleSpeaksOnlyTheNewTail",
+        "DuiyiTests/ClauseSplitterTests/middleStemIsSkippedWhenTranslationPrependsWords",
+        "DuiyiTests/ClauseSplitterTests/movieTitleRestatementSkipsSpokenClause",
+        "DuiyiTests/ClauseSplitterTests/periodThenCommaStillSpeaksSuffixOnly",
+        "DuiyiTests/ClauseSplitterTests/punctuationReleasesClause",
+        "DuiyiTests/ClauseSplitterTests/sameUtteranceSpeaksSuffixOnly",
+        "DuiyiTests/ClauseSplitterTests/settledWithoutPunctuationSpeaks",
+        "DuiyiTests/ClauseSplitterTests/shortPrependedFillerIsNotSpoken",
+        "DuiyiTests/ClauseSplitterTests/shortVolatileFillerIsSilent",
+        "DuiyiTests/ClauseSplitterTests/volatileTextDoesNotDropCarriedPrefix",
+        "DuiyiTests/ClauseSplitterTests/volatileWithoutPunctuationIsSilent",
+        "DuiyiTests/ConversationViewModelTests/autoStartPreferencePersists",
+        "DuiyiTests/ConversationViewModelTests/bootstrapRespectsAutoStartOff",
+        "DuiyiTests/ConversationViewModelTests/changingLanguageClearsCaptions",
+        "DuiyiTests/ConversationViewModelTests/chineseSpeechRoutesToPeerPane",
+        "DuiyiTests/ConversationViewModelTests/continuationDoesNotCreateHistoryRows",
+        "DuiyiTests/ConversationViewModelTests/englishSpeechRoutesToUserPane",
+        "DuiyiTests/ConversationViewModelTests/historyKeepsPreviousCaptions",
+        "DuiyiTests/ConversationViewModelTests/japaneseSpeechRoutesToUserPane",
+        "DuiyiTests/ConversationViewModelTests/languageFlipOnSameUtteranceIsDropped",
+        "DuiyiTests/ConversationViewModelTests/pauseHoldsIdleTimerThenReleases",
+        "DuiyiTests/ConversationViewModelTests/resetCaptions",
+        "DuiyiTests/ConversationViewModelTests/selectingPeerLanguageSwaps",
+        "DuiyiTests/ConversationViewModelTests/staleTranslationDropped",
+        "DuiyiTests/ConversationViewModelTests/startUsesTwoLocales",
+        "DuiyiTests/ConversationViewModelTests/summaryUsesInjectedSummarizer",
+        "DuiyiTests/ConversationViewModelTests/swapLanguagesExchangesPair",
+        "DuiyiTests/ConversationViewModelTests/weakOppositeLanguageAfterCommitIsDropped",
+        "DuiyiTests/InterpretationViewModelTests/bootstrapDoesNotAutostart",
+        "DuiyiTests/InterpretationViewModelTests/concatenatedGreetingsStayOneCaption",
+        "DuiyiTests/InterpretationViewModelTests/growingMovieCaptionDoesNotStackDuplicates",
+        "DuiyiTests/InterpretationViewModelTests/growingTranslationAcrossUtteranceIDsSkipsHead",
+        "DuiyiTests/InterpretationViewModelTests/growingTranslationSpeaksSuffixOnly",
+        "DuiyiTests/InterpretationViewModelTests/languageChangeReturnsToReady",
+        "DuiyiTests/InterpretationViewModelTests/missingVoiceDisablesOnlySpeech",
+        "DuiyiTests/InterpretationViewModelTests/movieRevisionsOnNewIdsCollapseToOneCaption",
+        "DuiyiTests/InterpretationViewModelTests/noHeadphonesCannotEnableVoiceOut",
+        "DuiyiTests/InterpretationViewModelTests/nonSourceLanguageIsIgnored",
+        "DuiyiTests/InterpretationViewModelTests/pauseClearsSpeechQueue",
+        "DuiyiTests/InterpretationViewModelTests/prependedTranslationSkipsAlreadyReadClause",
+        "DuiyiTests/InterpretationViewModelTests/sameIDGreetingSwapKeepsBothNames",
+        "DuiyiTests/InterpretationViewModelTests/secondGreetingStaysVisible",
+        "DuiyiTests/InterpretationViewModelTests/settledRefinementsSpeakOnce",
+        "DuiyiTests/InterpretationViewModelTests/shortFollowUpDoesNotDropLongSpeech",
+        "DuiyiTests/InterpretationViewModelTests/shortRewriteOnSameIDDoesNotCancelLongSpeech",
+        "DuiyiTests/InterpretationViewModelTests/speechQueueKeepsAllSettledSentences",
+        "DuiyiTests/InterpretationViewModelTests/startUsesSingleSourceLocale",
+        "DuiyiTests/InterpretationViewModelTests/swapDropsLiveKeepsHistory",
+        "DuiyiTests/InterpretationViewModelTests/unmatchedPartialDoesNotWipeSpokenPrefix",
+        "DuiyiTests/InterpretationViewModelTests/unplugDisablesVoiceOut",
+        "DuiyiTests/LanguageRouterTests/peerSpeechRoutesToUser",
+        "DuiyiTests/LanguageRouterTests/speakerIsOppositeOfListener",
+        "DuiyiTests/LanguageRouterTests/targetLanguageIsTheOtherOfThePair",
+        "DuiyiTests/LanguageRouterTests/userSpeechRoutesToPeer",
+        "DuiyiTests/MeetingViewModelTests/collapseStutteredRepeats",
+        "DuiyiTests/MeetingViewModelTests/defaultModeUsesPinnedReadingLanguage",
+        "DuiyiTests/MeetingViewModelTests/meetingDoesNotAutostart",
+        "DuiyiTests/MeetingViewModelTests/meetingKeepsFullTranscript",
+        "DuiyiTests/MeetingViewModelTests/mixedLanguagesStaySeparate",
+        "DuiyiTests/MeetingViewModelTests/multilingualUsesReadingPair",
+        "DuiyiTests/MeetingViewModelTests/pinnedLanguageIgnoresOthers",
+        "DuiyiTests/MeetingViewModelTests/recognitionOrderPrefersDisplayLanguage",
+        "DuiyiTests/MeetingViewModelTests/retagsChineseTextClaimedAsEnglish",
+        "DuiyiTests/MeetingViewModelTests/upsertUpdatesSourceWhenLanguageChanges",
+        "DuiyiTests/OnboardingViewModelTests/restoresSavedStep",
+        "DuiyiTests/OnboardingViewModelTests/selectLanguagePersists",
+        "DuiyiTests/OnboardingViewModelTests/selectingSameLanguageSwaps",
+        "DuiyiTests/OnboardingViewModelTests/skipUsesSystemLanguage",
+        "DuiyiTests/PlatformTaskTests/beginTaskClearsCaptions",
+        "DuiyiTests/PlatformTaskTests/cannotListenWithoutTask",
+        "DuiyiTests/PlatformTaskTests/deviceNotEligibleCopyIsHonest",
+        "DuiyiTests/PlatformTaskTests/endConversationWritesStore",
+        "DuiyiTests/PlatformTaskTests/exportIncludesTranscript",
+        "DuiyiTests/PlatformTaskTests/exportLabelsMeetingLanguages",
+        "DuiyiTests/PlatformTaskTests/interpretationBeginTaskDoesNotListen",
+        "DuiyiTests/SpeechEngineLanguageTests/emptyUsesFallback",
+        "DuiyiTests/SpeechEngineLanguageTests/keepsAllRequestedLanguages",
+        "DuiyiTests/SpokenTextTests/collapseStutteredRepeats",
+        "DuiyiTests/SpokenTextTests/differentEnglishSentencesAreDistinct",
+        "DuiyiTests/SpokenTextTests/englishGrowsAsContinuation",
+        "DuiyiTests/SpokenTextTests/helloAndGoodbyeAreDistinct",
+        "DuiyiTests/SpokenTextTests/longerTranslationCoversShorter",
+        "DuiyiTests/SpokenTextTests/movieTitleFragmentsAreRefinements",
+        "DuiyiTests/SpokenTextTests/preferredTranslationDoesNotShrink",
+        "DuiyiTests/SpokenTextTests/shortConfirmationIsNotARefinement",
+        "DuiyiTests/SpokenTextTests/shortFollowUpDoesNotReplaceScheduledSpeech",
+        "DuiyiTests/TaskStoreTests/deleteDoesNotAffectOther",
+        "DuiyiTests/TaskStoreTests/endWritesHistory",
+        "DuiyiTests/TaskStoreTests/endedTaskTranslationBackfillInMemory",
+        "DuiyiTests/TaskStoreTests/endedTaskTranslationBackfillInSwiftData",
+        "DuiyiTests/TaskStoreTests/unfinishedStayActive",
+        "DuiyiTests/TranscriptDigestTests/digestGroupsSpeakers",
+        "DuiyiTests/UtteranceAssemblerTests/chineseSpeechIgnoresEnglishHallucination",
+        "DuiyiTests/UtteranceAssemblerTests/chineseWins",
+        "DuiyiTests/UtteranceAssemblerTests/continuationAfterFinalKeepsIdentity",
+        "DuiyiTests/UtteranceAssemblerTests/delayedOtherLanguageAfterFinalIsDropped",
+        "DuiyiTests/UtteranceAssemblerTests/englishSpeechIgnoresChineseHallucination",
+        "DuiyiTests/UtteranceAssemblerTests/englishWins",
+        "DuiyiTests/UtteranceAssemblerTests/finalPreferred",
+        "DuiyiTests/UtteranceAssemblerTests/greetingNameSwapAfterFinalGetsNewIdentity",
+        "DuiyiTests/UtteranceAssemblerTests/japaneseKanaIsNotChinese",
+        "DuiyiTests/UtteranceAssemblerTests/koreanHangulMatches",
+        "DuiyiTests/UtteranceAssemblerTests/longChinesePreemptsEnglishHallucination",
+        "DuiyiTests/UtteranceAssemblerTests/refinementAfterFinalKeepsIdentity",
+        "DuiyiTests/UtteranceAssemblerTests/resolvedLanguagePrefersMatchingScript",
+        "DuiyiTests/UtteranceAssemblerTests/shortFillerKeepsLastLanguage",
+        "DuiyiTests/UtteranceAssemblerTests/silenceStartsNewUtterance",
+        "DuiyiTests/UtteranceAssemblerTests/stableIdentity",
+        "DuiyiTests/UtteranceAssemblerTests/thaiScriptMatches",
+        "DuiyiTests/UtteranceAssemblerTests/unrelatedSentenceAfterFinalGetsNewIdentity",
+        "DuiyiTests/UtteranceAssemblerTests/vietnameseDiacriticsAreNotEnglish"
+      ],
+      "discovered": {
+        "total": 120,
+        "items": [
+          "DuiyiTests/AudioSessionPolicyTests/bluetoothInputIsSafe",
+          "DuiyiTests/AudioSessionPolicyTests/externalPortIsSafe",
+          "DuiyiTests/AudioSessionPolicyTests/headsetRoutesAreSafe",
+          "DuiyiTests/AudioSessionPolicyTests/mixedRouteIsSafe",
+          "DuiyiTests/AudioSessionPolicyTests/speakerOnlyIsUnsafe",
+          "DuiyiTests/ClauseSplitterTests/carriedPrefixAcrossUtteranceIDs"
+        ]
+      }
+    },
+    "diagnostics": {
+      "warnings": [],
+      "errors": [],
+      "testFailures": []
+    },
+    "testCases": [
+      {
+        "suite": "LanguageRouterTests",
+        "test": "speakerIsOppositeOfListener()",
+        "status": "passed",
+        "durationMs": 1205
+      },
+      {
+        "suite": "LanguageRouterTests",
+        "test": "peerSpeechRoutesToUser()",
+        "status": "passed",
+        "durationMs": 1205
+      },
+      {
+        "suite": "LanguageRouterTests",
+        "test": "targetLanguageIsTheOtherOfThePair()",
+        "status": "passed",
+        "durationMs": 1206
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "preferredTranslationDoesNotShrink()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "helloAndGoodbyeAreDistinct()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "LanguageRouterTests",
+        "test": "userSpeechRoutesToPeer()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "englishGrowsAsContinuation()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "TaskStoreTests",
+        "test": "endWritesHistory()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "TaskStoreTests",
+        "test": "unfinishedStayActive()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "SpeechEngineLanguageTests",
+        "test": "emptyUsesFallback()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "differentEnglishSentencesAreDistinct()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "sameUtteranceSpeaksSuffixOnly()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "TranscriptDigestTests",
+        "test": "digestGroupsSpeakers()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "shortFollowUpDoesNotReplaceScheduledSpeech()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "punctuationReleasesClause()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "SpeechEngineLanguageTests",
+        "test": "keepsAllRequestedLanguages()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "carriedPrefixAcrossUtteranceIDs()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "longerTranslationCoversShorter()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "volatileWithoutPunctuationIsSilent()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "fullwidthColonReleasesClause()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "shortConfirmationIsNotARefinement()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "insertedMovieTitleSpeaksOnlyTheNewTail()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "shortVolatileFillerIsSilent()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "emptyText()",
+        "status": "passed",
+        "durationMs": 2402
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "middleStemIsSkippedWhenTranslationPrependsWords()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "collapseStutteredRepeats()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "periodThenCommaStillSpeaksSuffixOnly()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "growingSentenceDoesNotRepeatTheHead()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "settledWithoutPunctuationSpeaks()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "volatileTextDoesNotDropCarriedPrefix()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "AudioSessionPolicyTests",
+        "test": "headsetRoutesAreSafe()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "AudioSessionPolicyTests",
+        "test": "bluetoothInputIsSafe()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "shortPrependedFillerIsNotSpoken()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "silenceStartsNewUtterance()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "AudioSessionPolicyTests",
+        "test": "mixedRouteIsSafe()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "AudioSessionPolicyTests",
+        "test": "externalPortIsSafe()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "continuationAfterFinalKeepsIdentity()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "ClauseSplitterTests",
+        "test": "movieTitleRestatementSkipsSpokenClause()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "AudioSessionPolicyTests",
+        "test": "speakerOnlyIsUnsafe()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "englishWins()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "chineseSpeechIgnoresEnglishHallucination()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "greetingNameSwapAfterFinalGetsNewIdentity()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "finalPreferred()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "delayedOtherLanguageAfterFinalIsDropped()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "japaneseKanaIsNotChinese()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "longChinesePreemptsEnglishHallucination()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "refinementAfterFinalKeepsIdentity()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "stableIdentity()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "vietnameseDiacriticsAreNotEnglish()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "englishSpeechIgnoresChineseHallucination()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "resolvedLanguagePrefersMatchingScript()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "thaiScriptMatches()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "unrelatedSentenceAfterFinalGetsNewIdentity()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "SpokenTextTests",
+        "test": "movieTitleFragmentsAreRefinements()",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "koreanHangulMatches()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "shortFillerKeepsLastLanguage()",
+        "status": "passed",
+        "durationMs": 1200
+      },
+      {
+        "suite": "UtteranceAssemblerTests",
+        "test": "chineseWins()",
+        "status": "passed",
+        "durationMs": 1201
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "retagsChineseTextClaimedAsEnglish()",
+        "status": "passed",
+        "durationMs": 2404
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "meetingDoesNotAutostart()",
+        "status": "passed",
+        "durationMs": 2404
+      },
+      {
+        "suite": "TaskStoreTests",
+        "test": "endedTaskTranslationBackfillInMemory()",
+        "status": "passed",
+        "durationMs": 2405
+      },
+      {
+        "suite": "TaskStoreTests",
+        "test": "deleteDoesNotAffectOther()",
+        "status": "passed",
+        "durationMs": 2405
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "upsertUpdatesSourceWhenLanguageChanges()",
+        "status": "passed",
+        "durationMs": 2404
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "beginTaskClearsCaptions()",
+        "status": "passed",
+        "durationMs": 2405
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "collapseStutteredRepeats()",
+        "status": "passed",
+        "durationMs": 2404
+      },
+      {
+        "suite": "TaskStoreTests",
+        "test": "endedTaskTranslationBackfillInSwiftData()",
+        "status": "passed",
+        "durationMs": 2405
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "interpretationBeginTaskDoesNotListen()",
+        "status": "passed",
+        "durationMs": 2404
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "weakOppositeLanguageAfterCommitIsDropped()",
+        "status": "passed",
+        "durationMs": 1203
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "resetCaptions()",
+        "status": "passed",
+        "durationMs": 1204
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "englishSpeechRoutesToUserPane()",
+        "status": "passed",
+        "durationMs": 1204
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "chineseSpeechRoutesToPeerPane()",
+        "status": "passed",
+        "durationMs": 1205
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "languageFlipOnSameUtteranceIsDropped()",
+        "status": "passed",
+        "durationMs": 1206
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "staleTranslationDropped()",
+        "status": "passed",
+        "durationMs": 1207
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "cannotListenWithoutTask()",
+        "status": "passed",
+        "durationMs": 2413
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "endConversationWritesStore()",
+        "status": "passed",
+        "durationMs": 2412
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "mixedLanguagesStaySeparate()",
+        "status": "passed",
+        "durationMs": 2412
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "meetingKeepsFullTranscript()",
+        "status": "passed",
+        "durationMs": 2413
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "bootstrapRespectsAutoStartOff()",
+        "status": "passed",
+        "durationMs": 2906
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "recognitionOrderPrefersDisplayLanguage()",
+        "status": "passed",
+        "durationMs": 4111
+      },
+      {
+        "suite": "OnboardingViewModelTests",
+        "test": "selectLanguagePersists()",
+        "status": "passed",
+        "durationMs": 2908
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "deviceNotEligibleCopyIsHonest()",
+        "status": "passed",
+        "durationMs": 4110
+      },
+      {
+        "suite": "OnboardingViewModelTests",
+        "test": "selectingSameLanguageSwaps()",
+        "status": "passed",
+        "durationMs": 2908
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "secondGreetingStaysVisible()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "sameIDGreetingSwapKeepsBothNames()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "concatenatedGreetingsStayOneCaption()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "languageChangeReturnsToReady()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "growingMovieCaptionDoesNotStackDuplicates()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "swapDropsLiveKeepsHistory()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "OnboardingViewModelTests",
+        "test": "skipUsesSystemLanguage()",
+        "status": "passed",
+        "durationMs": 4110
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "exportIncludesTranscript()",
+        "status": "passed",
+        "durationMs": 4111
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "movieRevisionsOnNewIdsCollapseToOneCaption()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "OnboardingViewModelTests",
+        "test": "restoresSavedStep()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "summaryUsesInjectedSummarizer()",
+        "status": "passed",
+        "durationMs": 2933
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "swapLanguagesExchangesPair()",
+        "status": "passed",
+        "durationMs": 2933
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "missingVoiceDisablesOnlySpeech()",
+        "status": "passed",
+        "durationMs": 2907
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "selectingPeerLanguageSwaps()",
+        "status": "passed",
+        "durationMs": 2933
+      },
+      {
+        "suite": "PlatformTaskTests",
+        "test": "exportLabelsMeetingLanguages()",
+        "status": "passed",
+        "durationMs": 4139
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "nonSourceLanguageIsIgnored()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "defaultModeUsesPinnedReadingLanguage()",
+        "status": "passed",
+        "durationMs": 4139
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "pauseClearsSpeechQueue()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "japaneseSpeechRoutesToUserPane()",
+        "status": "passed",
+        "durationMs": 2934
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "multilingualUsesReadingPair()",
+        "status": "passed",
+        "durationMs": 4139
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "changingLanguageClearsCaptions()",
+        "status": "passed",
+        "durationMs": 2934
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "startUsesSingleSourceLocale()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "bootstrapDoesNotAutostart()",
+        "status": "passed",
+        "durationMs": 2936
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "continuationDoesNotCreateHistoryRows()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "historyKeepsPreviousCaptions()",
+        "status": "passed",
+        "durationMs": 2935
+      },
+      {
+        "suite": "MeetingViewModelTests",
+        "test": "pinnedLanguageIgnoresOthers()",
+        "status": "passed",
+        "durationMs": 4147
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "autoStartPreferencePersists()",
+        "status": "passed",
+        "durationMs": 2942
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "startUsesTwoLocales()",
+        "status": "passed",
+        "durationMs": 2942
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "shortFollowUpDoesNotDropLongSpeech()",
+        "status": "passed",
+        "durationMs": 2999
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "growingTranslationSpeaksSuffixOnly()",
+        "status": "passed",
+        "durationMs": 3009
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "unmatchedPartialDoesNotWipeSpokenPrefix()",
+        "status": "passed",
+        "durationMs": 3009
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "growingTranslationAcrossUtteranceIDsSkipsHead()",
+        "status": "passed",
+        "durationMs": 3009
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "prependedTranslationSkipsAlreadyReadClause()",
+        "status": "passed",
+        "durationMs": 3009
+      },
+      {
+        "suite": "ConversationViewModelTests",
+        "test": "pauseHoldsIdleTimerThenReleases()",
+        "status": "passed",
+        "durationMs": 3017
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "speechQueueKeepsAllSettledSentences()",
+        "status": "passed",
+        "durationMs": 3062
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "settledRefinementsSpeakOnce()",
+        "status": "passed",
+        "durationMs": 3082
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "shortRewriteOnSameIDDoesNotCancelLongSpeech()",
+        "status": "passed",
+        "durationMs": 3100
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "noHeadphonesCannotEnableVoiceOut()",
+        "status": "passed",
+        "durationMs": 3116
+      },
+      {
+        "suite": "InterpretationViewModelTests",
+        "test": "unplugDisablesVoiceOut()",
+        "status": "passed",
+        "durationMs": 3359
+      }
+    ]
+  }
+}

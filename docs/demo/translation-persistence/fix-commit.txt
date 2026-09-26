@@ -1,0 +1,13 @@
+commit 43e657654ecc79f9c86db41387d02516666db3c2
+subject fix: persist translations for ended tasks
+
+ ...E-FUNC-001-ended-translation-not-persisted.json | 45 +++++++++++++++++
+ .../ISSUE-UI-001-home-entry-not-hittable.json      | 30 +++++++++++
+ Duiyi/Domain/TaskSession.swift                     |  2 +
+ Duiyi/Features/History/TaskDetailView.swift        |  5 +-
+ Duiyi/Services/Persistence/DeferredTaskStore.swift |  4 ++
+ Duiyi/Services/Persistence/InMemoryTaskStore.swift | 14 +++++
+ .../Services/Persistence/SwiftDataTaskStore.swift  | 14 +++++
+ DuiyiTests/TaskStoreTests.swift                    | 47 +++++++++++++++++
+ docs/19-ended-translation-persistence-fix.md       | 59 ++++++++++++++++++++++
+ 9 files changed, 219 insertions(+), 1 deletion(-)

@@ -1,6 +1,13 @@
 # 60–90 秒 Demo 脚本：译文持久化闭环
 
-> 这是发布候选脚本，尚未录制。录制时只展示真实命令与真实结果。
+> **状态：已渲染为视频，尚未人工审阅。**
+> 成片：`docs/demo/translation-persistence/translation-persistence.mp4`（68.0s / 1920×1080）
+> 证据包与重渲染命令：`docs/demo/translation-persistence/README.md`
+> 重渲染：`make demo-video`
+>
+> 下面这份脚本是视频的**文字版**，同时供人工配音或改版使用。
+> 视频里的每个数字都由 `tools/render_demo_slides.py` 从命令原始输出 JSON 读取，
+> 不存在手写结论。人工审阅通过前不得发布。
 
 ## 0:00–0:12 — 问题
 
@@ -24,12 +31,16 @@ mobilebuildmcp simulator test \
   --json '{"extraArgs":["-only-testing:DuiyiTests/TaskStoreTests"]}'
 ```
 
-红测结果：
+红测结果（证据：`docs/demo/translation-persistence/red-test.json`）：
 
 ```text
-3 passed, 2 failed
-期望 "六点见"，实际读回 ""
+passed=0  failed=1
+Expectation failed: (reloaded?.entries.first?.translatedText → "") == "六点见"
 ```
+
+> 注：这里是一次「只测新回归用例」的结果（1 条用例失败）。
+> 早期在同一修复点上的整类运行是 `3 passed, 2 failed`。
+> 视频采用前者，因为它对应可独立复现的单条命令。
 
 ## 0:28–0:42 — 根因
 

@@ -45,6 +45,11 @@ venv/
 *.trace
 *.xcresult
 
+# Demo 渲染中间产物：SVG 源与 MP4 入库，PNG 由 make demo-video 重新生成
+docs/demo/**/slides/*.png
+docs/demo/**/slides/render.json
+docs/demo/**/*.stderr
+
 # ── 编辑器 / 系统 ───────────────────────────────────────
 .DS_Store
 Thumbs.db

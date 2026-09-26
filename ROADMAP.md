@@ -118,7 +118,8 @@ Android / 鸿蒙 / RN 适配器写成可用；`pre-main` 只作为成对观测�
 ### P4 · 开源运营
 
 - ⏰ **V2EX 注册**（发帖要求注册满 30 天，越早越好）
-- **录 demo 视频** —— 脚本已写：`docs/demo-script-translation-persistence.md`；待人工录制与审阅
+- **demo 视频已渲染，待人工审阅** —— 成片 `docs/demo/translation-persistence/translation-persistence.mp4`（68.0s），
+  证据包 `docs/demo/translation-persistence/`，重渲染 `make demo-video`；脚本 `docs/demo-script-translation-persistence.md`
 - ⚠️ **发布前仍需**：把 case study 压缩成 60–90 秒视频并人工审阅所有数字/边界；
   不得使用 T1 的 200ms 不可达结论或未修复的 UI 失败作为成功素材。
 

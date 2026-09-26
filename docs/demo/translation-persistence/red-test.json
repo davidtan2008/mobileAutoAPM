@@ -1,0 +1,517 @@
+{
+  "schema": "mobilebuildmcp.output.test-result",
+  "schemaVersion": "3",
+  "didError": true,
+  "error": "Tests failed",
+  "data": {
+    "request": {
+      "scheme": "Duiyi",
+      "projectPath": "Duiyi.xcodeproj",
+      "derivedDataPath": "/Users/tanwei/Library/Developer/MobileBuildMCP/workspaces/duiyi-before-fix-105681e5148a/DerivedData/Duiyi-819c0c805f5f",
+      "configuration": "Debug",
+      "platform": "iOS Simulator",
+      "simulatorId": "9FF1773D-E9DF-45FC-9732-875718B48935",
+      "onlyTesting": [
+        "DuiyiTests/TranslationPersistenceRedTests"
+      ],
+      "skipTesting": []
+    },
+    "summary": {
+      "status": "FAILED",
+      "durationMs": 73625,
+      "counts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "target": "simulator"
+    },
+    "artifacts": {
+      "buildLogPath": "~/Library/Developer/MobileBuildMCP/workspaces/duiyi-before-fix-105681e5148a/logs/test_sim_2026-09-26T03-31-40-731Z_pid46343_6ede8b52.log",
+      "xcresultPath": "~/Library/Developer/MobileBuildMCP/workspaces/duiyi-before-fix-105681e5148a/result-bundles/test_sim_2026-09-26T03-31-40-732Z_pid46343_40efd04f.xcresult",
+      "testProductsPath": "~/Library/Developer/MobileBuildMCP/workspaces/duiyi-before-fix-105681e5148a/test-products/test_sim_2026-09-26T03-31-40-732Z_pid46343_011d0f26.xctestproducts"
+    },
+    "tests": {
+      "selected": [
+        "DuiyiTests/TranslationPersistenceRedTests/endedSwiftDataAppendIsDropped"
+      ],
+      "discovered": {
+        "total": 1,
+        "items": [
+          "DuiyiTests/TranslationPersistenceRedTests/endedSwiftDataAppendIsDropped"
+        ]
+      }
+    },
+    "diagnostics": {
+      "warnings": [
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Services/Audio/AudioSessionPolicy.swift:122"
+        },
+        {
+          "message": "capture of 'buffer' with non-Sendable type 'AVAudioPCMBuffer' in a '@Sendable' closure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Services/Audio/BufferConverter.swift:39"
+        },
+        {
+          "message": "add '@preconcurrency' to treat 'Sendable'-related errors from module 'AVFAudio' as warnings",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Services/Audio/BufferConverter.swift:1"
+        },
+        {
+          "message": "variable 'tv' was never mutated; consider changing to 'let' constant",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Services/Diagnostics/AppLaunchTracker.swift:122"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:65"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:67"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:108"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:110"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:227"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/Duiyi/Features/Conversation/TranslationHostView.swift:229"
+        },
+        {
+          "message": "call to main actor-isolated initializer 'init()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:15"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'launch()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:16"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:27"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:27"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:27"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:31"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:31"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:32"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:33"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:34"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:34"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:34"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:35"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:35"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:35"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:37"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:37"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:38"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'swipeUp()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:39"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:41"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:42"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:44"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:44"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:45"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:46"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:47"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:47"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:47"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:53"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:53"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:54"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:55"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:63"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:63"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:64"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:65"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:78"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:78"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:79"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:81"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:82"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:83"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:83"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:84"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:85"
+        },
+        {
+          "message": "main actor-isolated property 'allElementsBoundByIndex' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:102"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:102"
+        },
+        {
+          "message": "main actor-isolated property 'staticTexts' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:102"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:103"
+        },
+        {
+          "message": "main actor-isolated property 'allElementsBoundByIndex' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:106"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:106"
+        },
+        {
+          "message": "main actor-isolated property 'staticTexts' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:106"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:107"
+        },
+        {
+          "message": "main actor-isolated property 'allElementsBoundByIndex' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:110"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:110"
+        },
+        {
+          "message": "main actor-isolated property 'staticTexts' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:110"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:111"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:118"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:118"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:118"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:119"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:119"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:119"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:121"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:121"
+        },
+        {
+          "message": "main actor-isolated property 'otherElements' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:121"
+        },
+        {
+          "message": "main actor-isolated property 'exists' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:129"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:129"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:129"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:130"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:130"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:130"
+        },
+        {
+          "message": "main actor-isolated property 'sheets' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:141"
+        },
+        {
+          "message": "main actor-isolated property 'count' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:142"
+        },
+        {
+          "message": "main actor-isolated property 'allElementsBoundByIndex' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:143"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:143"
+        },
+        {
+          "message": "main actor-isolated property 'label' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:144"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:146"
+        },
+        {
+          "message": "main actor-isolated property 'count' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:151"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:151"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:152"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'element(boundBy:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:152"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:152"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:156"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:161"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:161"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:161"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:162"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:162"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:162"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:165"
+        },
+        {
+          "message": "main actor-isolated property 'otherElements' can not be referenced from a nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:165"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:166"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/SimultaneousFlowTests.swift:167"
+        },
+        {
+          "message": "call to main actor-isolated initializer 'init()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:9"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'launch()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:10"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:11"
+        },
+        {
+          "message": "main actor-isolated subscript 'subscript(_:)' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:11"
+        },
+        {
+          "message": "main actor-isolated property 'buttons' can not be referenced from a nonisolated autoclosure",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:11"
+        },
+        {
+          "message": "call to main actor-isolated instance method 'terminate()' in a synchronous nonisolated context",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiUITests/LaunchPerformanceTests.swift:12"
+        },
+        {
+          "message": "no 'async' operations occur within 'await' expression",
+          "location": "/var/folders/db/rnry4hjj5rv6fjkxjgh2pt580000gn/T/opencode/duiyi-before-fix/DuiyiTests/InterpretationViewModelTests.swift:25"
+        }
+      ],
+      "errors": [],
+      "testFailures": [
+        {
+          "suite": "TranslationPersistenceRedTests",
+          "test": "Ended SwiftData task silently drops translated text",
+          "message": "Expectation failed: (reloaded?.entries.first?.translatedText → \"\") == \"六点见\"",
+          "location": "TranslationPersistenceRedTests.swift:36"
+        }
+      ]
+    },
+    "testCases": [
+      {
+        "suite": "TranslationPersistenceRedTests",
+        "test": "endedSwiftDataAppendIsDropped()",
+        "status": "failed",
+        "durationMs": 28
+      },
+      {
+        "suite": "TranslationPersistenceRedTests",
+        "test": "endedSwiftDataAppendIsDropped()",
+        "status": "failed",
+        "durationMs": 25
+      }
+    ]
+  }
+}

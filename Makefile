@@ -5,7 +5,7 @@
 #   「Agent 能否一条命令验证自己的改动」是 AI 友好度里权重最高的一条 ——
 #   做不到的话，Agent 只能靠猜。所有命令都必须在**全新 clone** 上可跑。
 
-.PHONY: help test test-py test-rn test-ios lint readiness gate check build-portable verify-portable build-diagrams verify-diagrams doctor clean
+.PHONY: help test test-py test-rn test-ios lint readiness gate check build-portable verify-portable build-diagrams verify-diagrams demo-video doctor clean
 
 PY      := python3
 SCRIPTS := plugins/mobile-apm/scripts
@@ -69,6 +69,21 @@ build-diagrams:  ## 由 SVG 渲染 PNG（双份提交：SVG 供网页，PNG 供 
 
 verify-diagrams:  ## 确认 PNG 未落后于 SVG（CI 门禁用）
 	@tools/build-diagrams.sh --check
+
+# ── 发布素材 ────────────────────────────────────────────
+
+DEMO_DIR   := docs/demo/translation-persistence
+DEMO_MP4   := $(DEMO_DIR)/translation-persistence.mp4
+
+demo-video:  ## 由真实命令输出渲染 60–90 秒 demo 视频（需 ffmpeg + rsvg-convert）
+	@command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
+	@command -v rsvg-convert >/dev/null || { echo "⛔ 缺少 rsvg-convert"; exit 1; }
+	@$(PY) tools/render_demo_slides.py --evidence $(DEMO_DIR) --out $(DEMO_DIR)/slides
+	@for svg in $(DEMO_DIR)/slides/slide-*.svg; do \
+		png="$${svg%.svg}.png"; \
+		rsvg-convert -w 1920 -h 1080 "$$svg" -o "$$png" || exit 1; \
+	done
+	@tools/render_demo_video.sh $(DEMO_DIR)/slides $(DEMO_MP4)
 
 # ── 环境 ────────────────────────────────────────────────
 
