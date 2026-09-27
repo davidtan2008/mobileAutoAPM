@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 我只想问个问题（不打算提 issue）
+    url: https://github.com/davidtan2008/mobileAutoAPM/discussions
+    about: 用 Discussions 提问，比开 issue 更合适
+  - name: 能力边界 / 支持范围
+    url: https://github.com/davidtan2008/mobileAutoAPM/blob/main/README.md#能力边界先说不能做的
+    about: 先看这张表，能省掉大部分「支不支持」类提问

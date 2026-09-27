@@ -32,11 +32,17 @@ BG="0x0a0f1f"
 CARD="0x12192c"
 ACCENT="0xfdc856"
 MUTED="0x7d8aa3"
+RED="0xfd6b69"
+GREEN="0x3bdb94"
 
 COLS=3
 CELL_W=960
 CELL_H=540
 GIF_W=760
+
+# 对比图取 render.json 里的第几页（1-based）
+BEFORE_PAGE="${HERO_BEFORE_PAGE:-2}"
+AFTER_PAGE="${HERO_AFTER_PAGE:-5}"
 # 一页 12s 在动图里压到 2.4s；按清单里的真实时长折算，改时长不用改这里
 GIF_TIME_SCALE=0.2
 GIF_TIME_MIN=1.5
@@ -46,8 +52,17 @@ CTA_TITLE="${HERO_CTA_TITLE:-完整闭环 · 59 秒}"
 CTA_SUB="${HERO_CTA_SUB:-译文持久化修复}"
 CTA_NOTE="${HERO_CTA_NOTE:-真机 123/123 · 符号化 20/20 帧}"
 
+# 对比图文案（同上，换案例时改）
+BA_TITLE="${HERO_BA_TITLE:-同一个用户问题，两次测试结果}"
+BA_SUB="${HERO_BA_SUB:-修复前先证明它坏，修复后再证明它好}"
+BA_LEFT1="${HERO_BA_LEFT1:-期望六点见，实际读回空字符串}"
+BA_LEFT2="${HERO_BA_LEFT2:-passed=0  failed=1}"
+BA_RIGHT1="${HERO_BA_RIGHT1:-真机全量套件 123 passed / 0 failed / 0 skipped}"
+BA_RIGHT2="${HERO_BA_RIGHT2:-iPhone 13 · iOS 26.7 · commit 43e6576}"
+BA_FOOT="${HERO_BA_FOOT:-修复只改一处：新增专用译文回填通道，末尾 append guard 保持原样}"
+
 command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
-[ -f "$manifest" ] || { echo "⛔ 缺少渲染清单：$manifest（先跑 make demo-video）"; exit 1; }
+[ -f "$manifest" ] || { echo "⛔ 缺少渲染清单：${manifest}（先跑 make demo-video）"; exit 1; }
 
 # 中文字体：drawtext 在本机 ffmpeg 上没有 fontindex 选项，用不了 .ttc 集合
 font=""
@@ -202,6 +217,42 @@ if [ "$actual_pts" != "$expected_pts" ]; then
   echo "   预期帧时间戳: $expected_pts" >&2
   echo "   实际帧时间戳: ${actual_pts:-（读不到）}" >&2
   exit 1
+fi
+
+# ── 前后对比图（社交平台转发用，1920×1080） ──────────────
+# 左边失败、右边通过，一张图说清「先证明坏、再证明好」。
+ba_out="$out_dir/before-after.png"
+# 先判长度再取下标：`set -u` 下越界索引会直接报「未绑定的变量」并中断。
+ba_before=""
+ba_after=""
+[ "${#slides[@]}" -ge "$BEFORE_PAGE" ] && ba_before="${slides[$((BEFORE_PAGE - 1))]}"
+[ "${#slides[@]}" -ge "$AFTER_PAGE" ] && ba_after="${slides[$((AFTER_PAGE - 1))]}"
+if [ -n "$ba_before" ] && [ -n "$ba_after" ]; then
+  # 半宽居中要用 (w/2-tw)/2，+w/2 落到右半中央。
+  # (w-tw)/2 是按全宽算的，会把标签推到分隔线上 —— 之前就是这么错的。
+  ffmpeg -y -loglevel error \
+    -f lavfi -i "color=c=${BG}:s=1920x1080" \
+    -i "$slides_dir/$ba_before" -i "$slides_dir/$ba_after" \
+    -filter_complex "\
+[1:v]scale=960:540:flags=lanczos[b];[2:v]scale=960:540:flags=lanczos[c];\
+[0:v][b]overlay=0:300[o1];[o1][c]overlay=960:300[o2];\
+[o2]drawbox=x=0:y=0:w=1920:h=300:color=${CARD}:t=fill,\
+drawbox=x=0:y=840:w=1920:h=240:color=${CARD}:t=fill,\
+drawtext=fontfile='$font':text='$BA_TITLE':fontcolor=0xffffff:fontsize=50:x=(w-tw)/2:y=42,\
+drawtext=fontfile='$font':text='$BA_SUB':fontcolor=${MUTED}:fontsize=28:x=(w-tw)/2:y=116,\
+drawtext=fontfile='$font':text=BEFORE:fontcolor=${RED}:fontsize=42:x=(w/2-tw)/2:y=196,\
+drawtext=fontfile='$font':text=AFTER:fontcolor=${GREEN}:fontsize=42:x=(w/2-tw)/2+w/2:y=196,\
+drawtext=fontfile='$font':text='$BA_LEFT1':fontcolor=${RED}:fontsize=36:x=120:y=884,\
+drawtext=fontfile='$font':text='$BA_LEFT2':fontcolor=${RED}:fontsize=30:x=120:y=940,\
+drawtext=fontfile='$font':text='$BA_RIGHT1':fontcolor=${GREEN}:fontsize=36:x=1060:y=884,\
+drawtext=fontfile='$font':text='$BA_RIGHT2':fontcolor=${MUTED}:fontsize=30:x=1060:y=940,\
+drawtext=fontfile='$font':text='$BA_FOOT':fontcolor=${ACCENT}:fontsize=28:x=(w-tw)/2:y=1012[out]" \
+    -map "[out]" -frames:v 1 -update 1 -pix_fmt rgb24 "$ba_out"
+  echo "✅ ${ba_out}  （${ba_before} vs ${ba_after}）"
+  ffprobe -v error -show_entries stream=width,height -of default=nw=1 "$ba_out"
+else
+  echo "⚠  清单不足 ${BEFORE_PAGE}/${AFTER_PAGE} 页，跳过对比图"
+  rm -f "$ba_out"
 fi
 
 echo "✅ $png_out  （$rows 行 × $COLS 列，源 $total 格）"

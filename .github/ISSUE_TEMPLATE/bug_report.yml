@@ -1,0 +1,67 @@
+name: Bug 报告
+description: 工具行为与预期不符，或某项能力实际不可用
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        谢谢你来报 bug。这个项目靠证据驱动，所以下面的信息能省掉大量来回。
+        **不知道就写「不知道」**——如实说比猜有用得多。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 实际发生了什么
+      description: 看到什么、期望什么。直接贴原始输出最好。
+      placeholder: |
+        $ python3 scripts/apm_diagnose.py .apm/runs/xxx
+        ⛔ 期望退出码 0，实际退出码 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: 你跑的完整命令
+      description: 含全部参数。这是最重要的一项。
+      render: shell
+      placeholder: |
+        python3 scripts/apm_measure.py --profile ios-native-startup \
+          --device <设备标识> --package-id <bundle> --build-type Release \
+          --build-path /path/to/App.app --samples 10
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`make doctor` 输出"
+      description: 说明本机实际有什么工具，往往能直接看出原因。
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      description: OS、Python/Node 版本；iOS 相关请附设备型号、系统版本、是否物理设备。
+      placeholder: macOS 15 / Python 3.12 / iPhone 13 · iOS 26.7 · physical
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: mobileAutoAPM 的 commit
+      placeholder: git rev-parse --short HEAD
+    validations:
+      required: false
+
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: 相关产物
+      description: metrics.json / 错误 JSON / 截图等。有这些能省掉一轮追问。
+    validations:
+      required: false

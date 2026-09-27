@@ -1,0 +1,75 @@
+name: 功能建议
+description: 新能力、新测量 profile、或现有工具的改进
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        建议都欢迎，但这个项目有一条不成文的筛选标准：
+        **能不能说清「怎么知道它真的有用」**。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你遇到的实际问题
+      description: 先说问题，别直接说方案。问题描述清楚了，方案往往不止一种。
+      placeholder: |
+        我想知道我们的启动耗时到底卡在哪个阶段，但现有报告只给一个总数。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你设想的做法
+      description: 哪个脚本 / 哪个技能 / 哪份知识库需要改。
+    validations:
+      required: false
+
+  - type: textarea
+    id: how-to-verify
+    attributes:
+      label: 怎么知道它真的有用
+      description: |
+        这一项是本项目最看重的。想想：改动之后，用什么可观测的东西
+        能证明它起作用了？
+      placeholder: |
+        新增 apm_measure 的 --profile android-cold-start，
+        之后能在真机上产出带 CV 的 metrics.json，且 apm_baseline 能直接消费它。
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及哪一块
+      options:
+        - 测量（apm_measure / apm_diagnose / apm_baseline）
+        - 可行性判断（apm_feasibility）
+        - 符号化（rn_symbolicate / rn_build_symbols）
+        - 崩溃处理
+        - RN SDK（rn-apm）
+        - iOS SDK（ios-apm）
+        - Android / 鸿蒙
+        - 项目 AI 化（ai_readiness / ai_remediate）
+        - 技能与工作流（skills/）
+        - 文档
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: 你能用来验证的设备
+      description: 涉及真机测量的建议，请如实说明你能验证到什么程度。
+      options:
+        - iOS 物理设备
+        - iOS 模拟器
+        - Android 真机
+        - Android 模拟器
+        - 鸿蒙真机
+        - 只有 CI 环境
+        - 没有设备
+    validations:
+      required: false

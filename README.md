@@ -328,6 +328,12 @@ python3 scripts/apm_baseline.py compare \
 3. 改了 SVG → `make build-diagrams`
 4. **不要在文档里写没验证过的数字**——这是本项目唯一不可让步的规则
 
+完整说明见 **[CONTRIBUTING.md](CONTRIBUTING.md)**，里面有可追溯 / 不可追溯的写法对照、
+三个「不要」，以及一份**按难度排序**的上手方向。
+
+特别欢迎的一种 PR：**文档失真**。如果你发现哪个数字和实测对不上，
+直接开 issue 指出即可 —— 这类贡献实打实。
+
 ## License
 
 MIT

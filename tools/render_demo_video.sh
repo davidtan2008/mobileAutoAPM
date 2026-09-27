@@ -11,7 +11,10 @@ output="${2:-$(dirname "$slides_dir")/translation-persistence.mp4}"
 manifest="$slides_dir/render.json"
 
 command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
-[ -f "$manifest" ] || { echo "⛔ 缺少渲染清单：$manifest（先跑 render_demo_slides.py）"; exit 1; }
+# 注意用 ${manifest} 而不是 $manifest：紧跟中文全角括号时，
+# bash 会把那些多字节字符并进变量名，set -u 下报「未绑定的变量」——
+# 结果是「错误提示本身」崩掉，反而什么都看不到。
+[ -f "$manifest" ] || { echo "⛔ 缺少渲染清单：${manifest}（先跑 render_demo_slides.py）"; exit 1; }
 
 inputs=()
 labels=()
