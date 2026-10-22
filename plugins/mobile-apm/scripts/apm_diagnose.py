@@ -40,7 +40,10 @@ MULTIMODAL_MIN_SAMPLES = 5
 MULTIMODAL_MIN_CLUSTER = 2
 MULTIMODAL_SEPARATION_RATIO = 3.0
 MULTIMODAL_GAP_SHARE = 0.35
-STAGE_RE = re.compile(r"([A-Za-z][A-Za-z0-9_]*)=(\d+)/\+(\d+)")
+# 阶段行正则。必须与 apm_measure.STAGE_RE 保持一致：
+# measure 侧允许小数（`name=123.4/+5.6`），如果这里只认整数，
+# 含小数 stage 的日志在诊断侧会解析不到，派生出来的分段指标全是空的。
+STAGE_RE = re.compile(r"([A-Za-z][A-Za-z0-9_]*)=(\d+(?:\.\d+)?)/\+(\d+(?:\.\d+)?)")
 CORRELATION_KEYWORDS = (
     "premain",
     "pre_main",
@@ -227,6 +230,24 @@ def derive_from_observations(
         if not isinstance(observation, dict):
             continue
         stages = observation.get("stages")
+        # stages 有两种形态，都得认：
+        #   列表形态 —— apm_measure 写出的 observations[].stages 是
+        #               [{"name":..., "sinceMs":..., "deltaMs":...}, ...]
+        #   字典形态 —— 早期手写 JSON，形如 {"dyld": 12.3} 或 {"dyld": {"deltaMs": 12.3}}
+        # 早先只认字典形态，而 apm_measure 从不写字典 → 这条派生路径对新模板
+        # 永远是死代码。而它恰恰是「stage 名跨样本不一致、measure 因此不导出
+        # stage 指标」时的兜底，不能失效。
+        if isinstance(stages, list):
+            for item in stages:
+                if not isinstance(item, dict):
+                    continue
+                stage = item.get("name")
+                if not isinstance(stage, str):
+                    continue
+                delta = finite_number(item.get("deltaMs"))
+                if delta is not None and delta >= 0:
+                    by_stage.setdefault(stage, []).append(delta)
+            continue
         if not isinstance(stages, dict):
             continue
         for stage, value in stages.items():
@@ -548,7 +569,13 @@ def context_identity(context: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def compare_contexts(runs: Sequence[Dict[str, Any]]) -> List[str]:
+def compare_run_contexts(runs: Sequence[Dict[str, Any]]) -> List[str]:
+    """比较多个 run 之间的测量上下文是否一致。
+
+    命名说明：这里刻意**不叫** `compare_contexts`。`apm_baseline.compare_contexts`
+    是同名的另一个函数（比较「基线 vs 本次」两个 run，字段集也不同）。
+    同名不同签名是误用的温床，所以这个用更具体的名字。
+    """
     if len(runs) < 2:
         return []
     identities = [context_identity(run["context"]) for run in runs]
@@ -719,7 +746,7 @@ def build_report(
         )
         run["correlations"] = correlations_for_run(run, focus_name)
 
-    context_warnings = compare_contexts(loaded)
+    context_warnings = compare_run_contexts(loaded)
     cross_correlations = aggregate_correlations(loaded)
     cross_run_focus = cross_run_focus_analysis(loaded, focus_name)
     statuses = [run["focusSummary"]["status"] for run in loaded]

@@ -46,7 +46,9 @@ python3 ai_remediate.py apply --path /some/project --staging .apm/remediation
 退出码：
 - 0 = 正常（含「无可自动改造项」）
 - 1 = 参数/输入错误，或 apply 拒绝覆盖
-- 2 = 闭环中出现阻断项（需人工介入）
+
+> 注意：需要人工介入的项目**不走退出码**，而是出现在 `needsHuman` 列表里。
+> 阻断项（blocker）本身就是 `ai_readiness` 的扫描结果，不是本脚本的退出码。
 """
 
 from __future__ import annotations

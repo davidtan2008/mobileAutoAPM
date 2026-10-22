@@ -129,6 +129,57 @@ class TestCrossRunDiagnosis(unittest.TestCase):
             self.assertTrue(any("device" in warning for warning in report["contextWarnings"]))
 
 
+class TestStageDerivation(unittest.TestCase):
+    # ── 阶段派生与 stage 正则 ──────────────────────────────
+    # 起因：derive_from_observations 只认 dict 形态的 stages，
+    # 而 apm_measure 写出的 observations[].stages 是 **list** 形态
+    # （[{"name","sinceMs","deltaMs"}, ...]）。两者对不上 → 这条派生路径
+    # 对新模板数据永远是死代码。而它恰恰是「stage 名跨样本不一致、
+    # measure 因此不导出 stage 指标」时的兜底，不能失效。
+    def test_列表形态的stages能派生出分段指标(self):
+        observations = [
+            {"stages": [
+                {"name": "processStart", "sinceMs": 0, "deltaMs": 0},
+                {"name": "dyld", "sinceMs": 120.5, "deltaMs": 120.5},
+            ]},
+            {"stages": [
+                {"name": "processStart", "sinceMs": 0, "deltaMs": 0},
+                {"name": "dyld", "sinceMs": 115.0, "deltaMs": 115.0},
+            ]},
+        ]
+        derived, warnings = diagnose.derive_from_observations(observations, [])
+        names = {metric["name"] for metric in derived}
+        self.assertIn("startup.stage.dyld", names)
+        dyld = next(m for m in derived if m["name"] == "startup.stage.dyld")
+        self.assertEqual(dyld["samples"], [120.5, 115.0])
+        self.assertTrue(warnings)
+
+    def test_字典形态的stages仍然能派生(self):
+        # 向后兼容：早期手写 JSON 是字典形态，不能因为修了 list 就把老的弄坏
+        observations = [
+            {"stages": {"dyld": 10.0}},
+            {"stages": {"dyld": 12.0}},
+        ]
+        derived, _ = diagnose.derive_from_observations(observations, [])
+        self.assertEqual([m["name"] for m in derived], ["startup.stage.dyld"])
+
+    def test_已导出stage指标时不重复派生(self):
+        observations = [{"stages": [{"name": "dyld", "sinceMs": 1, "deltaMs": 1}]}] * 3
+        metrics = [{"name": "startup.stage.dyld", "unit": "ms",
+                    "direction": "lower_is_better", "samples": [1.0, 2.0, 3.0]}]
+        derived, warnings = diagnose.derive_from_observations(observations, metrics)
+        self.assertEqual(derived, [])
+        self.assertEqual(warnings, [])
+
+    def test_阶段正则接受小数(self):
+        # 必须与 apm_measure.STAGE_RE 一致。measure 侧允许小数，
+        # 这里若只认整数，含小数 stage 的日志在诊断侧就解析不到。
+        line = "APM stages: processStart=0/+0, dyld=120.5/+120.5, firstFrame=250.75/+130.25"
+        parsed = diagnose.STAGE_RE.findall(line)
+        self.assertEqual(len(parsed), 3)
+        self.assertEqual(parsed[1], ("dyld", "120.5", "120.5"))
+
+
 class TestCLI(unittest.TestCase):
     def test_稳定指标JSON模式返回0(self):
         with tempfile.TemporaryDirectory() as temporary:

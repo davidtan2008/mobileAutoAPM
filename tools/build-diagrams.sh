@@ -38,9 +38,17 @@ svg_hash() {  # 内容哈希 —— 跨机器、跨 checkout 稳定
 
 render_all() {
   local n=0
+  # 保存原始 stdout 到 fd 3。
+  # 下面那个 `{ ... } > "$MANIFEST"` 块会把块内**所有** stdout 写进清单文件 ——
+  # 早先那句「✅ xxx.png」日志就漏在清单里，导致 manifest.json 不是合法 JSON
+  # （外部工具用 jq 读会直接失败）。把日志显式引到 fd 3（原始 stdout）即可。
+  exec 3>&1
   {
     echo "{"
-    echo "  \"note\": \"由 tools/build-diagrams.sh 维护。记录每个 SVG 的内容哈希，用于检测 PNG 是否落后。\""
+    # ⚠️ 每个成员后面都要有逗号（最后一个除外）。早先 note 行漏了逗号，
+    #    而 check_all 用 grep 解析、根本不校验 JSON，所以这个错一直没人发现 ——
+    #    直到有外部工具用 jq 读它才炸。check_all 现在会先校验 JSON 合法性。
+    echo "  \"note\": \"由 tools/build-diagrams.sh 维护。记录每个 SVG 的内容哈希，用于检测 PNG 是否落后。\","
     echo "  \"scale\": $SCALE,"
     echo "  \"diagrams\": {"
     local first=1
@@ -54,28 +62,57 @@ render_all() {
       [ $first -eq 1 ] || echo ","
       first=0
       printf '    "%s": { "svgSha256": "%s", "width": %s }' "$base" "$(svg_hash "$svg")" "$width"
-      echo "  ✅ $base.png  ($((width * SCALE))px)"
+      echo "  ✅ $base.png  ($((width * SCALE))px)" >&3
       n=$((n + 1))
     done
     echo ""
     echo "  }"
     echo "}"
   } > "$MANIFEST"
+  exec 3>&-
   echo "已渲染 $n 个图，清单 → docs/diagrams/manifest.json"
 }
 
 check_all() {
   [ -f "$MANIFEST" ] || { echo "⛔ 缺少 docs/diagrams/manifest.json，请先跑 tools/build-diagrams.sh" >&2; exit 1; }
 
+  # 清单必须是**合法 JSON**。它要被外部工具读（jq / python），
+  # 一旦有日志行漏进文件，那是最难发现的一类漂移 —— 本脚本自己用 grep 解析，
+  # 所以照样能工作，坏的是所有外部读取方。
+  if command -v python3 >/dev/null 2>&1; then
+    if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$MANIFEST" 2>/dev/null; then
+      echo "⛔ docs/diagrams/manifest.json 不是合法 JSON —— 请跑 tools/build-diagrams.sh 重新生成" >&2
+      exit 1
+    fi
+  fi
+
   local stale=0 missing=0
+
+  # 取清单里记录的哈希。
+  # 早先用 `grep -A1 "\"$base\""` 抓 —— 那会**连带抓到下一行**的哈希
+  # （两条记录相邻时），拼成两个哈希串，比较必然失败。
+  # 以前中间恰好隔着日志行才没暴露。现在清单已是合法 JSON，直接解析它。
+  recorded_hash() {
+    local base="$1"
+    if command -v python3 >/dev/null 2>&1; then
+      python3 -c "
+import json, sys
+data = json.load(open(sys.argv[1]))
+print(data.get('diagrams', {}).get(sys.argv[2], {}).get('svgSha256', ''))
+" "$MANIFEST" "$base" 2>/dev/null || true
+    else
+      grep -oE "\"${base}\"[^}]*\"svgSha256\": \"[0-9a-f]{64}\"" "$MANIFEST" \
+        | grep -oE '[0-9a-f]{64}' | head -1 || true
+    fi
+  }
+
   for svg in "$DIR"/*.svg; do
     [ -e "$svg" ] || continue
     local base png cur recorded
     base="$(basename "$svg" .svg)"
     png="$DIR/$base.png"
     cur="$(svg_hash "$svg")"
-    # 从清单里取记录值（不引 jq，保持零依赖）
-    recorded=$(grep -A1 "\"$base\"" "$MANIFEST" | grep -oE '"svgSha256": "[0-9a-f]+"' | grep -oE '[0-9a-f]{64}' || true)
+    recorded="$(recorded_hash "$base")"
 
     if [ ! -f "$png" ]; then
       echo "  ⛔ 缺 PNG：$base.png"; missing=$((missing + 1)); continue

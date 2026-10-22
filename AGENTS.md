@@ -108,7 +108,7 @@ python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
 ### 测试
 
 ```bash
-# Python（116 个测试）
+# Python（123 个测试）
 make test-py
 
 # RN SDK（74 个测试）
