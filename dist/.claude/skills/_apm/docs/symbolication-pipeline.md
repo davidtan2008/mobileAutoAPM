@@ -69,7 +69,7 @@ metro.map  (bundle JS → 原始 TS/JS)
 **只上传 metro.map 是不够的** —— 字节码位置在它里面查不到。
 
 ```bash
-python3 scripts/rn_symbolicate.py compose \
+python3 ".claude/skills/_apm"/scripts/rn_symbolicate.py compose \
     --outer index.android.bundle.hbc.map \
     --inner index.android.bundle.map \
     --out   index.android.bundle.composed.map
@@ -130,7 +130,7 @@ Hermes bundle 不是合法 JS，`sentry-cli` 会**跳过上传并创建一个 0 
 
 ```bash
 # 打包后立即校验，不齐全就卡住
-python3 scripts/rn_build_symbols.py verify \
+python3 ".claude/skills/_apm"/scripts/rn_build_symbols.py verify \
     --platform ios \
     --build-dir ios/build \
     --strict
@@ -143,13 +143,13 @@ python3 scripts/rn_build_symbols.py verify \
 ```yaml
 # .github/workflows/release.yml（节选）
 - name: 校验符号文件（缺失则中止发布）
-  run: python3 scripts/rn_build_symbols.py verify --platform ios --build-dir ios/build --strict
+  run: python3 ".claude/skills/_apm"/scripts/rn_build_symbols.py verify --platform ios --build-dir ios/build --strict
 
 - name: 上传符号
   run: |
     # 合成 Hermes 两步 map
     if [ -f "$OUT/main.jsbundle.hbc.map" ]; then
-      python3 scripts/rn_symbolicate.py compose \
+      python3 ".claude/skills/_apm"/scripts/rn_symbolicate.py compose \
         --outer "$OUT/main.jsbundle.hbc.map" \
         --inner "$OUT/main.jsbundle.map" \
         --out   "$OUT/main.jsbundle.composed.map"
@@ -164,13 +164,13 @@ python3 scripts/rn_build_symbols.py verify \
 
 ```bash
 # 1) 先看 map 本身对不对
-python3 scripts/rn_symbolicate.py inspect --map composed.map
+python3 ".claude/skills/_apm"/scripts/rn_symbolicate.py inspect --map composed.map
 
 # 2) 探测一个具体位置（确认 map 与堆栈对得上）
-python3 scripts/rn_symbolicate.py inspect --map composed.map --probe 1:62000
+python3 ".claude/skills/_apm"/scripts/rn_symbolicate.py inspect --map composed.map --probe 1:62000
 
 # 3) 符号化整个堆栈
-python3 scripts/rn_symbolicate.py symbolicate --map composed.map --stack crash.txt
+python3 ".claude/skills/_apm"/scripts/rn_symbolicate.py symbolicate --map composed.map --stack crash.txt
 ```
 
 **输出示例**：

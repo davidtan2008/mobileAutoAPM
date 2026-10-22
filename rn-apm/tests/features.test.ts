@@ -10,6 +10,7 @@ import { installGlobalHandler } from '../src/crash/global-handler';
 import { MemorySampler, describeSlope } from '../src/memory/sampler';
 import { WhiteScreenDetector } from '../src/whitescreen/detector';
 import { createBridge, describeNativeGaps } from '../src/native/bridge';
+import type { CrashRecord } from '../src/types';
 import { ApmClient } from '../src/index';
 import type { ApmPayload, NativeBridge, Transport } from '../src/types';
 
@@ -355,8 +356,26 @@ describe('MemorySampler', () => {
     assert.notEqual(d.level, 'flat', '持续增长不应判为平稳');
   });
 
-  test('平稳内存斜率接近 0', () => {
-    const clock = new FakeClock();
+  test('内存下降不得被标成增长', () => {
+    // 起因：describeSlope 的第二个判断写成 `mbPerHour < 10`（漏了 Math.abs），
+    // 于是斜率为**负**且绝对值 ≥ 1 MB/h 时会落进 'slow-growth'，
+    // 提示语写「缓慢增长，疑似缓存预热」——**标签与事实相反**。
+    // 内存下降是正常现象（缓存释放 / 对象已回收）。
+    const shrinking = describeSlope(-20 * 1024 * 1024); // −20 MB/h
+    assert.equal(shrinking.level, 'shrinking', '负斜率必须单独判定');
+    assert.ok(shrinking.hint.includes('下降'), '提示语要说明是下降');
+    assert.ok(!shrinking.hint.includes('增长'), '不得出现「增长」字样');
+
+    // 大幅下降（−100 MB/h）同样不能报成增长
+    assert.equal(describeSlope(-100 * 1024 * 1024).level, 'shrinking');
+
+    // 极小的负斜率仍算平稳。
+    // 注意 describeSlope 的入参是 **bytes/秒**，内部乘 3600 变成 MB/小时。
+    // 要落进「平稳」区间（|MB每小时| < 1），slope 需 < 1MB/h ≈ 291 bytes/s。
+    assert.equal(describeSlope(-100).level, 'flat');
+  });
+
+  test('平稳内存斜率接近 0', () => {    const clock = new FakeClock();
     const native: NativeBridge = { getMemoryUsage: () => ({ usedBytes: 100 * 1024 * 1024 }) };
     const s = new MemorySampler({ clock, native, capacity: 20 });
     for (let i = 0; i < 10; i++) {
@@ -480,6 +499,35 @@ describe('createBridge', () => {
     assert.equal(gaps.length, 3);
     assert.ok(gaps.some((g) => g.includes('sysctl')));
     assert.ok(gaps.some((g) => g.includes('FOOM')));
+  });
+
+  test('createBridge 接线 reportJsError（否则原生同名方法是死代码）', () => {
+    // 起因：createBridge 早先只造了 3 个方法，reportJsError 声明在
+    // NativeBridge 上却从未实现 —— 原生模块实现的同名方法永远不会被调用，
+    // getLayerStatus().native 恒为 'unavailable'，getNativeGaps() 恒 3 条。
+    const received: CrashRecord[] = [];
+    const bridge = createBridge({
+      reportJsError: (record: CrashRecord) => {
+        received.push(record);
+      },
+    });
+    assert.equal(typeof bridge.reportJsError, 'function', 'reportJsError 必须被接线');
+    const rec = { id: 'x', layer: 'jsGlobal', message: 'boom', fingerprint: 'f', isFatal: true, occurredAt: 0, breadcrumbs: [] } as unknown as CrashRecord;
+    bridge.reportJsError!(rec);
+    assert.equal(received.length, 1, '原生方法应被调用');
+    assert.equal(received[0]!.message, 'boom');
+
+    // 原生侧抛错不能影响 JS 侧（崩溃路径上尤其重要）
+    const throwing = createBridge({
+      reportJsError: () => {
+        throw new Error('native blew up');
+      },
+    });
+    assert.doesNotThrow(() => throwing.reportJsError!(rec));
+
+    // 接线后 native 层不再是缺口
+    const gaps = describeNativeGaps(bridge);
+    assert.equal(gaps.length, 2, '接线 reportJsError 后缺口应从 3 条降到 2 条');
   });
 });
 

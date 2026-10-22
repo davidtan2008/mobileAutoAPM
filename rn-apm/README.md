@@ -150,7 +150,7 @@ notes.native:  "未接入原生崩溃库..."
 
 ---
 
-## 原生补齐（当前**未在真机验证**）
+## 原生补齐（iOS 侧**已在真机验证**，Android / 鸿蒙侧未验证）
 
 SDK 在无原生模块时完整可用，但有三项能力需要原生提供。
 缺口清单可直接打印：
@@ -159,7 +159,15 @@ SDK 在无原生模块时完整可用，但有三项能力需要原生提供。
 console.log(apm.getNativeGaps());
 ```
 
-参考实现见 **[docs/native-shims.md](docs/native-shims.md)**，覆盖 iOS / Android / HarmonyOS：
+> 缺口判定是**探测实际取值**的：原生模块没提供该能力时，
+> 读取方法会返回 `null`，此时才报缺口。
+
+**iOS 侧**直接可用：完整实现见 **[ios/RnApm.m](ios/RnApm.m)**，
+已在真机验证通过（iPhone 13 / iOS 26.7 / RN 0.73.4 / Release），
+证据见 `docs/evidence/native-shim/measured.json`。
+
+Android / HarmonyOS 侧的参考实现见 **[docs/native-shims.md](docs/native-shims.md)**，
+覆盖 iOS / Android / HarmonyOS：
 
 | 能力 | iOS | Android | HarmonyOS |
 |---|---|---|---|
@@ -235,7 +243,7 @@ npm test        # 74 个测试，全部通过
 
 | 限制 | 说明 |
 |---|---|
-| **原生 shim 未在真机验证** | 本仓库环境无 RN 工程，`docs/native-shims.md` 的代码是参考实现，需自行验证 |
+| **原生 shim：iOS 侧已在真机验证，Android / 鸿蒙侧未验证** | iOS 侧实测通过（iPhone 13 / iOS 26.7 / RN 0.73.4 / Release），证据 `docs/evidence/native-shim/measured.json`。Android / 鸿蒙侧仍是 `docs/native-shims.md` 里的参考实现，需自行验证 |
 | **鸿蒙侧未验证** | RNOH 下的 `HermesInternal`、原生模块形态与标准 RN 可能有差异 |
 | **Promise rejection 层可能不可用** | 取决于 RN/Hermes 版本，用 `getLayerStatus()` 确认 |
 | **冷/温/热启动判定是启发式** | 拿不准时用 `setLaunchType()` 显式指定 |

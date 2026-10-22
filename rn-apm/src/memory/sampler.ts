@@ -162,12 +162,22 @@ export class MemorySampler {
  * 缓存预热期本来就该涨。"疑似泄漏"只应触发进一步排查，不应直接下结论。
  */
 export function describeSlope(slopeBytesPerSec: number): {
-  level: 'flat' | 'slow-growth' | 'fast-growth';
+  level: 'flat' | 'shrinking' | 'slow-growth' | 'fast-growth';
   hint: string;
 } {
   const mbPerHour = (slopeBytesPerSec * 3600) / (1024 * 1024);
   if (Math.abs(mbPerHour) < 1) {
     return { level: 'flat', hint: `约 ${mbPerHour.toFixed(2)} MB/小时，趋于平稳` };
+  }
+  // ⚠️ 这里必须用 Math.abs 比较。早先写的是 `mbPerHour < 10`，
+  // 于是斜率为**负**且绝对值 ≥ 1 MB/h 时（内存明显下降）会落进 'slow-growth'，
+  // 提示语写「缓慢增长，疑似缓存预热」——**标签与事实相反**。
+  // 内存下降是正常现象（缓存释放 / 已回收），不能报成增长。
+  if (mbPerHour < 0) {
+    return {
+      level: 'shrinking',
+      hint: `约 ${mbPerHour.toFixed(1)} MB/小时，内存**在下降**（通常是缓存释放或对象已回收）。若伴随异常退出，需排查是否过早释放`,
+    };
   }
   if (mbPerHour < 10) {
     return {

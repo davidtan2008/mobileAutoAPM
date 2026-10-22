@@ -29,6 +29,12 @@ public struct MemoryReport: Sendable {
     public var growthDescription: String {
         let mbPerHour = slopeBytesPerSec * 3600 / (1024 * 1024)
         if abs(mbPerHour) < 1 { return "趋于平稳（\(String(format: "%.2f", mbPerHour)) MB/小时）" }
+        // ⚠️ 负斜率必须单独判。早先写的是 `mbPerHour < 10`，
+        // 于是内存**明显下降**（如 −20 MB/h，缓存释放 / 对象已回收）
+        // 会落进「缓慢增长」分支，标签与事实相反。
+        if mbPerHour < 0 {
+            return "内存**在下降**（\(String(format: "%.1f", mbPerHour)) MB/小时），通常是缓存释放或对象已回收。若伴随异常退出，需排查是否过早释放"
+        }
         if mbPerHour < 10 { return "缓慢增长（\(String(format: "%.1f", mbPerHour)) MB/小时），需确认是否正常缓存预热" }
         return "⚠️ 快速增长（\(String(format: "%.1f", mbPerHour)) MB/小时），疑似泄漏"
     }

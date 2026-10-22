@@ -3,6 +3,22 @@
 > 本文回答两个问题：**这套工具能做什么**、**怎么用**。
 > 所有命令都可直接复制执行；所有数字都标注了来源与验证强度。
 
+### 先设一个变量（本文所有命令都依赖它）
+
+本文所有脚本命令都写成 `python3 "$S"/xxx.py`。**执行前先设一次 `S`**：
+
+```bash
+# 情况 A：你在 mobileAutoAPM 仓库里（本文默认场景）
+S=plugins/mobile-apm/scripts
+
+# 情况 B：你在自己的工程里，插件已安装到本机
+S="$HOME/.config/opencode/plugins/mobile-apm/.claude/skills/_apm/scripts"   # opencode
+# S="$HOME/.claude/plugins/mobile-apm/.claude/skills/_apm/scripts"          # Claude Code
+```
+
+> ⚠️ 仓库根**没有** `scripts/` 目录。早期的文档把命令写成 `python3 scripts/xxx.py`，
+> 那些命令在仓库根根本跑不通。现在统一用 `$S`。
+
 ---
 
 ## 0. 三十秒上手
@@ -17,7 +33,7 @@ cp -R dist ~/.claude/plugins/mobile-apm               # Claude Code
 make doctor
 
 # 3. 按需求挑能力（本文第 2 节有对照表）
-python3 scripts/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
+python3 "$S"/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
 ```
 
 **贯穿一切的铁律**：无基线不优化 · 单变量 · 必须复测 · 绝不伪造 · 结论带来源。
@@ -72,8 +88,8 @@ dist/                 生成物（make build-portable）
 **能做什么**：探测本机 iOS / React Native / Android / 鸿蒙 工具链，输出**能力就绪度**而不是工具清单。
 
 ```bash
-python3 scripts/apm_doctor.py                    # 人读
-python3 scripts/apm_doctor.py --platform ios --json
+python3 "$S"/apm_doctor.py                    # 人读
+python3 "$S"/apm_doctor.py --platform ios --json
 ```
 
 **输出示例（实测）**：
@@ -91,7 +107,7 @@ python3 scripts/apm_doctor.py --platform ios --json
 **能做什么**：按统一口径采集指标，产出 `metrics.json` + 逐次 observations + 原始日志。
 
 ```bash
-python3 scripts/apm_measure.py \
+python3 "$S"/apm_measure.py \
   --profile ios-native-startup \
   --device <设备标识> \
   --package-id <BUNDLE_ID> \
@@ -129,8 +145,8 @@ python3 scripts/apm_measure.py \
 **能做什么**：CV、疑似多簇、分段 CV 对比、可疑变量相关性、同 commit 跨 run 漂移。
 
 ```bash
-python3 scripts/apm_diagnose.py .apm/runs/<run> --metric startup.cold.first_frame
-python3 scripts/apm_diagnose.py <runA> <runB> --metric startup.cold.first_frame   # 跨 run
+python3 "$S"/apm_diagnose.py .apm/runs/<run> --metric startup.cold.first_frame
+python3 "$S"/apm_diagnose.py <runA> <runB> --metric startup.cold.first_frame   # 跨 run
 ```
 
 **退出码**：`0` 可用 · `1` 样本不足 · `2` 高方差/多簇/漂移（**修测量，不许进入优化**）
@@ -146,11 +162,11 @@ python3 scripts/apm_diagnose.py <runA> <runB> --metric startup.cold.first_frame 
 
 ```bash
 # 记录基线（可拒绝不可信数据）
-python3 scripts/apm_baseline.py record --in run/metrics.json \
+python3 "$S"/apm_baseline.py record --in run/metrics.json \
   --out .apm/baseline/startup.json --require-healthy
 
 # 对比
-python3 scripts/apm_baseline.py compare \
+python3 "$S"/apm_baseline.py compare \
   --baseline .apm/baseline/startup.json --run run/metrics.json --json
 ```
 
@@ -166,11 +182,11 @@ python3 scripts/apm_baseline.py compare \
 
 ```bash
 # 1) 生成最小对照组实验计划
-python3 scripts/apm_feasibility.py plan \
+python3 "$S"/apm_feasibility.py plan \
   --metric startup.cold.first_frame --target 200 --json
 
 # 2) 采集 control 与 candidate 后判断
-python3 scripts/apm_feasibility.py check \
+python3 "$S"/apm_feasibility.py check \
   --control .apm/runs/<control>/metrics.json \
   --candidate .apm/runs/<candidate>/metrics.json \
   --metric startup.cold.first_frame --target 200 --json
@@ -195,11 +211,11 @@ python3 scripts/apm_feasibility.py check \
 
 ```bash
 # 真机截图（可选依赖 pymobiledevice3，走 DVT/CoreDevice 通道）
-python3 scripts/apm_screenshot.py \
+python3 "$S"/apm_screenshot.py \
   --device <UDID> --output .apm/white-screen/shot.png --json
 
 # 白屏 / 黑屏 / 纯色屏检测（纯标准库解 PNG，零依赖）
-python3 scripts/apm_white_screen.py .apm/white-screen/shot.png
+python3 "$S"/apm_white_screen.py .apm/white-screen/shot.png
 ```
 
 **后端优先级**：`pymobiledevice3` DVT → DVT usbmux → `idevicescreenshot`。
@@ -214,14 +230,14 @@ python3 scripts/apm_white_screen.py .apm/white-screen/shot.png
 
 ```bash
 # Hermes 两步合成（顺序不能反）
-python3 scripts/rn_symbolicate.py compose \
+python3 "$S"/rn_symbolicate.py compose \
   --outer main.jsbundle.map --inner metro.map --out composed.map
 
 # 符号化
-python3 scripts/rn_symbolicate.py symbolicate --map composed.map --stack crash.txt
+python3 "$S"/rn_symbolicate.py symbolicate --map composed.map --stack crash.txt
 
 # 看 map 基本信息
-python3 scripts/rn_symbolicate.py inspect --map composed.map
+python3 "$S"/rn_symbolicate.py inspect --map composed.map
 ```
 
 **支持的栈格式**：
@@ -247,15 +263,15 @@ make verify-symbols RN_APP=/path/to/rn-app
 
 ```bash
 # 产出 bundle + sourcemap（iOS 默认不生成 sourcemap，必须显式传）
-python3 scripts/rn_build_symbols.py bundle --platform ios --out dist/js
+python3 "$S"/rn_build_symbols.py bundle --platform ios --out dist/js
 
 # 生成符号清单（务必带 --debug-id，版本号在热修后会错位）
-python3 scripts/rn_build_symbols.py manifest \
+python3 "$S"/rn_build_symbols.py manifest \
   --platform ios --build-dir <app> --version 1.4.2 --build-number 42 \
   --debug-id <hex> --out symbols.json
 
 # 发版门禁：缺必需符号文件 → 退出码 2
-python3 scripts/rn_build_symbols.py verify --platform ios --build-dir <app> --strict
+python3 "$S"/rn_build_symbols.py verify --platform ios --build-dir <app> --strict
 ```
 
 **实测**：缺 dSYM → 退出码 2；补齐 → 0。
@@ -267,8 +283,8 @@ python3 scripts/rn_build_symbols.py verify --platform ios --build-dir <app> --st
 **能做什么**：5 维度 20+ 检查项，每条给出**判定依据 / 不修的后果 / 怎么修**。
 
 ```bash
-python3 scripts/ai_readiness.py --path .
-python3 scripts/ai_readiness.py --path . --json --top 10
+python3 "$S"/ai_readiness.py --path .
+python3 "$S"/ai_readiness.py --path . --json --top 10
 make gate    # CI 门禁：低于阈值或有阻断项 → 退出码 2
 ```
 
@@ -282,16 +298,16 @@ make gate    # CI 门禁：低于阈值或有阻断项 → 退出码 2
 
 ```bash
 # 1) 只看计划，不产生任何文件
-python3 scripts/ai_remediate.py plan --path <项目>
+python3 "$S"/ai_remediate.py plan --path <项目>
 
 # 2) 生成到 staging（**不动目标工程**）
-python3 scripts/ai_remediate.py generate --path <项目> --out .apm/remediation
+python3 "$S"/ai_remediate.py generate --path <项目> --out .apm/remediation
 
 # 3) 完整闭环 + 量化 before/after
-python3 scripts/ai_remediate.py loop --path <项目> --json
+python3 "$S"/ai_remediate.py loop --path <项目> --json
 
 # 4) 人工审阅通过后才写入
-python3 scripts/ai_remediate.py apply --path <项目> --staging .apm/remediation
+python3 "$S"/ai_remediate.py apply --path <项目> --staging .apm/remediation
 ```
 
 **三条硬约束**（都写进了测试）：
@@ -352,29 +368,29 @@ Phase 0 体检 → Phase 1 基线 → Phase 1.5 可行性 → Phase 2 发现
 make doctor
 
 # 1. 建基线（固定口径：同设备/同构建/同命令/同样本量）
-python3 scripts/apm_measure.py --profile ios-native-startup ... --warmup-launches 3 --samples 10
+python3 "$S"/apm_measure.py --profile ios-native-startup ... --warmup-launches 3 --samples 10
 
 # 2. 数据能用吗
-python3 scripts/apm_diagnose.py .apm/runs/<run> --metric startup.cold.first_frame
+python3 "$S"/apm_diagnose.py .apm/runs/<run> --metric startup.cold.first_frame
 
 # 3. 目标可达吗（绝对目标必做）
-python3 scripts/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
+python3 "$S"/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
 #    → 按提示造最小 control，再 check
 
 # 4. 只改一处，再测
-python3 scripts/apm_measure.py ...（同口径）
+python3 "$S"/apm_measure.py ...（同口径）
 
 # 5. 有效果吗
-python3 scripts/apm_baseline.py compare --baseline .apm/baseline/startup.json \
+python3 "$S"/apm_baseline.py compare --baseline .apm/baseline/startup.json \
   --run .apm/runs/<新run>/metrics.json --json
 ```
 
 ### 6.2 遗留项目 AI 化改造
 
 ```bash
-python3 scripts/ai_readiness.py --path /path/to/legacy      # 扫描
-python3 scripts/ai_remediate.py loop --path /path/to/legacy  # 量化
-python3 scripts/ai_remediate.py generate --path /path/to/legacy --out .apm/remediation
+python3 "$S"/ai_readiness.py --path /path/to/legacy      # 扫描
+python3 "$S"/ai_remediate.py loop --path /path/to/legacy  # 量化
+python3 "$S"/ai_remediate.py generate --path /path/to/legacy --out .apm/remediation
 # 人审 → 补齐 TODO → apply → 复扫
 ```
 
@@ -439,6 +455,9 @@ A：能。`dist/` 里 `.opencode/` 与 `.claude/` 是并行的，按你用的 ag
 | [`../ROADMAP.md`](../ROADMAP.md) | 现在在哪、下一步做什么、哪些线不能碰 |
 | [`../HANDOFF.md`](../HANDOFF.md) | 接手须知与踩过的坑 |
 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | 系统怎么搭的 |
-| [`../docs/PROGRESS.md`](../docs/PROGRESS.md) | 完成度与**验证强度**（如实标注） |
+| [`../docs/PLAN.md`](../docs/PLAN.md) | 待办与优先级**唯一真源**（37 项 P0–P3） |
+| [`../docs/PRINCIPLES.md`](../docs/PRINCIPLES.md) | 实现原理——统计判定 / 口径指纹 / 失败模型 |
+| [`../docs/PLAYBOOK.md`](../docs/PLAYBOOK.md) | 按任务类型的操作手册 |
+| [`../docs/DATA-MODEL.md`](../docs/DATA-MODEL.md) / [`../docs/OBSERVING-PROJECT.md`](../docs/OBSERVING-PROJECT.md) | JSON 契约与被观测工程 `.apm/` schema |
 | [`../docs/IMPLEMENTATION.md`](../docs/IMPLEMENTATION.md) | 每个脚本「为什么这么设计」 |
 | [`case-study-translation-persistence.md`](case-study-translation-persistence.md) | 一个完整成功闭环长什么样 |

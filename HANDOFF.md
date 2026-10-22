@@ -1,350 +1,95 @@
-# 交接文档
+# 交接（HANDOFF）
 
-> **给接手的开发者**：这份文件回答「这是什么、现在在哪、我该从哪开始、有哪些坑」。
-> 读完这一份你就能开工。要动手前再读 `AGENTS.md` 与 `ROADMAP.md`。
+> 这份文件只回答一个问题：**新会话接手后怎么开始干活**。
+> 它不重复其它文档的内容，只指路。真源的优先级：`AGENTS.md` > `docs/PLAN.md` > `ROADMAP.md`。
+> 提交历史与工作树状态会过期，**用 `git log` / `git status` 现查**，不要信本文的快照日期。
 
 ---
 
-## 1. 这是什么项目
+## 0. 项目是什么（30 秒版）
 
-**一句话**：让移动端项目对 AI 友好，并让 AI 自主把移动端性能与稳定性问题解决掉。
+让移动端项目对 AI 友好，并让 AI 自主把移动端性能与稳定性问题解决掉。
 
-面向 **iOS + React Native（跨 iOS / Android / 鸿蒙）**。
+- **A · 项目 AI 化改造**：`scripts/ai_readiness.py`（扫描）+ `scripts/ai_remediate.py`（计划/改造/复扫闭环）
+- **B · APM 自主闭环**：`skills/apm-loop/`（发现 → 定位 → 修复 → 验证），底层 11 个零依赖 Python 脚本
 
-### 两根支柱
+文风与铁律见 [`AGENTS.md`](AGENTS.md)——**五条原则**（无基线不优化 / 单变量 / 必须复测 /
+绝不伪造 / 结论带来源）。违反任何一条，产出即作废。
 
-| | 做什么 | 现状 |
+## 1. 文档地图（哪份管什么）
+
+| 文档 | 什么时候读 |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | **任何工作开始前**。铁律、坑与禁区、验证顺序 |
+| [`docs/PLAN.md`](docs/PLAN.md) | **定优先级、开活前**。37 项待办的唯一真源（P0/P1/P2/P3 编号） |
+| [`ROADMAP.md`](ROADMAP.md) | 想知道**项目在哪、要去哪**、T1 演练的完整证据链 |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | 改代码前想看清**结构**（分层/数据流/技能层接线） |
+| [`docs/PRINCIPLES.md`](docs/PRINCIPLES.md) | 想知道**为什么这样设计**（统计判定/口径指纹/失败模型/证据链） |
+| [`docs/PLAYBOOK.md`](docs/PLAYBOOK.md) | **动手前**。按任务类型（APM 任务四阶段 / 文档 / 口径新增 / SDK）的操作手册 |
+| [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | 改 `metrics.json` / `diagnosis.json` / `baseline.json` 前，三份 JSON 契约 |
+| [`docs/OBSERVING-PROJECT.md`](docs/OBSERVING-PROJECT.md) | 被观测工程侧 `.apm/` 目录的 schema 与 `ISSUE-NNN.json` 规范 |
+| [`docs/usage-guide.md`](docs/usage-guide.md) | 命令行用法速查（`$S` 变量开头，两种安装场景） |
+| `docs/archive/` | 已完成/已废弃文档（PROGRESS、TODO、RESTRUCTURE-PLAN、APM-BLUEPRINT） |
+
+## 2. 当前状态（重点 ⭕）
+
+**两根支柱都已成体系并有测试**：
+
+| 支柱 | 状态 | 验证入口 |
 |---|---|---|
-| **A · 项目 AI 化改造** | 把人类维护的项目改造成 AI 可读、可改、可验证 | 只有扫描器，**改造闭环没做** |
-| **B · APM 自主闭环** | 发现 → 定位 → 修复 → 验证 → 防劣化 | 能力齐全；已有 1 次成功闭环（译文持久化）与 1 次诚实失败（T1 启动） |
+| A · AI 化改造 | ✅ 闭环真机实测：68 → 86（+18） | `make readiness` / `ai_remediate.py loop` |
+| B · APM 闭环 | ✅ 1 次成功闭环 + 1 次诚实失败闭环（T1 均为真机实测，见下） | `make test-py` 128 个 |
 
-**为什么 A 在 B 前面**：一个没有测试、构建命令不明、缺 context 文件的项目，
-AI Agent 既无法理解它，也**无法验证自己的任何改动** —— 此时谈"自主优化"是空话。
+测试基线：**Python 128 / rn-apm 76 / ios-apm 12 = 216 全绿**。用 `make test` 一次跑齐。
+这个数字会随代码演进，**以 `make test` 实际输出为准**（APM）与 `docs/PLAN.md` 的"翻新指令"一节。
 
-### 和其他 APM 产品的区别
+**T1（冷启动 200ms 目标）**——项目史上最重要的资产之一，两个结论都是实测：
 
-Sentry / Crashlytics 解决「线上看见了什么」。
-本项目解决「**看见了之后，谁去修、怎么证明修好了**」。
+- 目标**不可达**：最小对照组（内容换 `Text("x")`）在正式口径下 p50=210ms（n=20, CV 2.7%），
+  `apm_feasibility` → `blocked_by_control_floor`
+- 优化**无效果**：可优化段 126→132ms，p=0.694，无显著变化，已回退
+- 完整证据链（含 230 vs 210 两个地板数的关系）见 [`ROADMAP.md`](ROADMAP.md) 的 T1 章节
 
-所以整个项目的重心不在"采集"，在**测量的可信度**。
-
----
-
-## 2. 五分钟上手
+## 3. 接手后第一件事
 
 ```bash
-git clone git@github.com:davidtan2008/mobileAutoAPM.git
-cd mobileAutoAPM
-
-make help      # 看所有可用命令
-make test      # 跑全部测试（三套：Python / rn-apm / ios-apm）
-make doctor    # 体检本机移动端工具链
+git status && git log --oneline -5    # 现查提交与工作树状态，不要信文档快照
+make test                            # 确认三套测试基线是绿的（这是起点，不是可选步骤）
+python3 plugins/mobile-apm/scripts/apm_doctor.py   # 查本机现在真的能做什么
 ```
 
-**期望结果**：`make test` 全绿。如果没绿，先解决环境问题再往下。
+然后打开 [`docs/PLAN.md`](docs/PLAN.md)，从第一个未完成项做起。**不要开新战线**：
+PLAN 里未完成项的顺序就是答案（P0 → P1 → P2 → P3；每项都带验收标准和来源）。
 
-### 依赖
+## 4. 高频环境事实
 
-- **必需**：Python 3.9+、Node 18+
-- **iOS 任务**：Xcode、`mobilebuildmcp`（`npm i -g mobilebuildmcp`）
-- **Android**：Android SDK 的 `platform-tools` 在 PATH
-- **鸿蒙**：DevEco Studio（自带 SDK），`hdc`/`ohpm`/`hvigorw` 在 PATH
-- **图表**：`brew install librsvg`（只需 `rsvg-convert`）
-
-`make doctor` 会告诉你缺什么、怎么装。
-
----
-
-## 3. 现在在哪
-
-### 提交历史
-
-```
-453c8e9  修复图表门禁：改用内容哈希
-5093b27  T1 闭环演练结论 + 测量协议 + 交接路线图
-28e9ff8  R1 定位落地：架构图 / 原理图 / 实现细节
-e5cbe4b  统一入口 + 库质量收口
-e85bb17  R0 自我达标 + 市场调研落地
-4bea8bc  初始化
-```
-
-### 完成度
-
-| 路线图 | 状态 |
+| 事项 | 事实 |
 |---|---|
-| R0 自我达标（AI 友好度 100/100） | ✅ |
-| R1 定位落地（README / 架构图 / 原理图 / 实现细节） | ✅ |
-| **T1 闭环演练** | ⚠️ **诚实失败**：200ms 目标被 control p50=210ms 拦截（见 §4） |
-| **首个成功闭环** | ✅ 结束任务译文持久化：红测→单变量修复→模拟器 120/120 单测 + Release 构建 + **真机 123/123** |
-| **P0 补齐测量能力** | ✅ iOS profile + 方差诊断 + baseline 闸门；**clean commit `2b3a1ea` 的正式 baseline 已记录**（n=10 跨 run `consistent`） |
-| P1 把 T1 结论做成能力 | ✅ **可行性/对照组闸门已落地并真实验证；200ms 目标被 control 地板拦截** |
-| P2 支柱 A 改造闭环 | ✅ `ai_remediate.py` 已落地并量化（iOS 工程 68 → 86）；生成物需人审 |
-| P3 自我进化 | ⬜ 设计已有，未实现 |
-| P4 开源运营 | ⬜ |
-
-### 仓库结构
-
-```
-plugins/mobile-apm/   ★ 单一真源：7 技能 / 4 子 Agent / 4 命令 / 1 hook / 10 脚本 / 知识库
-ios-apm/              iOS 原生埋点 SDK（Swift Package，11 测试）
-rn-apm/               React Native 埋点 SDK（npm，74 测试）
-tools/                跨 agent 编译器 + 图表渲染
-docs/                 文档与图表
-dist/                 生成物（**勿手改**）
-```
-
----
-
-## 4. 你必须知道的一件事：T1 的故事
-
-**这是本项目的转折点，直接决定了下一步做什么。**
-
-### 发生了什么
-
-T1 是第一次真实的自主闭环演练，题目是「**冷启动压到 200ms**」（被观测对象：一个真实 iOS 工程，iPhone 13 真机）。
-
-结果：**目标不可达，且做的那次优化无效。**
-
-### 三条实测结论
-
-**① 目标不可达**
-
-把 App 的内容换成 `Text("x")`（保留全部结构与埋点），SwiftUI 场景引导耗时**不变**（152–190ms）。
-
-> **一个空壳 App 的地板就是 230ms。** 200ms 需要的不是优化，而是换掉整个 App 生命周期结构。
-
-**② 那次优化无效果**
-
-可优化段 126ms → 132ms，**p=0.694**。改动确实按设计生效了，但没有可测收益 → **已回退**。
-
-**③ 测量方法本身不成立**
-
-冷启动总耗时有一个未受控的 **~2 倍方差源**（样本在 279ms 与 541ms 之间跳），
-**比要优化的幅度（~50ms）还大**。
-
-曾试图按 `pre-main` 分层消除干扰，**但被自己的数据证伪了** —— 两个数据集的趋势完全相反。
-
-### 为什么这件事重要
-
-**它暴露的不是 App 的问题，是平台的缺口。**
-
-平台反复强调「方差大就不可信」，却**没有给出可执行的测量协议**。
-而那个 2 倍方差**不是这个 App 特有的** —— 任何用户让平台优化冷启动都会撞上。
-
-> **测量不可靠 → 「验证」环节失效 → 核心承诺崩塌。**
-
-**所以下一步不是继续优化 App，是补平台的测量能力。**
-
-### 一个值得记住的时刻
-
-数据里有 fast 模式的样本（279ms）。**挑两个对比基线，就能报出「优化 11%」的漂亮数字。**
-
-**没有做。** 那是伪造。
-
----
-
-## 5. 从这里开始
-
-> 想先搞清楚「这套工具能做什么、每个命令怎么用」→ 直接看
-> **[`docs/usage-guide.md`](docs/usage-guide.md)**（含 11 个脚本逐个说明与能力边界）。
-
-
-### 第一件该做的事：P0 已完成，接下来是 P2 支柱 A
-
-详见 `ROADMAP.md`。P0 三个能力项均已落地：
-
-| # | 能力 | 当前状态 |
-|---|---|---|
-| 1 | iOS 原生参数化测量 profile | `apm_measure.py`；物理设备/bundle/构建产物硬校验，CoreDevice readiness 闸门，逐次 observations + raw 工件；Release 真机链路已跑通 |
-| 2 | 方差诊断 | `apm_diagnose.py`；CV、疑似多簇、分段 CV、跨运行相关性与同 commit 跨 run 漂移；已用 T1 与多轮真机 run 回归 |
-| 3 | 判据建议 | 高方差/多簇/跨 run 漂移时建议增加样本、控制变量或改测同次分解指标；baseline 已将质量失败返回 `1` |
-
-**正式 baseline（clean commit `2b3a1ea`，iPhone 13 / iOS 26.7 / Release / warmup=3 / n=10）**：
-
-| run | p50 | CV | 判定 |
-|---|---|---|---|
-| B | 261ms | 21.5% | ❌ 多簇，整轮拒绝并保留 |
-| C | 252ms | 3.5% | ✅ `usable` |
-| D | 257ms | 2.8% | ✅ `usable` |
-
-C/D 跨 run `consistent`（Δp50=5ms），`compare` 退出码 0。
-
-**边界**：当前只承诺 iOS 原生冷启动 profile；Android / 鸿蒙 / RN 标准适配器尚未宣称完成。
-`pre-main` 只记录为可疑变量，不自动分层。历史失败证据见目标工程
-`.apm/issues/ISSUE-P0-002-cross-run-shift.json` 与 `ISSUE-P0-003-warmup-repeatability.json`。
-
-**背景知识在 `plugins/mobile-apm/references/measurement-protocol.md`** —— 先读它，那里有完整的实测数据与推理过程。
-
-### 真机 UI 测试的环境前置（别跳过预热）
-
-`references/measurement-protocol.md` §5 记了完整诊断。实操入口是被观测工程里的
-`.apm/tools/device-test.sh`，它**强制先预热 testmanagerd 再跑 UI**，跳过就会以
-`exit 74` 或 "Timed out while enabling automation mode" 失败。
-
-### 然后：找一个**确实可达成的**需求跑通闭环
-
-T1 目标「冷启动 ≤200ms」已被真实最小 control（n=20，p50=210ms）拦截；
-这条启动路线不再继续局部优化。绝对目标先运行：
-
-```bash
-python3 plugins/mobile-apm/scripts/apm_feasibility.py plan \
-  --metric <指标> --target <目标>
-```
-
-没有 `potentially_reachable` 结论，不进入局部优化。
-
-发布需要「目标达成且验证过」的演示。候选：
-
-- **已确认的劣化项** —— 用 `apm_baseline.py` 对比两个 commit
-- **白屏问题** —— 有现成工具（`apm_white_screen.py`）
-- **崩溃根因** —— 有完整链路（符号化 → 聚类 → 根因）
-
-⚠️ **不要再用「启动压到 X ms」这类题目** —— 除非先做了可行性判断（见 §6 的坑 5）。
-
----
-
-## 6. 九个你会踩的坑
-
-### ① `dist/` 是生成物，不是源码
-
-改内容**只改 `plugins/mobile-apm/`**，然后 `make build-portable`。
-CI 会校验一致性，直接改 `dist/` 会失败。
-
-同理：**图表改了 SVG 必须 `make build-diagrams`** —— 有门禁会拦你。
-
-### ② 全角标点在 shell 里是变量名的一部分
-
-**本项目文档大量使用中文全角标点。** `"$var（说明）"` 里的 `（` **不是** bash 的变量名分隔符，
-bash 会尝试展开一个叫 `var（说明）` 的变量，在 `set -u` 下直接报错。
-
-**写法**：`"${var}（说明）"`。这个坑真实发生过。
-
-### ③ 测量口径不一致 = 结论无效
-
-冷/温/热启动、模拟器/真机、debug/release —— **都不可直接比**。
-用不同口径的基线对比，差异里混了口径差异。
-
-**这个坑也真实发生过**：T1 早期得出过一个错误结论，就是因为对照组用了不同口径。
-
-### ④ 不要挑样本
-
-数据有多峰时，**挑快的那簇报数就是伪造**。正确做法是修测量，或改测方差不敏感的指标。
-
-### ⑤ 动手前先判断可行性
-
-T1 的教训：**先干了活才发现目标不可达**。
-
-**正确顺序**：先用最简对照组测出「地板」（把内容换成空壳，看还剩多少），
-再判断目标是否可达。
-
-### ⑥ iOS 模拟器测不了真机的东西
-
-- **卡顿/FPS 完全测不了**（Apple 不暴露帧时序，平台限制）
-- 数据特征与真机**失真方向相反**：实测 pre-main 模拟器 257ms vs 真机 **11ms**
-
-### ⑦ 内存用 `phys_footprint`，不用 `resident_size`
-
-系统按 footprint / PSS 判定内存压力。用 RSS 会严重高估。
-
-### ⑧ `ErrorUtils.setGlobalHandler` 必须链式，不能替换
-
-全局单例，Sentry 等 SDK 也会设置。直接覆盖会**打断别人**。
-
-### ⑨ 取不到值时返回「不可用」的显式值
-
-```swift
-func premainMillis() -> Int   // 取不到返回 -1
-```
-返回 0 会被误读成「pre-main 极快」—— **这是危险的假数据**。
-
-**完整清单见 `AGENTS.md` 的「坑与禁区」。**
-
----
-
-## 7. 五条铁律
-
-**这不是口号，是项目的全部价值所在。违反任何一条，产出即作废。**
-
-| # | 铁律 | 含义 |
-|---|---|---|
-| 1 | **无基线不优化** | 没有可比基线之前的"优化"都是盲改 |
-| 2 | **单变量** | 一次只改一处，否则无法归因 |
-| 3 | **必须复测** | 同设备、同构建类型、同命令 |
-| 4 | **绝不伪造** | 测不出来就说测不出来 |
-| 5 | **结论带来源** | 命令 + 设备 + 样本量 + 显著性，缺一不可 |
-
-> 第 4 条是专门针对 LLM 的：最常见的失败模式是**编一个看起来合理的数字，
-> 然后基于它改一堆代码**。这比不优化更糟。
-
-**T1 演练里这五条全部被触发过。** 这不是理论。
-
----
-
-## 8. 关键文件导航
-
-### 先读这四份
-
-| 文件 | 作用 |
-|---|---|
-| `HANDOFF.md` | ← 你在读的 |
-| `ROADMAP.md` | 现状、下一步、不能碰的线、**发布前置条件** |
-| `AGENTS.md` | 项目约定（构建/测试/坑与禁区） |
-| `ARCHITECTURE.md` | 整体架构与闭环机制 |
-
-### 按需查
-
-| 想看什么 | 去哪 |
-|---|---|
-| 每个脚本怎么实现的、为什么这样设计 | `docs/IMPLEMENTATION.md` |
-| 测量方法论（**T1 的完整教训**） | `plugins/mobile-apm/references/measurement-protocol.md` |
-| 平台能力边界（什么测不了） | `docs/diagrams/capability-matrix.svg` |
-| 技术选型与各平台硬限制 | `plugins/mobile-apm/references/stack-selection.md` |
-| 指标口径定义 | `plugins/mobile-apm/references/metrics-definitions.md` |
-| 完成度与已知限制 | `docs/PROGRESS.md` |
-| 工具链与 MCP 配置（本机实测） | `docs/mcp-setup.md` |
-| 双阈值闸门原理 | `docs/diagrams/gate.svg` |
-| 自我进化设计 | `docs/diagrams/evolution.svg` |
-
----
-
-## 9. 常用命令
-
-```bash
-make help              # 全部命令
-make test              # 三套测试（改完必跑）
-make test-py           # 只跑 Python（最快，116 个测试）
-python3 plugins/mobile-apm/scripts/apm_measure.py --help  # iOS 标准测量 profile
-python3 plugins/mobile-apm/scripts/apm_diagnose.py --help # 方差诊断
-make gate              # AI 友好度门禁（CI 同款）
-make check             # 快速自检
-make doctor            # 工具链体检
-make build-portable    # 重新生成 dist/
-make build-diagrams    # 重新渲染图表
-make clean
-```
-
-**提交前**：`make lint test-py gate verify-portable verify-diagrams` 全绿。
-
----
-
-## 10. 需要外部条件的事（可能卡住你）
-
-| 项 | 缺什么 |
-|---|---|
-| Sentry MCP | 需 Sentry 账号，在 Claude Code 里执行 `/mcp` 完成 OAuth |
-| Android / 鸿蒙真机验证 | 需接设备（`adb devices` / `hdc list targets` 目前为空） |
-| Firebase 相关 | 依赖 Google 基础设施，国内需代理；**Crashlytics 在鸿蒙不可用** |
-| iOS 真机测量/截图 | 需要一台真机；测量用 `idevicesyslog`，截图推荐可选 `pymobiledevice3`（也可用 `--pymobiledevice3-bin` 指向隔离安装） |
-
----
-
-## 11. 交接清单
-
-- [ ] `make test` 全绿
-- [ ] `make doctor` 看过，知道本机缺什么
-- [ ] 读过 `ROADMAP.md` 的 **⏰ 发布前置条件**
-- [ ] 读过 §4「T1 的故事」—— 理解为什么下一步是补测量而不是加功能
-- [ ] 知道 `dist/` 是生成物、`${var}` 要加花括号
-- [ ] 知道**不能挑样本报数**
-
-**做完这些，你可以从 `ROADMAP.md` §P0 开始。**
+| Python 工具 | **零第三方依赖**，Python 3.9+；改完跑 `make test-py`（`-W error::ResourceWarning`，逐文件） |
+| `dist/` | **生成物勿手改**；改 `plugins/` → `make build-portable` 重新生成，再 `make verify-portable` |
+| CI 完整清单 | `make lint test-py gate verify-portable verify-diagrams`（提交前全绿——逐条见 AGENTS「改完之后怎么验证」） |
+| iOS 测量 | 需要**物理真机** + Release 构建；模拟器与 debug 构建**不可比**（口径不同） |
+| Android / 鸿蒙实测 | 代码与适配层已写好，但**从未真机验证**（无设备）——对外表述时必须明示 |
+| iOS 真机截图 | `apm_screenshot.py` 优先 DVT，需 `pymobiledevice3` 做后备（可选依赖） |
+
+## 5. 已知限制（不能对外说 "已验证" 的部分）
+
+- **RN / iOS SDK 与 Python 脚本的指标名还没完全对齐**
+  （`startup.cold.total` vs `startup.cold.first_frame` 等，详见 `docs/PLAN.md` P1 段的相应条目）。
+- **WhiteScreenDetector 有计时类 flaky 记录**（RN 测试失败过一次，3 次复跑通过）——在 PLAN.md 有条目。
+- **apm_measure 的 device id、构建路径是插件外置参数**，插件的其它 profile（Android/鸿蒙/RN）尚未验证 ——
+  需要设备；验证前，任何相关文档必须带「未验证」标注。
+- **性能数字一律现场实测**：本仓库没有任何"典型值"。旧值的唯一用途是作为历史证据引用，
+  且必须带出处（哪台设备/哪个 commit/哪条命令）。
+
+## 6. 常见坑（已被踩过）
+
+1. **不要把"我快写完了"当"完工"**：验收标准看 PLAN.md，不看自己的体感。
+2. **数字对本不上就停下**：每条性能数字必须能说出哪条命令/哪台设备/哪个 commit 得到的；
+   说不出来 → 删掉该数字，或者现场实测。历史上 `README/v2ex` 就发生过
+   「280→279, p=0.605」这类**完全无证据**的数字混进公开文档（已修，教训见 PLAN）。
+3. **真跑才暴露的坑都已沉淀**：插件知识库 `plugins/mobile-apm/references/`（选型硬限制 /
+   指标口径 / 测量协议）与 `ROADMAP.md` 的 T1 章节。**不要再凭记忆复述这些坑**——引用它们。
+4. **不要新建第三套优先级编号**：PLAN.md 是唯一真源；每做完一项就回去把状态改掉。
+5. **evidence 目录**: `.apm/` 是被观测工程侧的知识库（含 ISSUE-NNN.json 一致性规范，见
+   `docs/OBSERVING-PROJECT.md`），不要在本仓库根目录随手建 `.apm/`。

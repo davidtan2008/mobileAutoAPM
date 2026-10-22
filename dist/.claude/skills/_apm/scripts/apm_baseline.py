@@ -429,8 +429,18 @@ def format_number(value, digits=2):
     return "不可用" if value is None else f"{value:.{digits}f}"
 
 
-def format_percent(value):
+def format_ratio(value):
+    """把**比率**格式化成百分比文本。CV 用这个（0.035 → "3.5%"）。"""
     return "不可用" if value is None else f"{value:.1%}"
+
+
+def format_percent(value):
+    """把**已经是百分数**的值格式化成百分比文本。delta_pct 用这个（5.75 → "5.8%"）。
+
+    ⚠️ 不要写成 f"{value:.1%}" —— 那个格式说明符会**再乘 100**，
+    而这里传入的已经是百分数，会渲染成 "575.0%"（实测踩过）。
+    """
+    return "不可用" if value is None else f"{value:.1f}%"
 
 
 def cmd_compare(args) -> int:
@@ -567,12 +577,12 @@ def cmd_compare(args) -> int:
             print(
                 f"    基线  p50={format_number(baseline_stats['p50'])}  "
                 f"p90={format_number(baseline_stats['p90'])}  "
-                f"n={result['n_baseline']}  CV={format_percent(baseline_stats['cv'])}"
+                f"n={result['n_baseline']}  CV={format_ratio(baseline_stats['cv'])}"
             )
             print(
                 f"    本次  p50={format_number(run_stats['p50'])}  "
                 f"p90={format_number(run_stats['p90'])}  "
-                f"n={result['n_run']}  CV={format_percent(run_stats['cv'])}"
+                f"n={result['n_run']}  CV={format_ratio(run_stats['cv'])}"
             )
             if "delta_p50" in result:
                 print(

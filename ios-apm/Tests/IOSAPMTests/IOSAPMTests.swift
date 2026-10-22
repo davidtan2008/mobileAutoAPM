@@ -58,6 +58,38 @@ final class MemoryWatermarkTests: XCTestCase {
         XCTAssertEqual(MemoryWatermark.slope([(x: 1, y: 5), (x: 1, y: 9)]), 0)
     }
 
+    func testNegativeSlopeIsNotDescribedAsGrowth() {
+        // 起因：growthDescription 的第二个判断写成 `mbPerHour < 10`（漏了 abs），
+        // 于是内存**明显下降**（如 −20 MB/h，缓存释放 / 对象已回收）
+        // 会落进「缓慢增长」分支，标签与事实相反。
+        let shrinking = MemoryReport(
+            samples: [], peakBytes: 0,
+            slopeBytesPerSec: -20 * 1024 * 1024,
+            sampleCount: 0, droppedSamples: 0
+        )
+        let text = shrinking.growthDescription
+        XCTAssertTrue(text.contains("下降"), "提示语要说明是下降，实际：\(text)")
+        XCTAssertFalse(text.contains("增长"), "不得出现「增长」字样，实际：\(text)")
+
+        // 大幅下降同样不能报成增长
+        let bigDrop = MemoryReport(
+            samples: [], peakBytes: 0,
+            slopeBytesPerSec: -100 * 1024 * 1024,
+            sampleCount: 0, droppedSamples: 0
+        )
+        XCTAssertFalse(bigDrop.growthDescription.contains("增长"))
+
+        // 极小的负斜率仍算平稳。
+        // 注意 growthDescription 的入参是 **bytes/秒**，内部乘 3600 变成 MB/小时。
+        // 要落进「平稳」区间（|MB每小时| < 1），slope 需 < 1MB/h ≈ 291 bytes/s。
+        let flat = MemoryReport(
+            samples: [], peakBytes: 0,
+            slopeBytesPerSec: -100,
+            sampleCount: 0, droppedSamples: 0
+        )
+        XCTAssertTrue(flat.growthDescription.contains("平稳"))
+    }
+
     func testSamplingProducesReport() {
         let wm = MemoryWatermark(capacity: 5, interval: 1000)
         for _ in 0..<3 { XCTAssertTrue(wm.sampleOnce()) }

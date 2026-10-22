@@ -15,10 +15,10 @@
 
 | 支柱 | 做什么 | 入口 |
 |---|---|---|
-| **A · 项目 AI 化改造** | 遗留项目 → AI 可读、可改、可验证 | `scripts/ai_readiness.py` |
+| **A · 项目 AI 化改造** | 遗留项目 → AI 可读、可改、可验证 | 扫描 `scripts/ai_readiness.py`；改造闭环 `scripts/ai_remediate.py` |
 | **B · APM 自主闭环** | 发现 → 定位 → 修复 → 验证 | `skills/apm-loop/` |
 
-完整背景见 `docs/RESTRUCTURE-PLAN.md`，当前进度见 `docs/PROGRESS.md`。
+当前进度见 [`ROADMAP.md`](ROADMAP.md)（唯一权威路线图），待办优先级见 [`docs/PLAN.md`](docs/PLAN.md)。
 
 ---
 
@@ -108,13 +108,13 @@ python3 plugins/mobile-apm/scripts/rn_build_symbols.py verify \
 ### 测试
 
 ```bash
-# Python（123 个测试）
+# Python（128 个测试）
 make test-py
 
-# RN SDK（74 个测试）
+# RN SDK（76 个测试）
 cd rn-apm && npm install && npm test
 
-# iOS SDK（11 个测试）
+# iOS SDK（12 个测试）
 cd ios-apm && swift test
 ```
 

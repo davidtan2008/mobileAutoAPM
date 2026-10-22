@@ -36,6 +36,26 @@ class BaselineCliTest(unittest.TestCase):
             self.assertEqual(machine.returncode, 2)
             self.assertEqual(json.loads(machine.stdout)["results"][0]["verdict"], "regressed")
 
+    def test_百分比显示不被放大100倍(self):
+        # 起因：format_percent 原来写成 f"{value:.1%}"，而那个格式说明符会
+        # **再乘 100**。delta_pct 本身已经是百分数，于是 5.75% 被显示成
+        # "575.4%"（真实基线对比输出里出现过）。
+        # CV 走的是比率语义（0.035），必须仍是 "3.5%" 而不是 "0.0%"。
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            write_payload(root / "baseline.json", [100, 101, 99, 100, 102], "base")
+            write_payload(root / "run.json", [120, 121, 119, 120, 122], "run")
+            result = self.run_cli(
+                "compare", "--baseline", str(root / "baseline.json"), "--run", str(root / "run.json")
+            )
+            stdout = result.stdout
+            # 变化百分比：+20% 左右，不能是 +2000%
+            self.assertIn("(20.0% p50)", stdout)
+            self.assertNotIn("2000.0%", stdout)
+            # CV 仍然是比率口径（基线 [100,101,99,100,102] → mean 100.4, sd 1.14 → 1.1%）
+            self.assertIn("CV=1.1%", stdout)
+            self.assertNotIn("CV=0.0%", stdout)
+
     def test_高方差不会包装成确认劣化(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

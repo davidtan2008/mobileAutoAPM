@@ -1,4 +1,4 @@
-import type { NativeBridge, Platform } from '../types';
+import type { CrashRecord, NativeBridge, Platform } from '../types';
 
 /**
  * 原生桥接的辅助工具。
@@ -79,6 +79,25 @@ export function createBridge(mod: unknown, fallback: Partial<NativeBridge> = {})
       if (!out.platform) out.platform = detectPlatformFromRN();
       return out;
     },
+
+    // ⚠️ 这里必须接线。早先 createBridge 只造了 3 个方法，
+    // `reportJsError` 声明在 NativeBridge 上却**从未被实现**，
+    // 于是：
+    //   1. 原生模块（如 iOS shim 的 reportJsError）实现的同名方法**永远不会被调用**；
+    //   2. `getLayerStatus().native` **恒为 'unavailable'**；
+    //   3. `getNativeGaps()` **恒返回 3 条**（第三条永远是「缺 reportJsError」）。
+    // 它是「fire-and-forget」语义（返回 void），所以同步调用即可；
+    // 原生侧若是 Promise 方法，这里拿到的 Promise 直接忽略。
+    reportJsError(record: CrashRecord): void {
+      try {
+        const fn = m.reportJsError;
+        if (typeof fn === 'function') {
+          (fn as (r: CrashRecord) => unknown).call(mod, record);
+        }
+      } catch {
+        // 原生侧抛错不能影响 JS 侧（崩溃路径上尤其重要）
+      }
+    },
   };
 
   return { ...bridge, ...fallback };
@@ -109,18 +128,41 @@ export function detectPlatformFromRN(): Platform {
  */
 export function describeNativeGaps(bridge: NativeBridge): string[] {
   const gaps: string[] = [];
-  if (!bridge.getProcessStartTime) {
+
+  // ⚠️ 判定方式必须是**探测实际取值**，不能只看方法存不存在。
+  // 原因：`createBridge` **总是**定义那三个读取方法（取不到时返回 null），
+  // 所以「方法在」不等于「原生侧真有这个能力」。早先只看方法存在性，
+  // 于是 createBridge 的产物永远报 0 个缺口 —— 而实际上原生模块可能
+  // 什么都没提供。reportJsError 是 fire-and-forget（有副作用），
+  // 只能看方法在不在，不能探测调用。
+  const readProcessStart = (() => {
+    try {
+      return bridge.getProcessStartTime?.() ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  if (!bridge.getProcessStartTime || readProcessStart === null) {
     gaps.push(
       '缺 getProcessStartTime：启动总耗时只能算相对值，**不可与线上基线对比**。' +
         'iOS 用 sysctl(KERN_PROC_PID) 取 p_starttime；Android 用 Process.getStartUptimeMillis()；鸿蒙用 HiAppEvent APP_LAUNCH。',
     );
   }
-  if (!bridge.getMemoryUsage) {
+
+  const readMemory = (() => {
+    try {
+      return bridge.getMemoryUsage?.() ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  if (!bridge.getMemoryUsage || readMemory === null) {
     gaps.push(
       '缺 getMemoryUsage：**内存水位与 FOOM 归因完全不可用**。' +
         'iOS 用 task_vm_info.phys_footprint；Android/鸿蒙用 PSS。',
     );
   }
+
   if (!bridge.reportJsError) {
     gaps.push(
       '缺 reportJsError：JS 崩溃无法与原生崩溃关联。' +

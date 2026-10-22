@@ -216,7 +216,7 @@ iPhone 13 真机上 `idevicescreenshot` 返回
 标准用法：
 
 ```bash
-python3 scripts/apm_screenshot.py \
+python3 plugins/mobile-apm/scripts/apm_screenshot.py \
   --device "<真机 UDID>" --output .apm/white-screen/shot.png \
   --pymobiledevice3-bin /path/to/venv/bin/pymobiledevice3 --json
 ```
@@ -233,10 +233,10 @@ T1 的 200ms 目标是在做完优化后才发现空壳对照组的地板约 230
 - control/candidate 任一质量不可信或口径不同，都拒绝判断。
 
 ```bash
-python3 scripts/apm_feasibility.py plan \
+python3 plugins/mobile-apm/scripts/apm_feasibility.py plan \
   --metric startup.cold.first_frame --target 200 --json
 
-python3 scripts/apm_feasibility.py check \
+python3 plugins/mobile-apm/scripts/apm_feasibility.py check \
   --control .apm/runs/control/metrics.json \
   --candidate .apm/runs/candidate/metrics.json \
   --metric startup.cold.first_frame --target 200 --json

@@ -1,8 +1,9 @@
 # 路线图
 
 > **给接手的 AI 工程师**：这份文件告诉你项目在哪、下一步做什么、以及哪些线不能碰。
-> 先读 [`AGENTS.md`](AGENTS.md)（项目约定），再读 [`ARCHITECTURE.md`](ARCHITECTURE.md)（架构），
-> 然后是 [`docs/PROGRESS.md`](docs/PROGRESS.md)（完成度与已知限制）。
+> 先读 [`AGENTS.md`](AGENTS.md)（项目约定），再读 [`ARCHITECTURE.md`](ARCHITECTURE.md)（架构）、
+> [`docs/PRINCIPLES.md`](docs/PRINCIPLES.md)（实现原理）、[`docs/PLAN.md`](docs/PLAN.md)（待办唯一真源）。
+> 操作层面的「怎么做」见 [`docs/PLAYBOOK.md`](docs/PLAYBOOK.md)。
 
 ---
 
@@ -34,9 +35,9 @@
 
 | 部分 | 强度 | 依据 |
 |---|---|---|
-| `rn-apm` 逻辑 | ✅ 74 个测试 | `cd rn-apm && npm test` |
-| `ios-apm` 逻辑 | ✅ 11 个测试 | `cd ios-apm && swift test` |
-| Python 工具 | ✅ 116 个测试 | `make test-py` |
+| `rn-apm` 逻辑 | ✅ 76 个测试 | `cd rn-apm && npm test` |
+| `ios-apm` 逻辑 | ✅ 12 个测试 | `cd ios-apm && swift test` |
+| Python 工具 | ✅ 128 个测试 | `make test-py` |
 | 指标闭环（SDK → 基线判定） | ✅ 跑通过 | — |
 | 跨 agent 生成器 | ✅ 全新 clone 验证 | `make verify-portable` |
 | **原生 shim** | 🟡 **iOS 侧已在真机验证**；Android / 鸿蒙仍未验证 | iPhone 13 / iOS 26.7 实测通过；发现并修复两个只有真跑才暴露的坑，见 `docs/evidence/native-shim/measured.json` |
@@ -57,18 +58,35 @@
 
 **这三点都是实测结论，不是推测。** 完整报告：被观测工程里的 `.apm/report.md`。
 
-### 这次演练沉淀下来的平台资产
+### 「空壳地板」为什么有两个数：230ms vs 210ms
 
-- **`references/measurement-protocol.md`** ← **新增**，把上述教训写成可执行协议
-- 它同时记录了平台自己的三个缺口（见 §「下一件该做的事」）
+两个数**不矛盾**，是同一条对照组链路在**修测量前后**的两个时点：
+
+| 数值 | 时间 | 测量状态 | 定义 | 出处 |
+|---|---|---|---|---|
+| **230ms** | 09-25（T1 演练当天） | ❌ 旧口径（当时测量链路有未受控 2 倍方差源） | 把 App 内容换成 `Text("x")` 后，fast 模式总耗时 **229–244ms** 的粗整 | 目标工程 `.apm/report.md` 发现 3 + `issues/ISSUE-001-target-unreachable.json` |
+| **210ms** | 09-26（修好测量之后） | ✅ 正式口径（clean 构建 + warmup=3 + n=20） | 同一对照组（`HomeView` 换 `Text("x")`，生命周期/埋点/设备/口径全保留）复测 **p50=210.0, CV=2.7%** | 目标工程 `.apm/feasibility/20260926-startup-200ms.json` → `blocked_by_control_floor` |
+
+**正式证据是 210（n=20）；230 保留为历史观察**，它记录的正是「为什么必须先修测量」——
+同一对照组在两种方法下差 ~20ms，而这已经比多数候选优化的幅度还大。
+同一天的全量 candidate（clean n=20）：p50=262.5ms / CV 8.3%。
+
+### 本次演练沉淀的平台资产
+
+- **`apm_diagnose.py` / `apm_feasibility.py` / `measures` 正式 baseline 流程** ← 由这次失败的测量链条逼出来的
+- **`references/measurement-protocol.md`** ← 把教训写成可执行协议
+- 正式 baseline（`startup-clean-2b3a1ea-warmup3-n10.json`）：run B（261ms / CV 21.5% 多簇）整轮拒绝，C/D 跨 run `consistent`（Δp50=5ms）
 
 ---
 
 ## 下一件该做的事
 
-### 🎯 P0 · 补齐测量能力（最优先）
+> **优先级的完整清单与排序在 [`docs/PLAN.md`](docs/PLAN.md)（待办唯一真源，37 项 P0/P1/P2/P3 编号）。**
+> 本节只讲方向与原因；要不要动手、动了怎么验收，看 PLAN。
 
-**为什么最优先**：测量是闭环的地基。测量不可靠 → 「验证」环节失效 → 核心承诺崩塌。
+### 🎯 测量与可行性（已落地，进入"用真实项目压测"阶段）
+
+**为什么这条线最先走**：测量是闭环的地基。测量不可靠 → 「验证」环节失效 → 核心承诺崩塌。
 而且**这不是某一个 App 的问题** —— 任何用户让平台优化冷启动都会撞上。
 
 | # | 能力项 | 出口标准 | 当前 |

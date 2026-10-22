@@ -145,8 +145,21 @@ export interface NativeBridge {
   getMemoryUsage?(): { usedBytes: number; totalBytes?: number } | null;
   /** 设备/系统信息 */
   getDeviceInfo?(): Partial<Pick<ApmContext, 'osVersion' | 'deviceModel' | 'platform'>>;
-  /** 开启 Hermes 的 Promise rejection 跟踪（需原生配置） */
+  /**
+   * 开启 Hermes 的 Promise rejection 跟踪（需原生配置）。
+   *
+   * ⚠️ **注意：`createBridge` 不会接线这个方法**，而且它目前是**死接口**——
+   * Promise rejection 层由 `installGlobalHandler` 内部的 `installPromiseTracking()`
+   * 负责（走 `HermesInternal.enablePromiseRejectionTracker` 或
+   * `addEventListener('unhandledrejection')`），不经过原生模块。
+   * 保留它是为了不破坏外部已有的 `NativeBridge` 实现。
+   */
   enablePromiseRejectionTracking?(): boolean;
-  /** 错误上报给原生崩溃 SDK（做 JS↔Native 关联） */
+  /**
+   * 错误上报给原生崩溃 SDK（做 JS↔Native 关联）。
+   *
+   * `createBridge` **会**接线这个方法：原生模块上存在同名方法时自动转发。
+   * 语义是 fire-and-forget（返回 void），原生侧抛错会被吞掉。
+   */
   reportJsError?(record: CrashRecord): void;
 }

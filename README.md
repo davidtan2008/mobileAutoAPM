@@ -62,9 +62,9 @@ mobileAutoAPM 的做法是：**先让"有没有效果"变成一个可判定的�
 
 ### 一个真实例子
 
-某 iOS 项目的目标是「冷启动 ≤200ms」。Agent 做了三轮优化，测出来 280ms → 279ms，p=0.605。
+某 iOS 项目的目标是「冷启动 ≤200ms」。基线 n=5 中位数 314ms，**CV 19.4% 且呈双峰**（~280 与 ~500 两个簇）。Agent 做了 1 处有证据的优化，可优化段 126ms → 132ms，**p=0.694 无显著变化**，按铁律回退。
 
-它没有宣布失败就收工，而是先造了一个**最小对照组**：把首页内容换成 `Text("x")`，其余全保留，测出 p50 = **210ms**。
+它没有就此打住，而是先修测量、再造了一个**最小对照组**：把首页内容换成 `Text("x")`，其余全保留（生命周期、埋点、设备、口径不变），用修好后的口径 n=20 复测，p50 = **210ms**（CV 2.7%）。
 
 ```text
 目标 200ms  <  空壳 App 地板 210ms
@@ -110,7 +110,7 @@ mobileAutoAPM 的做法是：**先让"有没有效果"变成一个可判定的�
 > 「LLM 做性能优化最常见的失败模式，是**编一个看起来合理的数字，然后基于它改一堆代码**。」
 
 这条在本项目里被真实触发过。一个 iOS 目标工程的冷启动数据呈**双峰分布**——
-快的一簇 235ms、慢的一簇 500ms，**挑两个快的就能报出"优化了 11%"**。
+快的一簇 280ms（278–302ms）、慢的一簇 500ms（491–541ms），**从快簇里挑两个样本跟基线中位数 314ms 一比，就能报出"从 314ms 优化到 279ms，提升 11%"**。
 
 那是伪造。所以工具的做法是：**方差超阈值就整轮拒绝**（实测有一次 CV=21.5% 的 run 被整轮作废，前 3 次异常样本完整留档），并明确告诉你"本次无法判定"，而不是换个口径重测到好看为止。
 
@@ -167,8 +167,8 @@ mobileAutoAPM 的做法是：**先让"有没有效果"变成一个可判定的�
 
 ```bash
 # 造最小对照组，把业务内容换成 Text("x")，其余全保留
-python3 scripts/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
-python3 scripts/apm_feasibility.py check --control control/metrics.json \
+python3 plugins/mobile-apm/scripts/apm_feasibility.py plan --metric startup.cold.first_frame --target 200
+python3 plugins/mobile-apm/scripts/apm_feasibility.py check --control control/metrics.json \
   --candidate candidate/metrics.json --metric startup.cold.first_frame --target 200
 ```
 
@@ -183,7 +183,7 @@ python3 scripts/apm_feasibility.py check --control control/metrics.json \
 ### ⭐ 2. 不会把"测不出来"说成"优化成功"
 
 ```bash
-python3 scripts/apm_baseline.py compare --baseline baseline.json --run run.json --json
+python3 plugins/mobile-apm/scripts/apm_baseline.py compare --baseline baseline.json --run run.json --json
 ```
 
 实测校准过：清晰改善 p=0.0088；而 **−4.5% 的小改善被正确判为「不具实际意义」**。
@@ -203,7 +203,7 @@ python3 scripts/apm_baseline.py compare --baseline baseline.json --run run.json 
 
 ```bash
 make gate   # AI 友好度门禁（CI 同款）
-make test   # Python 123 + RN 74 + iOS 11 全部测试
+make test   # Python 128 + RN 76 + iOS 12 全部测试
 ```
 
 工具**自己**也被同一套纪律要求：CI 校验 `dist/` 与源头一致、图表 SVG/PNG 不得漂移。
@@ -264,15 +264,15 @@ Agent 会自动走完闭环，并给你一个带设备、样本量、显著性�
 
 ```bash
 # 测
-python3 scripts/apm_measure.py --profile ios-native-startup \
+python3 plugins/mobile-apm/scripts/apm_measure.py --profile ios-native-startup \
   --device 00008110-000805902684801E --package-id com.example.app \
   --build-type Release --build-path /path/to/App.app --samples 10
 
 # 判断数据能不能用
-python3 scripts/apm_diagnose.py .apm/runs/latest --metric startup.cold.first_frame
+python3 plugins/mobile-apm/scripts/apm_diagnose.py .apm/runs/latest --metric startup.cold.first_frame
 
 # 判断改动有没有效果
-python3 scripts/apm_baseline.py compare \
+python3 plugins/mobile-apm/scripts/apm_baseline.py compare \
   --baseline .apm/baseline/startup.json --run .apm/runs/new/metrics.json
 ```
 
@@ -287,7 +287,7 @@ python3 scripts/apm_baseline.py compare \
 | iOS 原生冷启动测量 | ✅ 真机验证，clean commit 正式 baseline |
 | 真机截图 / 白屏检测 | ✅ iPhone 13 真机 |
 | RN 崩溃符号化 | ✅ 真实 Hermes 堆栈端到端 |
-| RN / iOS SDK | ✅ 74 + 11 个测试 |
+| RN / iOS SDK | ✅ 76 + 12 个测试 |
 | Android / 鸿蒙 **测量 profile** | ⛔ **未实现**——不会假装可用 |
 | Android / 鸿蒙 **原生 shim 真机验证** | ⛔ **未验证**——手头无设备 |
 | 新架构（Fabric/TurboModules）符号化 | ⛔ **未验证** |
@@ -311,10 +311,15 @@ python3 scripts/apm_baseline.py compare \
 | [**交接文档**](HANDOFF.md) | 接手须知与踩过的坑 |
 | [**路线图**](ROADMAP.md) | 现状、下一步、**发布前置条件** |
 | [架构与数据流](ARCHITECTURE.md) | 整体形状、闭环机制、设计原则 |
+| [**待办与优先级**](docs/PLAN.md) | 37 项待办的唯一真源（P0/P1/P2/P3） |
+| [**实现原理**](docs/PRINCIPLES.md) | 统计判定 / 口径指纹 / 失败模型 / 证据链——为什么这样设计 |
+| [**实现方法**](docs/PLAYBOOK.md) | 按任务类型的操作手册（APM 闭环每步怎么走） |
+| [**数据模型**](docs/DATA-MODEL.md) | metrics / diagnosis / baseline 三份 JSON 契约 |
+| [**观测目录规范**](docs/OBSERVING-PROJECT.md) | 被观测工程侧 `.apm/` 的 schema 与 ISSUE-NNN 规范 |
 | [**成功闭环案例**](docs/case-study-translation-persistence.md) | 一个完整闭环长什么样（含 60 秒 demo） |
 | [**核心实现细节**](docs/IMPLEMENTATION.md) | 每个脚本「为什么这么设计」 |
-| [项目约定](AGENTS.md) | **给 AI Agent 看的** |
-| [进度与完成度](docs/PROGRESS.md) | **含已知限制与未验证项** |
+| [项目约定](AGENTS.md) | **给 AI Agent 看的**（五条铁律 / 坑与禁区） |
+| [已归档文档](docs/archive/) | PROGRESS / TODO / RESTRUCTURE-PLAN / APM-BLUEPRINT（历史状态） |
 | [图表源文件](docs/diagrams/) | 架构图 / 闭环图 / 闸门图 / 能力矩阵 |
 
 ---

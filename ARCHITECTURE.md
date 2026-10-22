@@ -1,6 +1,8 @@
 # 架构
 
-> 面向「要改这个项目的人或 AI agent」。约定与命令见 [`AGENTS.md`](AGENTS.md)。
+> 面向「要改这个项目的人或 AI agent」。约定与命令见 [`AGENTS.md`](AGENTS.md)；
+> 实现原理 [`docs/PRINCIPLES.md`](docs/PRINCIPLES.md) · 操作手册 [`docs/PLAYBOOK.md`](docs/PLAYBOOK.md) ·
+> JSON 契约 [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) · 待办真源 [`docs/PLAN.md`](docs/PLAN.md)。
 
 ![整体架构](docs/diagrams/architecture.png)
 
@@ -197,7 +199,7 @@
 
 ```
 提交前必须：
-  ① 跑相关测试（116 Python + 74 RN + 11 iOS）
+  ① 跑相关测试（128 Python + 76 RN + 12 iOS）
   ② ai_readiness.py 分数不退化
   ③ plugins/ 有改动 → 重新生成 dist/ 并确认无残留变量
   ④ 性能结论 → 必须附「命令 + 设备 + 样本量 + 显著性」
