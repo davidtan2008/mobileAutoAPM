@@ -45,9 +45,10 @@ venv/
 *.trace
 *.xcresult
 
-# Demo 渲染中间产物：SVG 源与 MP4 入库，PNG 由 make demo-video 重新生成
+# Demo 渲染中间产物：SVG 源与 MP4 入库，PNG 由 make demo-video 重新生成。
+# render.json 是**渲染计划**（每页的 png + 时长），确定性产物，
+# 必须入库：它是 make demo-hero 的唯一输入，缺了它整个首屏流水线就跑不了。
 docs/demo/**/slides/*.png
-docs/demo/**/slides/render.json
 docs/demo/**/*.stderr
 
 # ── 编辑器 / 系统 ───────────────────────────────────────
