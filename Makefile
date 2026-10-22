@@ -5,7 +5,7 @@
 #   「Agent 能否一条命令验证自己的改动」是 AI 友好度里权重最高的一条 ——
 #   做不到的话，Agent 只能靠猜。所有命令都必须在**全新 clone** 上可跑。
 
-.PHONY: help test test-py test-rn test-ios lint readiness gate check remediate verify-symbols build-portable verify-portable build-diagrams verify-diagrams demo-video demo-hero doctor clean
+.PHONY: help test test-py test-rn test-ios lint readiness gate check remediate verify-symbols build-portable verify-portable build-diagrams verify-diagrams demo-slides demo-video demo-hero doctor clean
 
 PY      := python3
 SCRIPTS := plugins/mobile-apm/scripts
@@ -79,23 +79,39 @@ verify-diagrams:  ## 确认 PNG 未落后于 SVG（CI 门禁用）
 	@tools/build-diagrams.sh --check
 
 # ── 发布素材 ────────────────────────────────────────────
+#
+# 素材流水线只有一条真源：证据 JSON → slides → {视频, 首屏}
+#
+#   docs/demo/translation-persistence/*.json   （入库，真实命令输出）
+#        │ tools/render_demo_slides.py
+#        ▼
+#   slides/slide-*.svg + render.json          （入库，SVG 源 + 渲染计划）
+#        │ rsvg-convert
+#        ▼
+#   slides/slide-*.png                        （不入库，中间产物）
+#        ├─ tools/render_demo_video.sh  → translation-persistence.mp4
+#        └─ tools/render_demo_hero.sh   → hero.gif / hero-panels.png / before-after.png
+#
+# PNG 不入库，所以 demo-video 与 demo-hero 都必须先跑 demo-slides，
+# 否则干净 clone 之后拿不到栅格化的幻灯片。
 
 DEMO_DIR   := docs/demo/translation-persistence
 DEMO_MP4   := $(DEMO_DIR)/translation-persistence.mp4
+HERO_DIR   := docs/demo
 
-demo-video:  ## 由真实命令输出渲染 59 秒 demo 视频（需 ffmpeg + rsvg-convert）
-	@command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
-	@command -v rsvg-convert >/dev/null || { echo "⛔ 缺少 rsvg-convert"; exit 1; }
+demo-slides:  ## 渲染幻灯片 SVG + PNG + render.json（需 rsvg-convert）
+	@command -v rsvg-convert >/dev/null || { echo "⛔ 缺少 rsvg-convert（brew install librsvg）"; exit 1; }
 	@$(PY) tools/render_demo_slides.py --evidence $(DEMO_DIR) --out $(DEMO_DIR)/slides
 	@for svg in $(DEMO_DIR)/slides/slide-*.svg; do \
 		png="$${svg%.svg}.png"; \
 		rsvg-convert -w 1920 -h 1080 "$$svg" -o "$$png" || exit 1; \
 	done
+
+demo-video: demo-slides  ## 由真实命令输出渲染 59 秒 demo 视频（需 ffmpeg）
+	@command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
 	@tools/render_demo_video.sh $(DEMO_DIR)/slides $(DEMO_MP4)
 
-HERO_DIR := docs/demo
-
-demo-hero:  ## 从 slides/render.json 生成 README 首屏素材（GIF + 拼图，需 ffmpeg）
+demo-hero: demo-slides  ## 生成 README 首屏素材（GIF + 拼图 + 对比图，需 ffmpeg）
 	@command -v ffmpeg >/dev/null || { echo "⛔ 缺少 ffmpeg"; exit 1; }
 	@tools/render_demo_hero.sh $(DEMO_DIR)/slides $(HERO_DIR)
 
